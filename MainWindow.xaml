@@ -1,0 +1,881 @@
+﻿<Window x:Class="SSF2ModManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="clr-namespace:SSF2ModManager.Converters"
+        mc:Ignorable="d"
+        Title="SSF2 Mod Manager" Height="700" Width="1050" MinWidth="800" MinHeight="550"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True" ResizeMode="CanResizeWithGrip"
+        Icon="pack://application:,,,/SSF232.png"
+        Background="{StaticResource BackgroundBrush}">
+
+    <Window.Resources>
+        <converters:BoolToEnabledTextConverter x:Key="BoolToEnabledText"/>
+        <converters:BoolToToggleTextConverter x:Key="BoolToToggleText"/>
+        <converters:BoolToColorConverter x:Key="BoolToColor"/>
+        <converters:BoolToOpacityConverter x:Key="BoolToOpacity"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibility"/>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="36"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Custom Title Bar -->
+        <Grid Grid.Row="0" Background="#FF0D1117" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                <Image Source="pack://application:,,,/SSF232.png" Width="20" Height="20" Margin="4,0,6,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                <TextBlock Text="SSF2 Mod Manager" FontSize="13" FontWeight="SemiBold"
+                           Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,6,0">
+                <Button x:Name="BtnDiscord" Content="💬 Discord" Click="BtnDiscord_Click" Cursor="Hand"
+                        FontSize="11" Padding="10,4" Margin="0,0,4,0" VerticalAlignment="Center">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="#FF5865F2"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#FF4752C4"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button x:Name="BtnSupport" Content="☕ Support" Click="BtnSupport_Click" Cursor="Hand"
+                        FontSize="11" Padding="10,4" Margin="0,0,4,0" VerticalAlignment="Center">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="#FFFF5E5B"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#FFE04E4B"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+
+            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Stretch">
+                <Button x:Name="BtnMinimize" Content="─" Click="BtnMinimize_Click" FontSize="13" Width="46" Cursor="Hand">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#30FFFFFF"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button x:Name="BtnMaximize" Content="☐" Click="BtnMaximize_Click" FontSize="13" Width="46" Cursor="Hand">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#30FFFFFF"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button x:Name="BtnClose" Content="✕" Click="BtnClose_Click" FontSize="13" Width="46" Cursor="Hand">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#FFE53935"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Sidebar -->
+            <Border Grid.Column="0" Background="{StaticResource SidebarBrush}">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Height="1" Background="#20FFFFFF" Margin="16,14,16,10"/>
+
+                    <StackPanel DockPanel.Dock="Bottom" Margin="20,10">
+                        <TextBlock Text="v1.1.0" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBlock Text="GameBanana API" FontSize="10" Foreground="#50FFFFFF"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <Button x:Name="BtnBrowse" Content="🌐  Browse Mods" 
+                                Style="{StaticResource SidebarButtonActive}" Click="BtnBrowse_Click"/>
+                        <Button x:Name="BtnInstalled" Content="📦  Installed Mods" 
+                                Style="{StaticResource SidebarButton}" Click="BtnInstalled_Click"/>
+                        <Button x:Name="BtnBuilds" Content="🎮  Installed Builds" 
+                                Style="{StaticResource SidebarButton}" Click="BtnBuilds_Click"/>
+                        <Border Height="1" Background="#20FFFFFF" Margin="16,8"/>
+                        <Button x:Name="BtnCostumes" Content="👗  Manage Costumes" 
+                                Style="{StaticResource SidebarButton}" Click="BtnCostumes_Click"/>
+                        <Button x:Name="BtnEvents" Content="🎉  Manage Events" 
+                                Style="{StaticResource SidebarButton}" Click="BtnEvents_Click"/>
+                        <Button x:Name="BtnModSSF2" Content="🔧  Mod SSF2" 
+                                Style="{StaticResource SidebarButton}" Click="BtnModSSF2_Click"/>
+                        <Button x:Name="BtnResources" Content="📚  Resources" 
+                                Style="{StaticResource SidebarButton}" Click="BtnResources_Click"/>
+                        <Border Height="1" Background="#20FFFFFF" Margin="16,8"/>
+                        <Button x:Name="BtnSettings" Content="⚙️  Settings" 
+                                Style="{StaticResource SidebarButton}" Click="BtnSettings_Click"/>
+                        <Button x:Name="BtnLog" Content="📋  Debug Log" 
+                                Style="{StaticResource SidebarButton}" Click="BtnLog_Click"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- Content Area -->
+            <Grid Grid.Column="1">
+
+            <!-- ═══ Browse Mods Page ═══ -->
+            <Grid x:Name="PageBrowse" Margin="24,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Browse GameBanana Mods" FontSize="22" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+
+                <Grid Grid.Row="1" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0" Margin="0,0,8,0">
+                        <TextBox x:Name="TxtSearch" Style="{StaticResource ModernTextBox}"
+                                 Text="" Padding="10,8,30,8" KeyDown="TxtSearch_KeyDown"
+                                 TextChanged="TxtSearch_TextChanged">
+                            <TextBox.ToolTip>Search for SSF2 mods on GameBanana</TextBox.ToolTip>
+                        </TextBox>
+                        <Button x:Name="BtnClearSearch" Content="✕" Click="BtnClearSearch_Click"
+                                HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Margin="0,0,6,0" Padding="4,2" FontSize="11" Cursor="Hand"
+                                Foreground="#80FFFFFF" Background="Transparent" BorderThickness="0"
+                                Visibility="Collapsed"/>
+                    </Grid>
+
+                    <ComboBox x:Name="CmbSort" Grid.Column="1" Width="140" Margin="0,0,8,0"
+                              Style="{StaticResource ModernComboBox}" SelectionChanged="CmbSort_Changed">
+                        <ComboBoxItem Content="Default" IsSelected="True"/>
+                        <ComboBoxItem Content="Newest"/>
+                        <ComboBoxItem Content="Updated"/>
+                        <ComboBoxItem Content="Most Liked"/>
+                        <ComboBoxItem Content="Most Downloaded"/>
+                    </ComboBox>
+
+                    <Button x:Name="BtnSearch" Grid.Column="2" Content="🔍 Search" 
+                            Style="{StaticResource ModernButton}" Click="BtnSearch_Click" Margin="0,0,8,0"/>
+
+                    <Button x:Name="BtnInstallLocal" Grid.Column="3" Content="📁 Install Local" 
+                            Style="{StaticResource ModernButton}" Click="BtnInstallLocal_Click"/>
+                </Grid>
+
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock x:Name="TxtLoading" Text="🔄 Loading mods from GameBanana..." 
+                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"
+                                   HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
+
+                        <TextBlock x:Name="TxtNoResults" Text="No mods found. Try a different search term." 
+                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"
+                                   HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
+
+                        <ItemsControl x:Name="ModBrowserList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource CardBrush}" CornerRadius="8" 
+                                            Padding="16" Margin="0,0,0,10"
+                                            Tag="{Binding}" MouseEnter="BrowseCard_MouseEnter">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Grid.Column="0" CornerRadius="6" Width="100" Height="75"
+                                                    Background="#20FFFFFF" ClipToBounds="True">
+                                                <Image Source="{Binding ThumbnailUrl}" Stretch="UniformToFill"
+                                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="1" Margin="12,0">
+                                                <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource TextPrimaryBrush}" 
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock FontSize="12" Margin="0,2,0,4">
+                                                    <Hyperlink Foreground="{StaticResource AccentBrush}" 
+                                                               TextDecorations="None" Cursor="Hand"
+                                                               Tag="{Binding}" Click="BtnSearchByCreator_Click">
+                                                        <Run Text="{Binding AuthorName, Mode=OneWay}"/>
+                                                    </Hyperlink>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding Description}" FontSize="12" MaxHeight="34"
+                                                           Foreground="{StaticResource TextSecondaryBrush}" 
+                                                           TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                                    <TextBlock Text="{Binding StatsText}" FontSize="11"
+                                                               Foreground="#70FFFFFF"/>
+                                                    <TextBlock FontSize="11" Margin="12,0,0,0">
+                                                        <Hyperlink Foreground="{StaticResource PrimaryBrush}" 
+                                                                   TextDecorations="None" Cursor="Hand"
+                                                                   Tag="{Binding}" Click="BtnSearchByCategory_Click">
+                                                            <Run Text="{Binding CategoryName, Mode=OneWay}"/>
+                                                        </Hyperlink>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,4">
+                                                    <Button Content="▶ Video" Style="{StaticResource ModernButton}"
+                                                            Tag="{Binding}" Click="BtnCardVideo_Click" Padding="10,6"
+                                                            Margin="0,0,6,0" FontSize="11"
+                                                            Visibility="{Binding HasVideo, Converter={StaticResource BoolToVisibility}}"/>
+                                                    <Button Content="⬇ Install" Style="{StaticResource AccentButton}"
+                                                            Tag="{Binding}" Click="BtnInstallMod_Click"
+                                                            Visibility="{Binding IsNotInstalled, Converter={StaticResource BoolToVisibility}}"/>
+                                                    <Button Content="{Binding ToggleText}" Style="{StaticResource ModernButton}"
+                                                            Tag="{Binding}" Click="BtnBrowseToggleMod_Click"
+                                                            Visibility="{Binding IsInstalled, Converter={StaticResource BoolToVisibility}}"/>
+                                                </StackPanel>
+                                                <Button Content="🔗 View Page" Style="{StaticResource ModernButton}"
+                                                        Tag="{Binding}" Click="BtnViewOnGB_Click" Padding="16,6"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Grid Grid.Row="3" Margin="0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                        <Button x:Name="BtnPrevPage" Content="◀ Previous" Style="{StaticResource ModernButton}" 
+                                Click="BtnPrevPage_Click" Margin="0,0,8,0" IsEnabled="False"/>
+                        <TextBlock x:Name="TxtPageInfo" Text="Page 1" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="13" Margin="8,0"/>
+                        <Button x:Name="BtnNextPage" Content="Next ▶" Style="{StaticResource ModernButton}" 
+                                Click="BtnNextPage_Click" Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <Grid Grid.Column="2" x:Name="PlayButtonPanel" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="BtnPlay" Grid.Column="0" Content="▶  Play" 
+                                Click="BtnPlay_Click" FontSize="13" FontWeight="SemiBold"
+                                Padding="16,7,12,7" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#FF4CAF50"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" 
+                                                        CornerRadius="6,0,0,6" Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#FF66BB6A"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter Property="Background" Value="#FF388E3C"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button x:Name="BtnPlayDropdown" Grid.Column="1" Content="▾" 
+                                Click="BtnPlayDropdown_Click" FontSize="12" FontWeight="Bold"
+                                Padding="6,7" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#FF388E3C"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" 
+                                                        CornerRadius="0,6,6,0" Padding="{TemplateBinding Padding}"
+                                                        BorderBrush="#30000000" BorderThickness="1,0,0,0">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#FF4CAF50"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter Property="Background" Value="#FF2E7D32"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                            <Button.ContextMenu>
+                                <ContextMenu x:Name="PlayVersionMenu"/>
+                            </Button.ContextMenu>
+                        </Button>
+                    </Grid>
+                </Grid>
+
+                <!-- Mod Preview Panel -->
+                <Border Grid.Row="4" x:Name="PreviewPanel" Background="{StaticResource CardBrush}" 
+                        CornerRadius="8" Padding="16" Margin="0,8,0,0" MinHeight="80"
+                        MaxHeight="160" Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock x:Name="TxtPreviewTitle" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <ScrollViewer MaxHeight="100" VerticalScrollBarVisibility="Auto">
+                            <TextBlock x:Name="TxtPreviewDescription" FontSize="12" TextWrapping="Wrap"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ═══ Installed Mods Page ═══ -->
+            <Grid x:Name="PageInstalled" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Installed Mods" FontSize="22" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                <TextBlock x:Name="TxtModCount" Grid.Row="1" Text="0 mods installed" FontSize="13"
+                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+
+                <!-- Filters -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12">
+                    <TextBlock Text="Filter:" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" 
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox x:Name="CmbFilterBuild" Width="160" Style="{StaticResource ModernComboBox}"
+                              SelectionChanged="CmbFilter_Changed" Margin="0,0,8,0"/>
+                    <ComboBox x:Name="CmbFilterVersion" Width="160" Style="{StaticResource ModernComboBox}"
+                              SelectionChanged="CmbFilter_Changed" Margin="0,0,8,0"/>
+                    <ComboBox x:Name="CmbFilterCategory" Width="140" Style="{StaticResource ModernComboBox}"
+                              SelectionChanged="CmbFilter_Changed" Margin="0,0,8,0"/>
+                    <ComboBox x:Name="CmbFilterCreator" Width="150" Style="{StaticResource ModernComboBox}"
+                              SelectionChanged="CmbFilter_Changed"/>
+                </StackPanel>
+
+                <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock x:Name="TxtNoMods" Text="No mods installed yet. Browse mods to get started!" 
+                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"
+                                   HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
+
+                        <ItemsControl x:Name="InstalledModsList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource CardBrush}" CornerRadius="8" 
+                                            Padding="16" Margin="0,0,0,10"
+                                            Opacity="{Binding Enabled, Converter={StaticResource BoolToOpacity}}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Ellipse Grid.Column="0" Width="10" Height="10" Margin="0,0,12,0"
+                                                     VerticalAlignment="Center"
+                                                     Fill="{Binding Enabled, Converter={StaticResource BoolToColor}}"/>
+
+                                            <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                                                <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <TextBlock Text="{Binding Author}" FontSize="12"
+                                                               Foreground="{StaticResource AccentBrush}"/>
+                                                    <TextBlock Text=" • " Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                                    <TextBlock Text="{Binding Category}" FontSize="12"
+                                                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                    <TextBlock Text=" • " Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                                    <TextBlock Text="{Binding BuildDisplayName}" FontSize="12"
+                                                               Foreground="{StaticResource PrimaryBrush}"/>
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding Enabled, Converter={StaticResource BoolToEnabledText}}" 
+                                                           FontSize="11" Margin="0,4,0,0"
+                                                           Foreground="{Binding Enabled, Converter={StaticResource BoolToColor}}"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Button Content="📦 Install Anyway" Style="{StaticResource AccentButton}"
+                                                        Tag="{Binding}" Click="BtnInstallAnyway_Click" Margin="0,0,6,0"
+                                                        Padding="10,6" FontSize="11"
+                                                        Visibility="{Binding IsGameFiles, Converter={StaticResource BoolToVisibility}}"/>
+                                                <Button Content="{Binding Enabled, Converter={StaticResource BoolToToggleText}}" 
+                                                        Style="{StaticResource ModernButton}"
+                                                        Tag="{Binding}" Click="BtnToggleMod_Click" Margin="0,0,6,0"/>
+                                                <Button Content="⚙ Settings" Style="{StaticResource ModernButton}"
+                                                        Tag="{Binding}" Click="BtnInstalledModSettings_Click"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- ═══ Settings Page ═══ -->
+            <Grid x:Name="PageSettings" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Settings" FontSize="22" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,20"/>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <!-- SSF2 Versions -->
+                        <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="SSF2 Versions" FontSize="14" FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="Add your SSF2 installation folders and specify their version." FontSize="12"
+                                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+
+                                <ItemsControl x:Name="VersionsList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#15FFFFFF" CornerRadius="6" Padding="12,8" Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding DisplayName}" FontSize="13"
+                                                               FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}"
+                                                               MinWidth="100" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding FolderPath}" FontSize="12" 
+                                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                                               TextTrimming="CharacterEllipsis" Margin="12,0"
+                                                               VerticalAlignment="Center"/>
+                                                    <Button Grid.Column="2" Content="✕" Style="{StaticResource DangerButton}"
+                                                            Padding="8,4" Tag="{Binding}" Click="BtnRemoveVersion_Click"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <TextBlock x:Name="TxtNoVersions" 
+                                           Text="No versions configured. Click 'Add Version' to get started."
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"
+                                           Margin="0,4,0,8" FontStyle="Italic"/>
+
+                                <Button Content="➕ Add Version" Style="{StaticResource AccentButton}" 
+                                        Click="BtnAddVersion_Click" HorizontalAlignment="Left"
+                                        Margin="0,4,0,0" Padding="16,8"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- How Mods Work -->
+                        <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="How Mods Work" FontSize="14" FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" LineHeight="22">
+                                    <Run Text="1. Add one or more SSF2 version folders above."/>
+                                    <LineBreak/>
+                                    <Run Text="2. Browse GameBanana and click Install on a mod."/>
+                                    <LineBreak/>
+                                    <Run Text="3. Choose which SSF2 version the mod targets."/>
+                                    <LineBreak/>
+                                    <Run Text="4. The mod is stored in a category subfolder (Characters, Maps, etc)."/>
+                                    <LineBreak/>
+                                    <Run Text="5. Any"/>
+                                    <Run Text=" .ssf" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold"/>
+                                    <Run Text=" files are copied into the version's"/>
+                                    <Run Text=" data/" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold"/>
+                                    <Run Text=" folder. Originals are backed up."/>
+                                    <LineBreak/>
+                                    <Run Text="6. Disabling a mod restores the original files."/>
+                                    <LineBreak/>
+                                    <Run Text="7."/>
+                                    <Run Text=" Game files" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}"/>
+                                    <Run Text=" category mods are stored only — never deployed to data/."/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- About -->
+                        <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="About" FontSize="14" FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock Text="SSF2 Mod Manager v1.1.0" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Text="Created by MasterWex" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
+                                <TextBlock Text="GameBanana Mod Manager for Super Smash Flash 2" 
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
+                                <TextBlock Text="Powered by the GameBanana API" 
+                                           Foreground="#50FFFFFF" FontSize="11" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Open Folders -->
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <Button Content="📂 Open Mods Folder" Style="{StaticResource ModernButton}" 
+                                    Click="BtnOpenModsFolder_Click" Margin="0,0,8,0"/>
+                            <Button Content="📂 Open SSF2 Folder" Style="{StaticResource ModernButton}" 
+                                    Click="BtnOpenSSF2Folder_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- ═══ Debug Log Page ═══ -->
+            <Grid x:Name="PageLog" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Debug Log" FontSize="22" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+
+                <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="8" Padding="12">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" x:Name="LogScrollViewer">
+                        <TextBox x:Name="TxtDebugLog" IsReadOnly="True" TextWrapping="Wrap"
+                                 Background="Transparent" Foreground="{StaticResource TextSecondaryBrush}"
+                                 BorderThickness="0" FontFamily="Consolas" FontSize="11"
+                                 VerticalScrollBarVisibility="Disabled"/>
+                    </ScrollViewer>
+                </Border>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                    <Button Content="🔄 Refresh" Style="{StaticResource ModernButton}" 
+                            Click="BtnRefreshLog_Click" Margin="0,0,8,0"/>
+                    <Button Content="🗑 Clear Log" Style="{StaticResource DangerButton}" 
+                            Click="BtnClearLog_Click"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ═══ Installed Builds Page ═══ -->
+            <Grid x:Name="PageBuilds" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Installed Builds" FontSize="22" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                <TextBlock x:Name="TxtBuildCount" Grid.Row="1" Text="0 builds configured" FontSize="13"
+                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock x:Name="TxtNoBuilds" Text="No builds configured. Add SSF2 versions in Settings first!" 
+                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"
+                                   HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
+
+                        <ItemsControl x:Name="BuildsList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource CardBrush}" CornerRadius="8" 
+                                            Padding="20" Margin="0,0,0,10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding DisplayName}" FontSize="17" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource AccentBrush}"/>
+                                                <TextBlock Text="{Binding FolderPath}" FontSize="12"
+                                                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,8"
+                                                           TextTrimming="CharacterEllipsis"/>
+
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                                    <TextBlock Text="{Binding ModCountText}" FontSize="13"
+                                                               Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold"/>
+                                                </StackPanel>
+
+                                                <ItemsControl ItemsSource="{Binding CategoryBreakdown}" Margin="4,0,0,0">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding}" FontSize="12"
+                                                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,1"/>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+
+                                                <TextBlock Text="{Binding ExeStatusText}" FontSize="11" Margin="0,6,0,0"
+                                                           Foreground="{Binding ExeStatusColor}"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <Button Content="▶ Play" Style="{StaticResource AccentButton}"
+                                                        Tag="{Binding}" Click="BtnPlayBuild_Click" 
+                                                        Padding="20,8" Margin="0,0,0,6"/>
+                                                <Button Content="⚙ Settings" Style="{StaticResource ModernButton}"
+                                                        Tag="{Binding}" Click="BtnBuildSettings_Click"
+                                                        Padding="14,7"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Button Content="➕ Add Version" Style="{StaticResource AccentButton}" 
+                                Click="BtnAddVersion_Click" HorizontalAlignment="Left"
+                                Margin="0,12,0,0" Padding="16,8"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- ═══ Manage Costumes Page ═══ -->
+            <Grid x:Name="PageCostumes" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Manage Costumes" FontSize="22" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
+                    <TextBlock Text="Costume management coming soon. This will let you manage alternate character costumes for SSF2."
+                               FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                </Border>
+            </Grid>
+
+            <!-- ═══ Manage Events Page ═══ -->
+            <Grid x:Name="PageEvents" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Manage Events" FontSize="22" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
+                    <TextBlock Text="Event management coming soon. This will let you create and manage SSF2 events."
+                               FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                </Border>
+            </Grid>
+
+            <!-- ═══ Mod SSF2 Page ═══ -->
+            <Grid x:Name="PageModSSF2" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Mod SSF2" FontSize="22" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
+                    <TextBlock Text="SSF2 modding tools coming soon. This will provide advanced tools for modding SSF2 directly."
+                               FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                </Border>
+            </Grid>
+
+            <!-- ═══ Resources Page ═══ -->
+            <Grid x:Name="PageResources" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Resources" FontSize="22" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <!-- Sandbox -->
+                        <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="🎨 Sandbox" FontSize="16" FontWeight="SemiBold"
+                                               Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Color Vault — A tool for creating and editing SSF2 color palettes and texture swaps."
+                                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="🔗 Open" Style="{StaticResource AccentButton}"
+                                        Tag="https://color-vault.github.io/Color-Vault/downloads.html"
+                                        Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Reflash 2 -->
+                        <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="⚡ Reflash 2" FontSize="16" FontWeight="SemiBold"
+                                               Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="An open-source tool for reflashing and modifying SSF2 builds."
+                                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="🔗 Open" Style="{StaticResource AccentButton}"
+                                        Tag="https://github.com/SSF2-Mods-Official/reflash2"
+                                        Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- SSF2 Modding Vault -->
+                        <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="📦 SSF2 Modding Vault" FontSize="16" FontWeight="SemiBold"
+                                               Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="A curated collection of SSF2 modding resources, tools, and documentation."
+                                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="🔗 Open" Style="{StaticResource AccentButton}"
+                                        Tag="https://github.com/SSF2-Mods-Official/ssf2-modding-vault"
+                                        Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- Download overlay -->
+            <Border x:Name="DownloadOverlay" Background="#CC000000" Visibility="Collapsed">
+                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="12" 
+                        Padding="32" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        MinWidth="350">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock x:Name="TxtDownloadStatus" Text="Downloading mod..." FontSize="16" 
+                                   FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"
+                                   HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                        <ProgressBar x:Name="DownloadProgress" Width="280" Height="6" 
+                                     Minimum="0" Maximum="100" Value="0"
+                                     Foreground="{StaticResource PrimaryBrush}" Background="#30FFFFFF"/>
+                        <TextBlock x:Name="TxtDownloadPercent" Text="0%" FontSize="12"
+                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                   HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Border>
+
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
