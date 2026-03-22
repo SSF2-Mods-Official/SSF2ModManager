@@ -4,11 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:SSF2ModManager.Converters"
+        xmlns:local="clr-namespace:SSF2ModManager"
         mc:Ignorable="d"
-        Title="SSF2 Mod Manager" Height="700" Width="1050" MinWidth="800" MinHeight="550"
+        Title="{local:Loc AppTitle}" Height="700" Width="1050" MinWidth="800" MinHeight="550"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" ResizeMode="CanResizeWithGrip"
-        Icon="pack://application:,,,/SSF232.png"
+        Icon="pack://application:,,,/SSF2M.png"
         Background="{StaticResource BackgroundBrush}">
 
     <Window.Resources>
@@ -37,13 +38,13 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
-                <Image Source="pack://application:,,,/SSF232.png" Width="20" Height="20" Margin="4,0,6,0" RenderOptions.BitmapScalingMode="HighQuality"/>
-                <TextBlock Text="SSF2 Mod Manager" FontSize="13" FontWeight="SemiBold"
+                <Image Source="pack://application:,,,/SSF2M.png" Width="20" Height="20" Margin="4,0,6,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                <TextBlock Text="{local:Loc AppTitle}" FontSize="13" FontWeight="SemiBold"
                            Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
             </StackPanel>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,6,0">
-                <Button x:Name="BtnDiscord" Content="💬 Discord" Click="BtnDiscord_Click" Cursor="Hand"
+                <Button x:Name="BtnDiscord" Content="{local:Loc DiscordButton}" Click="BtnDiscord_Click" Cursor="Hand"
                         FontSize="11" Padding="10,4" Margin="0,0,4,0" VerticalAlignment="Center">
                     <Button.Style>
                         <Style TargetType="Button">
@@ -67,7 +68,7 @@
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button x:Name="BtnSupport" Content="☕ Support" Click="BtnSupport_Click" Cursor="Hand"
+                <Button x:Name="BtnSupport" Content="{local:Loc SupportButton}" Click="BtnSupport_Click" Cursor="Hand"
                         FontSize="11" Padding="10,4" Margin="0,0,4,0" VerticalAlignment="Center">
                     <Button.Style>
                         <Style TargetType="Button">
@@ -94,7 +95,7 @@
             </StackPanel>
 
             <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Stretch">
-                <Button x:Name="BtnMinimize" Content="─" Click="BtnMinimize_Click" FontSize="13" Width="46" Cursor="Hand">
+                <Button x:Name="BtnMinimize" Content="{local:Loc MinimizeButton}" Click="BtnMinimize_Click" FontSize="13" Width="46" Cursor="Hand">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Background" Value="Transparent"/>
@@ -117,7 +118,7 @@
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button x:Name="BtnMaximize" Content="☐" Click="BtnMaximize_Click" FontSize="13" Width="46" Cursor="Hand">
+                <Button x:Name="BtnMaximize" Content="{local:Loc MaximizeButton}" Click="BtnMaximize_Click" FontSize="13" Width="46" Cursor="Hand">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Background" Value="Transparent"/>
@@ -140,7 +141,7 @@
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button x:Name="BtnClose" Content="✕" Click="BtnClose_Click" FontSize="13" Width="46" Cursor="Hand">
+                <Button x:Name="BtnClose" Content="{local:Loc CloseButton}" Click="BtnClose_Click" FontSize="13" Width="46" Cursor="Hand">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Background" Value="Transparent"/>
@@ -183,28 +184,27 @@
                         <TextBlock Text="GameBanana API" FontSize="10" Foreground="#50FFFFFF"/>
                     </StackPanel>
 
-                    <StackPanel>
-                        <Button x:Name="BtnBrowse" Content="🌐  Browse Mods" 
-                                Style="{StaticResource SidebarButtonActive}" Click="BtnBrowse_Click"/>
-                        <Button x:Name="BtnInstalled" Content="📦  Installed Mods" 
-                                Style="{StaticResource SidebarButton}" Click="BtnInstalled_Click"/>
-                        <Button x:Name="BtnBuilds" Content="🎮  Installed Builds" 
-                                Style="{StaticResource SidebarButton}" Click="BtnBuilds_Click"/>
+                        <StackPanel>
+                        <Button x:Name="BtnBrowse" Content="{local:Loc BrowseSidebar}" 
+                            Style="{StaticResource SidebarButtonActive}" Click="BtnBrowse_Click"/>
+                        <Button x:Name="BtnInstalled" Content="{local:Loc InstalledSidebar}" 
+                            Style="{StaticResource SidebarButton}" Click="BtnInstalled_Click"/>
+                        <Button x:Name="BtnBuilds" Content="{local:Loc BuildsSidebar}" 
+                            Style="{StaticResource SidebarButton}" Click="BtnBuilds_Click"/>
+                        <Button x:Name="BtnCostumes" Content="{local:Loc CostumesSidebar}" 
+                            Style="{StaticResource SidebarButton}" Click="BtnCostumes_Click"/>
+                        <Button x:Name="BtnEvents" Content="{local:Loc EventsSidebar}" 
+                            Style="{StaticResource SidebarButton}" Click="BtnEvents_Click"/>
+                        <Button x:Name="BtnModSSF2" Content="{local:Loc ModSSF2Sidebar}" 
+                            Style="{StaticResource SidebarButton}" Click="BtnModSSF2_Click"/>
+                        <Button x:Name="BtnResources" Content="{local:Loc ResourcesSidebar}" 
+                            Style="{StaticResource SidebarButton}" Click="BtnResources_Click"/>
+                        <Button x:Name="BtnSettings" Content="{local:Loc SettingsSidebar}" 
+                            Style="{StaticResource SidebarButton}" Click="BtnSettings_Click"/>
                         <Border Height="1" Background="#20FFFFFF" Margin="16,8"/>
-                        <Button x:Name="BtnCostumes" Content="👗  Manage Costumes" 
-                                Style="{StaticResource SidebarButton}" Click="BtnCostumes_Click"/>
-                        <Button x:Name="BtnEvents" Content="🎉  Manage Events" 
-                                Style="{StaticResource SidebarButton}" Click="BtnEvents_Click"/>
-                        <Button x:Name="BtnModSSF2" Content="🔧  Mod SSF2" 
-                                Style="{StaticResource SidebarButton}" Click="BtnModSSF2_Click"/>
-                        <Button x:Name="BtnResources" Content="📚  Resources" 
-                                Style="{StaticResource SidebarButton}" Click="BtnResources_Click"/>
-                        <Border Height="1" Background="#20FFFFFF" Margin="16,8"/>
-                        <Button x:Name="BtnSettings" Content="⚙️  Settings" 
-                                Style="{StaticResource SidebarButton}" Click="BtnSettings_Click"/>
-                        <Button x:Name="BtnLog" Content="📋  Debug Log" 
-                                Style="{StaticResource SidebarButton}" Click="BtnLog_Click"/>
-                    </StackPanel>
+                        <Button x:Name="BtnLog" Content="{local:Loc DebugLogSidebar}" 
+                            Style="{StaticResource SidebarButton}" Click="BtnLog_Click"/>
+                        </StackPanel>
                 </DockPanel>
             </Border>
 
@@ -221,7 +221,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Text="Browse GameBanana Mods" FontSize="22" FontWeight="SemiBold"
+                <TextBlock Grid.Row="0" Text="{local:Loc BrowseMods}" FontSize="22" FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
 
                 <Grid Grid.Row="1" Margin="0,0,0,16">
@@ -238,36 +238,36 @@
                                  TextChanged="TxtSearch_TextChanged">
                             <TextBox.ToolTip>Search for SSF2 mods on GameBanana</TextBox.ToolTip>
                         </TextBox>
-                        <Button x:Name="BtnClearSearch" Content="✕" Click="BtnClearSearch_Click"
-                                HorizontalAlignment="Right" VerticalAlignment="Center"
-                                Margin="0,0,6,0" Padding="4,2" FontSize="11" Cursor="Hand"
-                                Foreground="#80FFFFFF" Background="Transparent" BorderThickness="0"
-                                Visibility="Collapsed"/>
+                        <Button x:Name="BtnClearSearch" Content="{local:Loc ClearSearch}" Click="BtnClearSearch_Click"
+                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Margin="0,0,6,0" Padding="4,2" FontSize="11" Cursor="Hand"
+                            Foreground="#80FFFFFF" Background="Transparent" BorderThickness="0"
+                            Visibility="Collapsed"/>
                     </Grid>
 
                     <ComboBox x:Name="CmbSort" Grid.Column="1" Width="140" Margin="0,0,8,0"
                               Style="{StaticResource ModernComboBox}" SelectionChanged="CmbSort_Changed">
-                        <ComboBoxItem Content="Default" IsSelected="True"/>
-                        <ComboBoxItem Content="Newest"/>
-                        <ComboBoxItem Content="Updated"/>
-                        <ComboBoxItem Content="Most Liked"/>
-                        <ComboBoxItem Content="Most Downloaded"/>
+                        <ComboBoxItem Content="{local:Loc SortDefault}" IsSelected="True"/>
+                        <ComboBoxItem Content="{local:Loc SortNewest}"/>
+                        <ComboBoxItem Content="{local:Loc SortUpdated}"/>
+                        <ComboBoxItem Content="{local:Loc SortMostLiked}"/>
+                        <ComboBoxItem Content="{local:Loc SortMostDownloaded}"/>
                     </ComboBox>
 
-                    <Button x:Name="BtnSearch" Grid.Column="2" Content="🔍 Search" 
+                        <Button x:Name="BtnSearch" Grid.Column="2" Content="{local:Loc SearchButton}" 
                             Style="{StaticResource ModernButton}" Click="BtnSearch_Click" Margin="0,0,8,0"/>
 
-                    <Button x:Name="BtnInstallLocal" Grid.Column="3" Content="📁 Install Local" 
+                        <Button x:Name="BtnInstallLocal" Grid.Column="3" Content="{local:Loc InstallLocalButton}" 
                             Style="{StaticResource ModernButton}" Click="BtnInstallLocal_Click"/>
                 </Grid>
 
                 <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <TextBlock x:Name="TxtLoading" Text="🔄 Loading mods from GameBanana..." 
+                        <TextBlock x:Name="TxtLoading" Text="{local:Loc LoadingMods}" 
                                    Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"
                                    HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
 
-                        <TextBlock x:Name="TxtNoResults" Text="No mods found. Try a different search term." 
+                        <TextBlock x:Name="TxtNoResults" Text="{local:Loc NoModsFound}" 
                                    Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"
                                    HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
 
@@ -319,19 +319,19 @@
 
                                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,4">
-                                                    <Button Content="▶ Video" Style="{StaticResource ModernButton}"
+                                                        <Button Content="{local:Loc VideoButton}" Style="{StaticResource ModernButton}"
                                                             Tag="{Binding}" Click="BtnCardVideo_Click" Padding="10,6"
                                                             Margin="0,0,6,0" FontSize="11"
                                                             Visibility="{Binding HasVideo, Converter={StaticResource BoolToVisibility}}"/>
-                                                    <Button Content="⬇ Install" Style="{StaticResource AccentButton}"
+                                                        <Button Content="{local:Loc InstallButton}" Style="{StaticResource AccentButton}"
                                                             Tag="{Binding}" Click="BtnInstallMod_Click"
                                                             Visibility="{Binding IsNotInstalled, Converter={StaticResource BoolToVisibility}}"/>
-                                                    <Button Content="{Binding ToggleText}" Style="{StaticResource ModernButton}"
+                                                        <Button Content="{Binding ToggleTextLocalized}" Style="{StaticResource ModernButton}"
                                                             Tag="{Binding}" Click="BtnBrowseToggleMod_Click"
                                                             Visibility="{Binding IsInstalled, Converter={StaticResource BoolToVisibility}}"/>
                                                 </StackPanel>
-                                                <Button Content="🔗 View Page" Style="{StaticResource ModernButton}"
-                                                        Tag="{Binding}" Click="BtnViewOnGB_Click" Padding="16,6"/>
+                                                <Button Content="{local:Loc ViewPageButton}" Style="{StaticResource ModernButton}"
+                                                    Tag="{Binding}" Click="BtnViewOnGB_Click" Padding="16,6"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -348,11 +348,11 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
-                        <Button x:Name="BtnPrevPage" Content="◀ Previous" Style="{StaticResource ModernButton}" 
+                            <Button x:Name="BtnPrevPage" Content="{local:Loc PrevPageButton}" Style="{StaticResource ModernButton}" 
                                 Click="BtnPrevPage_Click" Margin="0,0,8,0" IsEnabled="False"/>
                         <TextBlock x:Name="TxtPageInfo" Text="Page 1" VerticalAlignment="Center"
                                    Foreground="{StaticResource TextSecondaryBrush}" FontSize="13" Margin="8,0"/>
-                        <Button x:Name="BtnNextPage" Content="Next ▶" Style="{StaticResource ModernButton}" 
+                            <Button x:Name="BtnNextPage" Content="{local:Loc NextPageButton}" Style="{StaticResource ModernButton}" 
                                 Click="BtnNextPage_Click" Margin="8,0,0,0"/>
                     </StackPanel>
                     <Grid Grid.Column="2" x:Name="PlayButtonPanel" HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -360,7 +360,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Button x:Name="BtnPlay" Grid.Column="0" Content="▶  Play" 
+                        <Button x:Name="BtnPlay" Grid.Column="0" Content="{local:Loc PlayButton}" 
                                 Click="BtnPlay_Click" FontSize="13" FontWeight="SemiBold"
                                 Padding="16,7,12,7" Cursor="Hand">
                             <Button.Style>
@@ -389,8 +389,8 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <Button x:Name="BtnPlayDropdown" Grid.Column="1" Content="▾" 
-                                Click="BtnPlayDropdown_Click" FontSize="12" FontWeight="Bold"
+                        <Button x:Name="BtnPlayDropdown" Grid.Column="1" Content="{local:Loc PlayDropdown}" 
+                            Click="BtnPlayDropdown_Click" FontSize="12" FontWeight="Bold"
                                 Padding="6,7" Cursor="Hand">
                             <Button.Style>
                                 <Style TargetType="Button">
@@ -450,9 +450,9 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Text="Installed Mods" FontSize="22" FontWeight="SemiBold"
+                <TextBlock Grid.Row="0" Text="{local:Loc InstalledMods}" FontSize="22" FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
-                <TextBlock x:Name="TxtModCount" Grid.Row="1" Text="0 mods installed" FontSize="13"
+                <TextBlock x:Name="TxtModCount" Grid.Row="1" Text="{local:Loc InstalledMods}" FontSize="13"
                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
 
                 <!-- Filters -->
@@ -471,7 +471,7 @@
 
                 <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <TextBlock x:Name="TxtNoMods" Text="No mods installed yet. Browse mods to get started!" 
+                        <TextBlock x:Name="TxtNoMods" Text="{local:Loc NoModsInstalled}" 
                                    Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"
                                    HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
 
@@ -511,15 +511,15 @@
                                             </StackPanel>
 
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                                <Button Content="📦 Install Anyway" Style="{StaticResource AccentButton}"
-                                                        Tag="{Binding}" Click="BtnInstallAnyway_Click" Margin="0,0,6,0"
-                                                        Padding="10,6" FontSize="11"
-                                                        Visibility="{Binding IsGameFiles, Converter={StaticResource BoolToVisibility}}"/>
+                                                <Button Content="{local:Loc InstallAnyway}" Style="{StaticResource AccentButton}"
+                                                    Tag="{Binding}" Click="BtnInstallAnyway_Click" Margin="0,0,6,0"
+                                                    Padding="10,6" FontSize="11"
+                                                    Visibility="{Binding IsGameFiles, Converter={StaticResource BoolToVisibility}}"/>
                                                 <Button Content="{Binding Enabled, Converter={StaticResource BoolToToggleText}}" 
                                                         Style="{StaticResource ModernButton}"
                                                         Tag="{Binding}" Click="BtnToggleMod_Click" Margin="0,0,6,0"/>
-                                                <Button Content="⚙ Settings" Style="{StaticResource ModernButton}"
-                                                        Tag="{Binding}" Click="BtnInstalledModSettings_Click"/>
+                                                <Button Content="{local:Loc SettingsButton}" Style="{StaticResource ModernButton}"
+                                                    Tag="{Binding}" Click="BtnInstalledModSettings_Click"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -537,7 +537,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Text="Settings" FontSize="22" FontWeight="SemiBold"
+                <TextBlock Grid.Row="0" Text="{local:Loc Settings}" FontSize="22" FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,20"/>
 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -545,9 +545,9 @@
                         <!-- SSF2 Versions -->
                         <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="SSF2 Versions" FontSize="14" FontWeight="SemiBold"
+                                <TextBlock Text="{local:Loc InstalledBuilds}" FontSize="14" FontWeight="SemiBold"
                                            Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
-                                <TextBlock Text="Add your SSF2 installation folders and specify their version." FontSize="12"
+                                <TextBlock Text="{local:Loc AddVersionHelp}" FontSize="12"
                                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
 
                                 <ItemsControl x:Name="VersionsList">
@@ -567,7 +567,7 @@
                                                                Foreground="{StaticResource TextSecondaryBrush}"
                                                                TextTrimming="CharacterEllipsis" Margin="12,0"
                                                                VerticalAlignment="Center"/>
-                                                    <Button Grid.Column="2" Content="✕" Style="{StaticResource DangerButton}"
+                                                        <Button Grid.Column="2" Content="{local:Loc RemoveButton}" Style="{StaticResource DangerButton}"
                                                             Padding="8,4" Tag="{Binding}" Click="BtnRemoveVersion_Click"/>
                                                 </Grid>
                                             </Border>
@@ -576,41 +576,44 @@
                                 </ItemsControl>
 
                                 <TextBlock x:Name="TxtNoVersions" 
-                                           Text="No versions configured. Click 'Add Version' to get started."
+                                           Text="{local:Loc NoVersionsConfigured}"
                                            Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"
                                            Margin="0,4,0,8" FontStyle="Italic"/>
 
-                                <Button Content="➕ Add Version" Style="{StaticResource AccentButton}" 
-                                        Click="BtnAddVersion_Click" HorizontalAlignment="Left"
-                                        Margin="0,4,0,0" Padding="16,8"/>
+                                <Button Content="{local:Loc AddVersionButton}" Style="{StaticResource AccentButton}" 
+                                    Click="BtnAddVersion_Click" HorizontalAlignment="Left"
+                                    Margin="0,4,0,0" Padding="16,8"/>
+
+                                <!-- Language Selection -->
+                                <StackPanel Orientation="Horizontal" Margin="0,16,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{local:Loc Language}" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <ComboBox x:Name="CmbLanguage" Width="160" SelectionChanged="CmbLanguage_SelectionChanged" Style="{StaticResource DarkComboBox}">
+                                        <ComboBoxItem Content="{local:Loc LanguageEnglish}" Tag="en"/>
+                                        <ComboBoxItem Content="{local:Loc LanguageSpanish}" Tag="es"/>
+                                    </ComboBox>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
 
                         <!-- How Mods Work -->
                         <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="How Mods Work" FontSize="14" FontWeight="SemiBold"
+                                <TextBlock Text="{local:Loc HowModsWork}" FontSize="14" FontWeight="SemiBold"
                                            Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" LineHeight="22">
-                                    <Run Text="1. Add one or more SSF2 version folders above."/>
+                                    <Run Text="{local:Loc HowMods_Step1}"/>
                                     <LineBreak/>
-                                    <Run Text="2. Browse GameBanana and click Install on a mod."/>
+                                    <Run Text="{local:Loc HowMods_Step2}"/>
                                     <LineBreak/>
-                                    <Run Text="3. Choose which SSF2 version the mod targets."/>
+                                    <Run Text="{local:Loc HowMods_Step3}"/>
                                     <LineBreak/>
-                                    <Run Text="4. The mod is stored in a category subfolder (Characters, Maps, etc)."/>
+                                    <Run Text="{local:Loc HowMods_Step4}"/>
                                     <LineBreak/>
-                                    <Run Text="5. Any"/>
-                                    <Run Text=" .ssf" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold"/>
-                                    <Run Text=" files are copied into the version's"/>
-                                    <Run Text=" data/" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold"/>
-                                    <Run Text=" folder. Originals are backed up."/>
+                                    <Run Text="{local:Loc HowMods_Step5}"/>
                                     <LineBreak/>
-                                    <Run Text="6. Disabling a mod restores the original files."/>
+                                    <Run Text="{local:Loc HowMods_Step6}"/>
                                     <LineBreak/>
-                                    <Run Text="7."/>
-                                    <Run Text=" Game files" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}"/>
-                                    <Run Text=" category mods are stored only — never deployed to data/."/>
+                                    <Run Text="{local:Loc HowMods_Step7}"/>
                                 </TextBlock>
                             </StackPanel>
                         </Border>
@@ -618,9 +621,9 @@
                         <!-- About -->
                         <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="About" FontSize="14" FontWeight="SemiBold"
+                                <TextBlock Text="{local:Loc About}" FontSize="14" FontWeight="SemiBold"
                                            Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
-                                <TextBlock Text="SSF2 Mod Manager v1.1.0" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Text="{local:Loc AppTitle}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
                                 <TextBlock Text="Created by MasterWex" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
                                 <TextBlock Text="GameBanana Mod Manager for Super Smash Flash 2" 
                                            Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
@@ -631,9 +634,9 @@
 
                         <!-- Open Folders -->
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                            <Button Content="📂 Open Mods Folder" Style="{StaticResource ModernButton}" 
+                                <Button Content="{local:Loc OpenModsFolder}" Style="{StaticResource ModernButton}" 
                                     Click="BtnOpenModsFolder_Click" Margin="0,0,8,0"/>
-                            <Button Content="📂 Open SSF2 Folder" Style="{StaticResource ModernButton}" 
+                                <Button Content="{local:Loc OpenSSF2Folder}" Style="{StaticResource ModernButton}" 
                                     Click="BtnOpenSSF2Folder_Click"/>
                         </StackPanel>
                     </StackPanel>
@@ -648,7 +651,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Text="Debug Log" FontSize="22" FontWeight="SemiBold"
+                <TextBlock Grid.Row="0" Text="{local:Loc DebugLog}" FontSize="22" FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
 
                 <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="8" Padding="12">
@@ -661,9 +664,9 @@
                 </Border>
 
                 <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-                    <Button Content="🔄 Refresh" Style="{StaticResource ModernButton}" 
+                    <Button Content="{local:Loc Refresh}" Style="{StaticResource ModernButton}" 
                             Click="BtnRefreshLog_Click" Margin="0,0,8,0"/>
-                    <Button Content="🗑 Clear Log" Style="{StaticResource DangerButton}" 
+                    <Button Content="{local:Loc ClearLog}" Style="{StaticResource DangerButton}" 
                             Click="BtnClearLog_Click"/>
                 </StackPanel>
             </Grid>
@@ -676,14 +679,14 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Text="Installed Builds" FontSize="22" FontWeight="SemiBold"
+                <TextBlock Grid.Row="0" Text="{local:Loc InstalledBuilds}" FontSize="22" FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
-                <TextBlock x:Name="TxtBuildCount" Grid.Row="1" Text="0 builds configured" FontSize="13"
+                <TextBlock x:Name="TxtBuildCount" Grid.Row="1" Text="{local:Loc InstalledBuilds}" FontSize="13"
                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
 
                 <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <TextBlock x:Name="TxtNoBuilds" Text="No builds configured. Add SSF2 versions in Settings first!" 
+                        <TextBlock x:Name="TxtNoBuilds" Text="{local:Loc NoBuildsConfigured}" 
                                    Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"
                                    HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
 
@@ -724,12 +727,12 @@
                                             </StackPanel>
 
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <Button Content="▶ Play" Style="{StaticResource AccentButton}"
-                                                        Tag="{Binding}" Click="BtnPlayBuild_Click" 
-                                                        Padding="20,8" Margin="0,0,0,6"/>
-                                                <Button Content="⚙ Settings" Style="{StaticResource ModernButton}"
-                                                        Tag="{Binding}" Click="BtnBuildSettings_Click"
-                                                        Padding="14,7"/>
+                                                <Button Content="{local:Loc PlaySmall}" Style="{StaticResource AccentButton}"
+                                                    Tag="{Binding}" Click="BtnPlayBuild_Click" 
+                                                    Padding="20,8" Margin="0,0,0,6"/>
+                                                <Button Content="{local:Loc SettingsButton}" Style="{StaticResource ModernButton}"
+                                                    Tag="{Binding}" Click="BtnBuildSettings_Click"
+                                                    Padding="14,7"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -737,9 +740,9 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <Button Content="➕ Add Version" Style="{StaticResource AccentButton}" 
-                                Click="BtnAddVersion_Click" HorizontalAlignment="Left"
-                                Margin="0,12,0,0" Padding="16,8"/>
+                        <Button Content="{local:Loc AddVersionButton}" Style="{StaticResource AccentButton}" 
+                            Click="BtnAddVersion_Click" HorizontalAlignment="Left"
+                            Margin="0,12,0,0" Padding="16,8"/>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>
@@ -750,7 +753,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="Manage Costumes" FontSize="22" FontWeight="SemiBold"
+                <TextBlock Grid.Row="0" Text="{local:Loc ManageCostumes}" FontSize="22" FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                 <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
                     <TextBlock Text="Costume management coming soon. This will let you manage alternate character costumes for SSF2."
@@ -764,7 +767,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="Manage Events" FontSize="22" FontWeight="SemiBold"
+                <TextBlock Grid.Row="0" Text="{local:Loc ManageEvents}" FontSize="22" FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                 <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
                     <TextBlock Text="Event management coming soon. This will let you create and manage SSF2 events."
@@ -778,7 +781,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="Mod SSF2" FontSize="22" FontWeight="SemiBold"
+                <TextBlock Grid.Row="0" Text="{local:Loc ModSSF2}" FontSize="22" FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                 <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
                     <TextBlock Text="SSF2 modding tools coming soon. This will provide advanced tools for modding SSF2 directly."
@@ -792,7 +795,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="Resources" FontSize="22" FontWeight="SemiBold"
+                <TextBlock Grid.Row="0" Text="{local:Loc Resources}" FontSize="22" FontWeight="SemiBold"
                            Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
@@ -809,9 +812,9 @@
                                     <TextBlock Text="Color Vault — A tool for creating and editing SSF2 color palettes and texture swaps."
                                                FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                                 </StackPanel>
-                                <Button Grid.Column="1" Content="🔗 Open" Style="{StaticResource AccentButton}"
-                                        Tag="https://color-vault.github.io/Color-Vault/downloads.html"
-                                        Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
+                                <Button Grid.Column="1" Content="{local:Loc OpenButton}" Style="{StaticResource AccentButton}"
+                                    Tag="https://color-vault.github.io/Color-Vault/downloads.html"
+                                    Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
 
@@ -828,9 +831,9 @@
                                     <TextBlock Text="An open-source tool for reflashing and modifying SSF2 builds."
                                                FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                                 </StackPanel>
-                                <Button Grid.Column="1" Content="🔗 Open" Style="{StaticResource AccentButton}"
-                                        Tag="https://github.com/SSF2-Mods-Official/reflash2"
-                                        Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
+                                <Button Grid.Column="1" Content="{local:Loc OpenButton}" Style="{StaticResource AccentButton}"
+                                    Tag="https://github.com/SSF2-Mods-Official/reflash2"
+                                    Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
 
@@ -847,9 +850,9 @@
                                     <TextBlock Text="A curated collection of SSF2 modding resources, tools, and documentation."
                                                FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                                 </StackPanel>
-                                <Button Grid.Column="1" Content="🔗 Open" Style="{StaticResource AccentButton}"
-                                        Tag="https://github.com/SSF2-Mods-Official/ssf2-modding-vault"
-                                        Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
+                                <Button Grid.Column="1" Content="{local:Loc OpenButton}" Style="{StaticResource AccentButton}"
+                                    Tag="https://github.com/SSF2-Mods-Official/ssf2-modding-vault"
+                                    Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
                     </StackPanel>

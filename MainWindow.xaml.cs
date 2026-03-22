@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.IO;
 using MessageBox = System.Windows.MessageBox;
 using Button = System.Windows.Controls.Button;
 using Brush = System.Windows.Media.Brush;
@@ -41,6 +42,8 @@ namespace SSF2ModManager
         public bool IsInstalled => InstalledVersion != null;
         public bool IsNotInstalled => InstalledVersion == null;
         public string ToggleText => InstalledVersion?.Enabled == true ? "⏸ Disable" : "▶ Enable";
+
+        public string ToggleTextLocalized => InstalledVersion?.Enabled == true ? ("⏸ " + Localization.Get("Disable")) : ("▶ " + Localization.Get("Enable"));
 
         // Lazily fetched description text (from _sText API call)
         public string? CachedDescriptionText { get; set; }
@@ -100,8 +103,9 @@ namespace SSF2ModManager
             : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFAB40"));
     }
 
-    public partial class MainWindow : Window
-    {
+        public partial class MainWindow : Window
+        {
+            private bool _languageComboInitialized = false;
         private readonly GameBananaApiClient _apiClient;
         private readonly ModManagerService _modManager;
         private int _currentPage = 1;
@@ -111,8 +115,71 @@ namespace SSF2ModManager
 
         public MainWindow()
         {
-            InitializeComponent();
+            File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] ctor: Start\n");
+            try
+            {
+                InitializeComponent();
+                File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] InitializeComponent succeeded\n");
+            }
+            catch (Exception ex)
+            {
+                try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] InitializeComponent EX: {ex}\n"); } catch { }
+                throw;
+            }
+            File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] ctor: InitializeComponent done\n");
 
+            // Set language ComboBox to current language
+            if (FindName("CmbLanguage") is System.Windows.Controls.ComboBox cmb)
+            {
+                foreach (ComboBoxItem item in cmb.Items)
+                {
+                    if ((string?)item.Tag == Localization.CurrentLanguage)
+                    {
+                        cmb.SelectedItem = item;
+                        break;
+                    }
+                }
+                _languageComboInitialized = true;
+            }
+
+            // Set window title and sidebar/page UI text from localization
+            this.Title = Localization.Get("AppTitle");
+            BtnBrowse.Content = "🌐  " + Localization.Get("BrowseMods");
+            BtnInstalled.Content = "📦  " + Localization.Get("InstalledMods");
+            BtnBuilds.Content = "🎮  " + Localization.Get("InstalledBuilds");
+            BtnCostumes.Content = "👗  " + Localization.Get("ManageCostumes");
+            BtnEvents.Content = "🎉  " + Localization.Get("ManageEvents");
+            BtnModSSF2.Content = "🔧  " + Localization.Get("ModSSF2");
+            BtnResources.Content = "📚  " + Localization.Get("Resources");
+            BtnSettings.Content = "⚙️  " + Localization.Get("Settings");
+            BtnLog.Content = "📋  " + Localization.Get("DebugLog");
+
+            // Page headers
+            SetTextBlock("PageBrowse", 0, Localization.Get("BrowseMods"));
+            SetTextBlock("PageInstalled", 0, Localization.Get("InstalledMods"));
+            SetTextBlock("PageBuilds", 0, Localization.Get("InstalledBuilds"));
+            SetTextBlock("PageCostumes", 0, Localization.Get("ManageCostumes"));
+            SetTextBlock("PageEvents", 0, Localization.Get("ManageEvents"));
+            SetTextBlock("PageModSSF2", 0, Localization.Get("ModSSF2"));
+            SetTextBlock("PageResources", 0, Localization.Get("Resources"));
+            SetTextBlock("PageSettings", 0, Localization.Get("Settings"));
+            SetTextBlock("PageLog", 0, Localization.Get("DebugLog"));
+
+            // Search placeholder
+            TxtSearch.ToolTip = Localization.Get("SearchPlaceholder");
+
+            // No results/empty states
+            TxtNoResults.Text = Localization.Get("NoModsFound");
+            TxtNoMods.Text = Localization.Get("NoModsInstalled");
+            TxtNoBuilds.Text = Localization.Get("NoBuildsConfigured");
+            TxtNoVersions.Text = Localization.Get("NoVersionsConfigured");
+
+            // Add Version, Open Folders
+            SetButtonContent("BtnAddVersion", "➕ " + Localization.Get("AddVersion"));
+            SetButtonContent("BtnOpenModsFolder", "📂 " + Localization.Get("OpenModsFolder"));
+            SetButtonContent("BtnOpenSSF2Folder", "📂 " + Localization.Get("OpenSSF2Folder"));
+
+            File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] ctor: UI text set\n");
             _apiClient = new GameBananaApiClient();
             _modManager = new ModManagerService(_apiClient);
 
@@ -120,7 +187,81 @@ namespace SSF2ModManager
             RefreshPlayButton();
             DebugLogger.Log("Application started");
 
-            Loaded += async (s, e) => await LoadBrowseModsAsync();
+            Loaded += async (s, e) =>
+            {
+                try
+                {
+                    File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Loaded handler start\n");
+                    await LoadBrowseModsAsync();
+                    File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Loaded handler complete\n");
+                }
+                catch (Exception ex)
+                {
+                    try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Loaded EX: {ex}\n"); } catch { }
+                }
+            };
+            File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] ctor: End\n");
+        }
+
+        private void CmbLanguage_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                if (!_languageComboInitialized)
+                    return;
+                if (sender is System.Windows.Controls.ComboBox cmb && cmb.SelectedItem is ComboBoxItem item && item.Tag is string langCode)
+                {
+                    File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Language change requested: {langCode}\n");
+
+                    var exe = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
+                    if (string.IsNullOrEmpty(exe))
+                    {
+                        File.AppendAllText("ssf2mm-debug.log", "[MainWindow] Relaunch failed: exe path empty\n");
+                        return;
+                    }
+
+                    var args = "--lang=" + langCode;
+                    var timer = new System.Windows.Threading.DispatcherTimer
+                    {
+                        Interval = System.TimeSpan.FromMilliseconds(800)
+                    };
+                    timer.Tick += (s, ev) =>
+                    {
+                        try
+                        {
+                            timer.Stop();
+                            File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Starting new process: {exe} {args}\n");
+                            var psi = new System.Diagnostics.ProcessStartInfo(exe, args) { UseShellExecute = true };
+                            System.Diagnostics.Process.Start(psi);
+                            File.AppendAllText("ssf2mm-debug.log", "[MainWindow] New process started successfully\n");
+                            System.Windows.Application.Current.Dispatcher.Invoke(() => System.Windows.Application.Current.Shutdown());
+                        }
+                        catch (Exception ex)
+                        {
+                            try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Relaunch EX: {ex}\n"); } catch { }
+                        }
+                    };
+                    timer.Start();
+                }
+            }
+            catch (Exception ex)
+            {
+                try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] SelectionChanged EX: {ex}\n"); } catch { }
+            }
+        }
+
+        // Helper to set TextBlock text by parent grid and child index
+        private void SetTextBlock(string gridName, int childIndex, string text)
+        {
+            if (FindName(gridName) is Grid grid && grid.Children.Count > childIndex && grid.Children[childIndex] is TextBlock tb)
+                tb.Text = text;
+        }
+
+        // Helper to set Button content by name
+        private void SetButtonContent(string btnName, string text)
+        {
+            if (FindName(btnName) is Button btn)
+                btn.Content = text;
         }
 
         // Called by App.xaml.cs for protocol handler

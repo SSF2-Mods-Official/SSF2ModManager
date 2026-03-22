@@ -11,7 +11,14 @@ namespace SSF2ModManager.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return (bool)value ? "Enabled" : "Disabled";
+            try
+            {
+                return (bool)value ? Localization.Get("Enabled") ?? "Enabled" : Localization.Get("Disabled") ?? "Disabled";
+            }
+            catch
+            {
+                return (bool)value ? "Enabled" : "Disabled";
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -22,7 +29,14 @@ namespace SSF2ModManager.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return (bool)value ? "Disable" : "Enable";
+            try
+            {
+                return (bool)value ? Localization.Get("Disable") ?? "Disable" : Localization.Get("Enable") ?? "Enable";
+            }
+            catch
+            {
+                return (bool)value ? "Disable" : "Enable";
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -69,7 +69,7 @@ namespace SSF2ModManager.Dialogs
             });
             root.Children.Add(new TextBlock
             {
-                Text = $"Version: {mod.TargetVersion}  •  Status: {(mod.Enabled ? "✅ Enabled" : "⛔ Disabled")}",
+                Text = $"Version: {mod.TargetVersion}  •  Status: {(mod.Enabled ? "✅ " + Localization.Get("Enabled") : "⛔ " + Localization.Get("Disabled"))}",
                 FontSize = 12,
                 Foreground = textSecondary,
                 Margin = new Thickness(0, 0, 0, 2)
@@ -94,37 +94,37 @@ namespace SSF2ModManager.Dialogs
             });
 
             // Toggle button
-            var toggleText = mod.Enabled ? "⏸ Disable Mod" : "▶ Enable Mod";
+            var toggleText = mod.Enabled ? ("⏸ " + Localization.Get("Disable")) : ("▶ " + Localization.Get("Enable"));
             var btnToggle = MakeButton(toggleText, mod.Enabled ? cardBg : green, 12);
             btnToggle.Click += BtnToggle_Click;
             root.Children.Add(btnToggle);
 
             // Open folder
-            var btnOpen = MakeButton("📂 Open Mod Folder", cardBg, 12);
+            var btnOpen = MakeButton("📂 " + Localization.Get("OpenModsFolder"), cardBg, 12);
             btnOpen.Margin = new Thickness(0, 6, 0, 0);
             btnOpen.Click += BtnOpenFolder_Click;
             root.Children.Add(btnOpen);
 
             // Change version
-            var btnChangeVersion = MakeButton("🔄 Change Target Version", cardBg, 12);
+            var btnChangeVersion = MakeButton("🔄 " + Localization.Get("ChangeTargetVersion"), cardBg, 12);
             btnChangeVersion.Margin = new Thickness(0, 6, 0, 0);
             btnChangeVersion.Click += BtnChangeVersion_Click;
             root.Children.Add(btnChangeVersion);
 
             // Add to another build
-            var btnAddToBuild = MakeButton("➕ Add to Another Build", cardBg, 12);
+            var btnAddToBuild = MakeButton("➕ " + Localization.Get("AddToAnotherBuild"), cardBg, 12);
             btnAddToBuild.Margin = new Thickness(0, 6, 0, 0);
             btnAddToBuild.Click += BtnAddToBuild_Click;
             root.Children.Add(btnAddToBuild);
 
             // Re-install from folder (local changes)
-            var btnReinstallLocal = MakeButton("🔄 Re-install from Folder", cardBg, 12);
+            var btnReinstallLocal = MakeButton("🔄 " + Localization.Get("ReinstallFromFolder"), cardBg, 12);
             btnReinstallLocal.Margin = new Thickness(0, 6, 0, 0);
             btnReinstallLocal.Click += BtnReinstallLocal_Click;
             root.Children.Add(btnReinstallLocal);
 
             // Re-install from GameBanana
-            var btnReinstall = MakeButton("⬇ Re-install from GameBanana", accent, 12);
+            var btnReinstall = MakeButton("⬇ " + Localization.Get("ReinstallFromGameBanana"), accent, 12);
             btnReinstall.Margin = new Thickness(0, 6, 0, 0);
             btnReinstall.Click += BtnReinstall_Click;
             root.Children.Add(btnReinstall);
@@ -133,12 +133,12 @@ namespace SSF2ModManager.Dialogs
             root.Children.Add(MakeSeparator());
 
             var bottomRow = new DockPanel();
-            var btnRemove = MakeButton("🗑 Remove Mod", danger, 12);
+            var btnRemove = MakeButton("🗑 " + Localization.Get("RemoveMod"), danger, 12);
             btnRemove.Click += BtnRemove_Click;
             DockPanel.SetDock(btnRemove, Dock.Left);
             bottomRow.Children.Add(btnRemove);
 
-            var btnClose = MakeButton("Close", cardBg, 13);
+            var btnClose = MakeButton(Localization.Get("Close"), cardBg, 13);
             btnClose.HorizontalAlignment = HorizontalAlignment.Right;
             btnClose.Click += (s, e) => DialogResult = true;
             bottomRow.Children.Add(btnClose);

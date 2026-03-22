@@ -1,0 +1,14 @@
+[OnStartup] 3/22/2026 4:20:44 PM: Entered
+[OnStartup] Loading language: es
+[OnStartup] Language loaded
+[OnStartup] base.OnStartup complete
+[OnStartup] Protocol registered
+[OnStartup] Launching MainWindow (normal)
+[MainWindow] ctor: Start
+[MainWindow] InitializeComponent succeeded
+[MainWindow] ctor: InitializeComponent done
+[MainWindow] ctor: UI text set
+[MainWindow] ctor: End
+[MainWindow] Loaded handler start
+[OnStartup] MainWindow.Show() complete
+[MainWindow] Loaded handler complete
