@@ -190,6 +190,51 @@ namespace SSF2ModManager.Services
             return GetVersionPath(_database.ActiveVersion);
         }
 
+        /// <summary>
+        /// Update an existing installed mod by fetching the latest file from GameBanana
+        /// and reinstalling it. Returns the new InstalledMod if successful.
+        /// </summary>
+        public async Task<InstalledMod?> UpdateInstalledModAsync(InstalledMod installedMod)
+        {
+            if (installedMod == null) throw new ArgumentNullException(nameof(installedMod));
+            if (installedMod.GameBananaId <= 0)
+            {
+                DebugLogger.Log("UpdateRequested: mod has no GameBananaId");
+                return null;
+            }
+
+            try
+            {
+                DebugLogger.Log($"Updating installed mod: {installedMod.Name} (GB ID: {installedMod.GameBananaId})");
+                var modInfo = await _apiClient.GetModAsync(installedMod.GameBananaId);
+                if (modInfo == null)
+                {
+                    DebugLogger.Log("Update failed: mod info not found");
+                    return null;
+                }
+
+                var files = await _apiClient.GetModFilesAsync(installedMod.GameBananaId);
+                if (files == null || files.Count == 0)
+                {
+                    DebugLogger.Log("Update failed: no files available for mod");
+                    return null;
+                }
+
+                // Pick the most recently added file
+                var file = files.OrderByDescending(f => f.DateAdded).First();
+
+                // Call InstallModAsync which will remove existing install (by GameBananaId) and install the new one
+                var updated = await InstallModAsync(modInfo, file, installedMod.TargetVersion);
+                DebugLogger.Log($"Update completed: {installedMod.Name}");
+                return updated;
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Error("UpdateInstalledModAsync failed", ex);
+                return null;
+            }
+        }
+
         // ── Mod Installation ────────────────────────────────────
 
         /// <summary>

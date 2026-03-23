@@ -16,6 +16,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.IO;
 using MessageBox = System.Windows.MessageBox;
+using System.Net.Http;
+using System.Reflection;
 using Button = System.Windows.Controls.Button;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
@@ -287,7 +289,210 @@ namespace SSF2ModManager
                     try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Loaded EX: {ex}\n"); } catch { }
                 }
             };
+            // Check program version on startup (non-blocking)
+            _ = CheckProgramVersionAsync();
             File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] ctor: End\n");
+        }
+
+        private async void BtnCheckModUpdates_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is Button btn && btn.Tag is InstalledMod inst)
+                {
+                    if (inst.IgnoreUpdates)
+                    {
+                        MessageBox.Show("Update checks are ignored for this mod.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
+
+                    if (inst.GameBananaId <= 0)
+                    {
+                        MessageBox.Show("No GameBanana ID available for this mod.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    _ = System.Threading.Tasks.Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var files = await _apiClient.GetModFilesAsync(inst.GameBananaId);
+                            var latest = files?.OrderByDescending(f => f.DateAdded).FirstOrDefault();
+                            if (latest == null)
+                            {
+                                Dispatcher.Invoke(() => MessageBox.Show("No files found for this mod on GameBanana.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Information));
+                                return;
+                            }
+
+                            DateTime latestDate;
+                            try { latestDate = DateTimeOffset.FromUnixTimeSeconds(latest.DateAdded).LocalDateTime; } catch { latestDate = DateTime.Now; }
+
+                            if (latestDate > inst.InstalledDate)
+                            {
+                                Dispatcher.Invoke(() =>
+                                {
+                                    var res = MessageBox.Show($"Update available: {latest.FileName} (added {latestDate:g}).\nDo you want to download and install it now?", "Update Available", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                                    if (res == MessageBoxResult.Yes)
+                                    {
+                                        _ = System.Threading.Tasks.Task.Run(async () =>
+                                        {
+                                            try
+                                            {
+                                                await _modManager.UpdateInstalledModAsync(inst);
+                                                Dispatcher.Invoke(() => RefreshInstalledMods());
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                try { File.AppendAllText("ssf2mm-debug.log", $"[UpdateInstalled] EX: {ex}\n"); } catch { }
+                                                Dispatcher.Invoke(() => MessageBox.Show($"Failed to update mod: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error));
+                                            }
+                                        });
+                                    }
+                                    else if (res == MessageBoxResult.No)
+                                    {
+                                        var ignore = MessageBox.Show("Ignore future update checks for this mod?", "Ignore Updates", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                                        if (ignore == MessageBoxResult.Yes)
+                                        {
+                                            inst.IgnoreUpdates = true;
+                                            try { _modManager.SaveDatabase(); } catch { }
+                                            MessageBox.Show("This mod will be ignored for future update checks.", "Ignore Updates", MessageBoxButton.OK, MessageBoxImage.Information);
+                                            Dispatcher.Invoke(() => RefreshInstalledMods());
+                                        }
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                Dispatcher.Invoke(() => MessageBox.Show("No updates found. This mod is up-to-date.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Information));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            try { File.AppendAllText("ssf2mm-debug.log", $"[CheckModUpdates] EX: {ex}\n"); } catch { }
+                            Dispatcher.Invoke(() => MessageBox.Show($"Failed to check updates: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error));
+                        }
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                try { File.AppendAllText("ssf2mm-debug.log", $"[BtnCheckModUpdates_Click] EX: {ex}\n"); } catch { }
+            }
+        }
+
+        private async void BtnCheckProgramUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await CheckProgramVersionAsync();
+            }
+            catch (Exception ex)
+            {
+                try { File.AppendAllText("ssf2mm-debug.log", $"[BtnCheckProgramUpdate_Click] EX: {ex}\n"); } catch { }
+                MessageBox.Show($"Failed to check program version: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void BtnCheckAllInstalledUpdates_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var installed = _modManager.InstalledMods.Where(m => m.GameBananaId > 0 && !m.IgnoreUpdates).ToList();
+                if (installed.Count == 0)
+                {
+                    MessageBox.Show("No installed mods with GameBanana IDs found to check.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // Check for available updates
+                var updates = new List<(InstalledMod inst, string fileName, DateTime added)>();
+                foreach (var inst in installed)
+                {
+                    try
+                    {
+                        var files = await _apiClient.GetModFilesAsync(inst.GameBananaId);
+                        var latest = files?.OrderByDescending(f => f.DateAdded).FirstOrDefault();
+                        if (latest != null)
+                        {
+                            DateTime latestDate;
+                            try { latestDate = DateTimeOffset.FromUnixTimeSeconds(latest.DateAdded).LocalDateTime; } catch { latestDate = DateTime.Now; }
+                            if (latestDate > inst.InstalledDate)
+                                updates.Add((inst, latest.FileName, latestDate));
+                        }
+                    }
+                    catch { }
+                }
+
+                if (updates.Count == 0)
+                {
+                    MessageBox.Show("No updates found. All installed mods are up-to-date.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                var summary = string.Join("\n", updates.Select(u => $"{u.inst.Name}: {u.fileName} (added {u.added:g})"));
+                var dr = MessageBox.Show($"Updates found:\n{summary}\n\nInstall all updates now?", "Updates Available", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (dr != MessageBoxResult.Yes) return;
+
+                // Install updates sequentially
+                _ = System.Threading.Tasks.Task.Run(async () =>
+                {
+                    foreach (var u in updates)
+                    {
+                        try
+                        {
+                            await _modManager.UpdateInstalledModAsync(u.inst);
+                            Dispatcher.Invoke(() => RefreshInstalledMods());
+                        }
+                        catch (Exception ex)
+                        {
+                            try { File.AppendAllText("ssf2mm-debug.log", $"[BulkUpdate] EX for {u.inst.Name}: {ex}\n"); } catch { }
+                        }
+                    }
+                    Dispatcher.Invoke(() => MessageBox.Show("Bulk update process completed.", "Updates", MessageBoxButton.OK, MessageBoxImage.Information));
+                });
+            }
+            catch (Exception ex)
+            {
+                try { File.AppendAllText("ssf2mm-debug.log", $"[BtnCheckAllInstalledUpdates_Click] EX: {ex}\n"); } catch { }
+                MessageBox.Show($"Failed to check/install updates: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async System.Threading.Tasks.Task CheckProgramVersionAsync()
+        {
+            var rawUrl = "https://raw.githubusercontent.com/SSF2-Mods-Official/SSF2ModManager/main/version.txt";
+            try
+            {
+                using var http = new HttpClient();
+                http.Timeout = TimeSpan.FromSeconds(10);
+                var remote = await http.GetStringAsync(rawUrl);
+                if (string.IsNullOrWhiteSpace(remote))
+                {
+                    MessageBox.Show("Could not read remote version information.", "Version Check", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var remoteVer = remote.Trim().Split('\n')[0].Trim();
+                var asmVer = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0.0.0.0";
+
+                if (string.Equals(remoteVer, asmVer, StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show($"You are running the latest version ({asmVer}).", "Version Check", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    var dr = MessageBox.Show($"A newer version is available:\nRemote: {remoteVer}\nLocal: {asmVer}\nOpen project on GitHub to download?", "Update Available", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (dr == MessageBoxResult.Yes)
+                    {
+                        Process.Start(new ProcessStartInfo("https://github.com/SSF2-Mods-Official/SSF2ModManager") { UseShellExecute = true });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                try { File.AppendAllText("ssf2mm-debug.log", $"[CheckProgramVersionAsync] EX: {ex}\n"); } catch { }
+                MessageBox.Show($"Failed to check remote version: {ex.Message}", "Version Check", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void CmbLanguage_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -674,7 +879,67 @@ namespace SSF2ModManager
                 if (cli.Uninstall.Count > 0) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Uninstall targets: {string.Join(',', cli.Uninstall)}\n");
                 if (cli.Enable.Count > 0) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Enable targets: {string.Join(',', cli.Enable)}\n");
                 if (cli.Disable.Count > 0) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Disable targets: {string.Join(',', cli.Disable)}\n");
-                if (cli.Update.Count > 0) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Update targets: {string.Join(',', cli.Update)}\n");
+                if (cli.Update.Count > 0)
+                {
+                    File.AppendAllText("ssf2mm-debug.log", $"[CLI] Update targets: {string.Join(',', cli.Update)}\n");
+                    // Process updates in background
+                    foreach (var t in cli.Update)
+                    {
+                        if (string.IsNullOrWhiteSpace(t)) continue;
+                        if (t.StartsWith("http://") || t.StartsWith("https://"))
+                        {
+                            // Treat as install URL
+                            InstallModFromProtocol(t, "", "");
+                            continue;
+                        }
+
+                        // If numeric, treat as GameBanana ID
+                        if (int.TryParse(t, out var gbId))
+                        {
+                            _ = System.Threading.Tasks.Task.Run(async () =>
+                            {
+                                try
+                                {
+                                    var modInfo = await _apiClient.GetModAsync(gbId);
+                                    var files = await _apiClient.GetModFilesAsync(gbId);
+                                    var file = files?.OrderByDescending(f => f.DateAdded).FirstOrDefault();
+                                    if (modInfo != null && file != null)
+                                    {
+                                        await _modManager.InstallModAsync(modInfo, file, "");
+                                        Dispatcher.Invoke(() => RefreshInstalledMods());
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    try { File.AppendAllText("ssf2mm-debug.log", $"[CLI] Update EX for {t}: {ex}\n"); } catch { }
+                                }
+                            });
+                            continue;
+                        }
+
+                        // Try matching installed mod by ID or name
+                        var inst = _modManager.InstalledMods.FirstOrDefault(m => m.Id == t || string.Equals(m.Name, t, StringComparison.OrdinalIgnoreCase));
+                        if (inst != null)
+                        {
+                            _ = System.Threading.Tasks.Task.Run(async () =>
+                            {
+                                try
+                                {
+                                    await _modManager.UpdateInstalledModAsync(inst);
+                                    Dispatcher.Invoke(() => RefreshInstalledMods());
+                                }
+                                catch (Exception ex)
+                                {
+                                    try { File.AppendAllText("ssf2mm-debug.log", $"[CLI] Update EX for installed {t}: {ex}\n"); } catch { }
+                                }
+                            });
+                            continue;
+                        }
+
+                        // Unknown target - log
+                        File.AppendAllText("ssf2mm-debug.log", $"[CLI] Unknown update target: {t}\n");
+                    }
+                }
 
                 if (!string.IsNullOrWhiteSpace(cli.ConfigPath)) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Config path: {cli.ConfigPath}\n");
                 if (!string.IsNullOrWhiteSpace(cli.ExportConfig)) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Export config: {cli.ExportConfig}\n");

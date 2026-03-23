@@ -483,7 +483,7 @@
                            Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,12"/>
 
                 <!-- Filters -->
-                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12">
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12">
                     <TextBlock Text="Filter:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" 
                                VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <ComboBox x:Name="CmbFilterBuild" Width="160" Style="{StaticResource ModernComboBox}"
@@ -494,6 +494,8 @@
                               SelectionChanged="CmbFilter_Changed" Margin="0,0,8,0"/>
                     <ComboBox x:Name="CmbFilterCreator" Width="150" Style="{StaticResource ModernComboBox}"
                               SelectionChanged="CmbFilter_Changed"/>
+                        <Button x:Name="BtnCheckAllInstalledUpdates" Content="Check updates" Style="{StaticResource ModernButton}"
+                            Click="BtnCheckAllInstalledUpdates_Click" Margin="12,0,0,0" Padding="10,6"/>
                 </StackPanel>
 
                 <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
@@ -538,6 +540,7 @@
                                             </StackPanel>
 
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <!-- per-item update button removed; use global Check updates button above -->
                                                 <Button Content="{local:Loc InstallAnyway}" Style="{StaticResource AccentButton}"
                                                     Tag="{Binding}" Click="BtnInstallAnyway_Click" Margin="0,0,6,0"
                                                     Padding="10,6" FontSize="11"
@@ -665,6 +668,10 @@
                                            Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
                                 <TextBlock Text="Powered by the GameBanana API" 
                                            Foreground="#50FFFFFF" FontSize="11" Margin="0,4,0,0"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                        <Button Content="Check for Updates" Style="{StaticResource ModernButton}"
+                                            Click="BtnCheckProgramUpdate_Click" Padding="10,6"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
 

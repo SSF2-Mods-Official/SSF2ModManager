@@ -40,6 +40,9 @@ namespace SSF2ModManager.Models
         public List<BackedUpFile> BackedUpFiles { get; set; } = new();
         public bool IsGameFiles { get; set; }
 
+        // When true, this installed mod will ignore update checks until cleared by the user
+        public bool IgnoreUpdates { get; set; } = false;
+
         [JsonIgnore]
         public string BuildDisplayName { get; set; } = string.Empty;
     }
