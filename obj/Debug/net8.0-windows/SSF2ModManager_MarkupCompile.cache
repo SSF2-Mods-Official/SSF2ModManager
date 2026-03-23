@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP
 C:\Users\glwex\Documents\GitHub\SSF2ModManager\App.xaml
-21084638969
+3-2063555224
 121347497015
-22-1444747907
+24404060457
 2112122179186
-MainWindow.xaml;Views\NewsPage.xaml;
+MainWindow.xaml;Views\NewsPage.xaml;Views\TutorialWindow.xaml;
 
 False
 

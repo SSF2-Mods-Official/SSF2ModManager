@@ -1,4 +1,4 @@
-[OnStartup] 3/22/2026 11:00:57 PM: Entered
+[OnStartup] 3/22/2026 11:31:32 PM: Entered
 [OnStartup] Loading language: en
 [OnStartup] Language loaded
 [OnStartup] base.OnStartup complete
@@ -98,4 +98,5 @@ BtnBrowse.Foreground: #FF0D1B2A
 [MainWindow] ctor: End
 [MainWindow] Loaded handler start
 [OnStartup] MainWindow.Show() complete
+[CLI] Applying options: {"Help":false,"Version":false,"Verbose":false,"LogFile":null,"StartMinimized":false,"StartHidden":false,"OpenPage":null,"OpenNews":false,"NewsPath":null,"Theme":null,"RefreshNews":false,"NewsCacheClear":false,"NewsPreviewOnly":false,"Install":[],"Uninstall":[],"Enable":[],"Disable":[],"Update":[],"ImportGb":[],"InstallBatch":null,"SearchQuery":null,"DownloadResultIndex":null,"BrowseLimit":null,"AddBuild":[],"RemoveBuild":[],"LaunchBuild":[],"ConfigPath":null,"ExportConfig":null,"ImportConfig":null,"SetPrefs":[],"Proxy":null,"NoNetwork":false,"CheckUpdates":false,"ApplyUpdate":false,"SelfInstall":false,"DumpLog":null,"TraceApi":false,"ScreenshotNews":null,"Diagnostics":false,"CiMode":false,"Yes":false,"DryRun":false,"OutputFormat":null,"RegisterProtocol":false,"UnregisterProtocol":false}
 [MainWindow] Loaded handler complete

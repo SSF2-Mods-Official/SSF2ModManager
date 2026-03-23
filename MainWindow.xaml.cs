@@ -22,6 +22,7 @@ using Brushes = System.Windows.Media.Brushes;
 using Color = System.Windows.Media.Color;
 using ColorConverter = System.Windows.Media.ColorConverter;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using SSF2ModManager.Views;
 
 namespace SSF2ModManager
 {
@@ -398,6 +399,62 @@ namespace SSF2ModManager
             catch { }
         }
 
+        private void BtnTutorial_Click(object sender, RoutedEventArgs e)
+        {
+            var w = new Views.TutorialWindow();
+            // Subscribe before setting steps so the initial step triggers navigation
+            w.StepChanged += (page) =>
+            {
+                if (string.IsNullOrWhiteSpace(page)) return;
+                // Map tutorial labels to internal page keys used by SetActivePage
+                var key = page.ToLowerInvariant() switch
+                {
+                    "mods" => "browse",
+                    "news" => "news",
+                    "settings" => "settings",
+                    "tools" => "resources",
+                    _ => page.ToLowerInvariant()
+                };
+                Dispatcher.Invoke(() =>
+                {
+                    try
+                    {
+                        SetActivePage(key);
+                        // Try to focus the corresponding sidebar button if present
+                        string? btnName = key switch
+                        {
+                            "browse" => "BtnBrowse",
+                            "news" => "BtnNews",
+                            "settings" => "BtnSettings",
+                            "resources" => "BtnResources",
+                            _ => null
+                        };
+                        if (!string.IsNullOrWhiteSpace(btnName) && FindName(btnName) is System.Windows.Controls.Control c)
+                        {
+                            c.Focus();
+                        }
+                    }
+                    catch { }
+                });
+            };
+
+            var steps = new List<(string title, string body, string? page)>
+            {
+                ("Welcome","Welcome to SSF2 Mod Manager — this short tour will show core features.", null),
+                ("Sidebar","Use the sidebar to switch pages: Mods, Installed Mods, News, Settings, Tools.", "Mods"),
+                ("Installed Mods","This view lists mods you've installed. You can enable/disable or open details here.", "Installed"),
+                ("Installed Builds","Installed builds show your configured game builds and folders.", "Builds"),
+                ("News","The News page shows local and remote articles. Try opening the mock article.", "News"),
+                ("Install Mods","Install mods via URLs or the Install button in the Mods page.", "Mods"),
+                ("Settings","Open Settings to configure paths and preferences.", "Settings"),
+                ("Finish","That’s it — enjoy SSF2 Mod Manager!", null)
+            };
+
+            w.SetSteps(steps);
+            w.Owner = this;
+            w.ShowDialog();
+        }
+
         private void DumpThemeDebug(string themeName)
         {
             try
@@ -557,6 +614,89 @@ namespace SSF2ModManager
             }
         }
 
+        // Apply parsed CLI options (parsed in App.xaml.cs)
+        public void ApplyCliOptions(SSF2ModManager.Models.CliOptions cli)
+        {
+            try
+            {
+                File.AppendAllText("ssf2mm-debug.log", $"[CLI] Applying options: {System.Text.Json.JsonSerializer.Serialize(cli)}\n");
+
+                if (cli.RegisterProtocol)
+                {
+                    try { File.AppendAllText("ssf2mm-debug.log", "[CLI] Registering protocol...\n"); } catch { }
+                    // Protocol registration handled by App.TryRegisterProtocol on startup; duplicate call optional
+                }
+                if (cli.UnregisterProtocol)
+                {
+                    try { File.AppendAllText("ssf2mm-debug.log", "[CLI] Unregister protocol requested (not implemented)\n"); } catch { }
+                }
+
+                if (!string.IsNullOrWhiteSpace(cli.Theme))
+                {
+                    try { _themeManager?.ApplyTheme(cli.Theme); } catch { }
+                }
+
+                if (!string.IsNullOrWhiteSpace(cli.OpenPage))
+                {
+                    SetActivePage(cli.OpenPage);
+                }
+
+                if (cli.OpenNews)
+                {
+                    OpenNews(cli.NewsPath);
+                    if (cli.NewsPreviewOnly)
+                    {
+                        // If preview-only, exit after a short delay to allow rendering
+                        System.Threading.Tasks.Task.Delay(800).ContinueWith(_ => System.Windows.Application.Current.Dispatcher.Invoke(() => System.Windows.Application.Current.Shutdown()));
+                        return;
+                    }
+                }
+
+                // Install targets: if URL-ish, call InstallModFromProtocol; if file path, TODO: implement local install
+                foreach (var t in cli.Install)
+                {
+                    if (string.IsNullOrWhiteSpace(t)) continue;
+                    if (t.StartsWith("http://") || t.StartsWith("https://"))
+                    {
+                        InstallModFromProtocol(t, "", "");
+                    }
+                    else if (File.Exists(t))
+                    {
+                        MessageBox.Show($"Install from local file requested: {t}", "CLI Install", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Install requested: {t}", "CLI Install", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+
+                // Other operations: log them for now
+                if (cli.Uninstall.Count > 0) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Uninstall targets: {string.Join(',', cli.Uninstall)}\n");
+                if (cli.Enable.Count > 0) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Enable targets: {string.Join(',', cli.Enable)}\n");
+                if (cli.Disable.Count > 0) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Disable targets: {string.Join(',', cli.Disable)}\n");
+                if (cli.Update.Count > 0) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Update targets: {string.Join(',', cli.Update)}\n");
+
+                if (!string.IsNullOrWhiteSpace(cli.ConfigPath)) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Config path: {cli.ConfigPath}\n");
+                if (!string.IsNullOrWhiteSpace(cli.ExportConfig)) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Export config: {cli.ExportConfig}\n");
+                if (!string.IsNullOrWhiteSpace(cli.ImportConfig)) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Import config: {cli.ImportConfig}\n");
+
+                if (cli.CheckUpdates)
+                {
+                    MessageBox.Show("Check for updates requested (not implemented).", "CLI", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+
+                if (!string.IsNullOrWhiteSpace(cli.DumpLog))
+                {
+                    try { File.Copy("ssf2mm-debug.log", cli.DumpLog, true); } catch { }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                try { File.AppendAllText("ssf2mm-debug.log", $"[CLI] ApplyCliOptions EX: {ex}\n"); } catch { }
+            }
+        }
+
         // ── Title Bar ────────────────────────────────────────────
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -666,6 +806,24 @@ namespace SSF2ModManager
                     // Use local News folder in repo for now (explicit workspace path)
                     var newsPath = @"C:\Users\glwex\Documents\GitHub\SSF2ModManager\News";
                     np.LoadLocal(newsPath);
+                }
+            }
+            catch { }
+        }
+
+        // Public helper to open News page programmatically (used by CLI handlers)
+        public void OpenNews(string? newsPath = null)
+        {
+            SetActivePage("news");
+            try
+            {
+                var np = FindName("PageNews") as dynamic;
+                if (np != null)
+                {
+                    var path = newsPath;
+                    if (string.IsNullOrWhiteSpace(path))
+                        path = System.IO.Path.Combine(Environment.CurrentDirectory, "News");
+                    try { np.LoadLocal(path); } catch { }
                 }
             }
             catch { }
@@ -2115,4 +2273,5 @@ namespace SSF2ModManager
             return $"{size / (1024.0 * 1024.0):F1} MB";
         }
     }
+
 }
