@@ -796,7 +796,7 @@ namespace SSF2ModManager.Services
         /// Partially disable a mod by restoring only specific files (those that conflict).
         /// Removes backup entries for the partially restored files.
         /// </summary>
-        public void PartialDisableMod(InstalledMod mod, IEnumerable<string> fileNames)
+        public void PartialDisableMod(InstalledMod mod, IEnumerable<string> fileNames, bool restoreBackups = false)
         {
             var versionPath = GetVersionPath(mod.TargetVersion);
             if (string.IsNullOrEmpty(versionPath))
@@ -804,30 +804,33 @@ namespace SSF2ModManager.Services
             var dataDir = Path.Combine(versionPath, "data");
 
             var fileSet = new HashSet<string>(fileNames, StringComparer.OrdinalIgnoreCase);
-            var toRestore = mod.BackedUpFiles
+            var matchingBackups = mod.BackedUpFiles
                 .Where(b => fileSet.Contains(Path.GetFileName(b.OriginalRelativePath)))
                 .ToList();
 
-            foreach (var backup in toRestore)
+            if (restoreBackups)
             {
-                try
+                foreach (var backup in matchingBackups)
                 {
-                    var targetPath = Path.Combine(dataDir, backup.OriginalRelativePath);
-                    if (!Path.GetFullPath(targetPath).StartsWith(Path.GetFullPath(dataDir), StringComparison.OrdinalIgnoreCase))
-                        continue;
-                    if (File.Exists(backup.BackupFullPath))
+                    try
                     {
-                        File.Copy(backup.BackupFullPath, targetPath, true);
-                        DebugLogger.Log($"Partially restored: {backup.OriginalRelativePath} for {mod.Name}");
+                        var targetPath = Path.Combine(dataDir, backup.OriginalRelativePath);
+                        if (!Path.GetFullPath(targetPath).StartsWith(Path.GetFullPath(dataDir), StringComparison.OrdinalIgnoreCase))
+                            continue;
+                        if (File.Exists(backup.BackupFullPath))
+                        {
+                            File.Copy(backup.BackupFullPath, targetPath, true);
+                            DebugLogger.Log($"Partially restored: {backup.OriginalRelativePath} for {mod.Name}");
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    DebugLogger.Error($"Failed to partially restore {backup.OriginalRelativePath}", ex);
+                    catch (Exception ex)
+                    {
+                        DebugLogger.Error($"Failed to partially restore {backup.OriginalRelativePath}", ex);
+                    }
                 }
             }
 
-            // Remove from backed-up files list
+            // Remove backup entries for these files (regardless of whether we restored them)
             mod.BackedUpFiles.RemoveAll(b => fileSet.Contains(Path.GetFileName(b.OriginalRelativePath)));
 
             // If no backed up files remain, fully disable

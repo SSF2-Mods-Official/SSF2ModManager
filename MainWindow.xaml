@@ -68,6 +68,30 @@
                         </Style>
                     </Button.Style>
                 </Button>
+                <Button x:Name="BtnFeedback" Content="✉ Feedback" Click="BtnFeedback_Click" Cursor="Hand"
+                        FontSize="11" Padding="10,4" Margin="0,0,4,0" VerticalAlignment="Center">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="#FF2D87FF"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#FF246FE6"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
                 <Button x:Name="BtnSupport" Content="{local:Loc SupportButton}" Click="BtnSupport_Click" Cursor="Hand"
                         FontSize="11" Padding="10,4" Margin="0,0,4,0" VerticalAlignment="Center">
                     <Button.Style>
@@ -625,6 +649,7 @@
                                            Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
                                 <TextBlock Text="{local:Loc AppTitle}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
                                 <TextBlock Text="Created by MasterWex" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
+                                <TextBlock Text="Spanish Translation by Fabi" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
                                 <TextBlock Text="GameBanana Mod Manager for Super Smash Flash 2" 
                                            Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
                                 <TextBlock Text="Powered by the GameBanana API" 

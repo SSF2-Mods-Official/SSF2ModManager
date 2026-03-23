@@ -304,6 +304,15 @@ namespace SSF2ModManager
             Process.Start(new ProcessStartInfo("https://discord.gg/yVPkqKQsx2") { UseShellExecute = true });
         }
 
+        private void BtnFeedback_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo("https://forms.gle/hhJgq2jsRFkGoysU9") { UseShellExecute = true });
+            }
+            catch { }
+        }
+
         private void BtnSupport_Click(object sender, RoutedEventArgs e)
         {
             Process.Start(new ProcessStartInfo("https://ko-fi.com/justwex") { UseShellExecute = true });
@@ -684,6 +693,71 @@ namespace SSF2ModManager
                     selectedFiles = new HashSet<string>(dialog.SelectedFiles, StringComparer.OrdinalIgnoreCase);
                 }
 
+                // Pre-install: inspect archive for .ssf entries and pre-handle conflicts
+                var preHandledConflicts = false;
+                try
+                {
+                    var ssfEntries = archiveContents
+                        .Where(a => a.Path.EndsWith(".ssf", StringComparison.OrdinalIgnoreCase))
+                        .Select(a => a.Path).ToList();
+                    if (ssfEntries.Count > 0)
+                    {
+                        // If user filtered selected files, respect that selection
+                        if (selectedFiles != null)
+                        {
+                            ssfEntries = ssfEntries.Where(p => selectedFiles.Contains(p)).ToList();
+                        }
+
+                        var ssfFileNames = ssfEntries
+                            .Select(p => Path.GetFileName(p))
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+
+                        if (ssfFileNames.Count > 0)
+                        {
+                            var preConflicts = _modManager.GetFileConflicts(targetVersion, ssfFileNames, mod.Id);
+                            if (preConflicts.Count > 0)
+                            {
+                                var conflictLines = new List<string>();
+                                foreach (var (file, mods2) in preConflicts)
+                                {
+                                    var modNames = string.Join(", ", mods2.Select(m => m.Name));
+                                    conflictLines.Add($"  • {file} → conflicts with: {modNames}");
+                                }
+                                var conflictText = string.Join("\n", conflictLines);
+                                var conflictMods = preConflicts.Values.SelectMany(m => m).Distinct().ToList();
+
+                                var conflictResult = MessageBox.Show(
+                                    $"⚠ File Conflicts Detected (Before Install)!\n\n" +
+                                    $"\"{mod.Name}\" contains files that are also used by other mods:\n\n" +
+                                    $"{conflictText}\n\n" +
+                                    $"The new mod takes priority. Would you like to partially disable the conflicting mods BEFORE installing?\n\n" +
+                                    $"• YES = Disable only the overlapping files in conflicting mods\n" +
+                                    $"• NO = Leave as-is (you can handle conflicts after install)",
+                                    "Pre-Install File Conflict", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                                if (conflictResult == MessageBoxResult.Yes)
+                                {
+                                    foreach (var conflictMod in conflictMods)
+                                    {
+                                        var overlappingFiles = preConflicts
+                                            .Where(kv => kv.Value.Contains(conflictMod))
+                                            .Select(kv => kv.Key).ToList();
+                                        _modManager.PartialDisableMod(conflictMod, overlappingFiles, false);
+                                    }
+                                    DebugLogger.Log($"Pre-install: Partially disabled {conflictMods.Count} conflicting mod(s)");
+                                    RefreshInstalledMods();
+                                    preHandledConflicts = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception preEx)
+                {
+                    DebugLogger.Error("Pre-install conflict check failed", preEx);
+                }
+
                 // Re-show overlay for install phase
                 DownloadOverlay.Visibility = Visibility.Visible;
                 TxtDownloadStatus.Text = $"Installing {mod.Name}...";
@@ -697,8 +771,8 @@ namespace SSF2ModManager
                 _modManager.ActiveVersion = targetNickname;
                 RefreshPlayButton();
 
-                // Check file-level conflicts with other enabled mods
-                if (!installed.IsGameFiles && installed.BackedUpFiles.Count > 0)
+                // Check file-level conflicts with other enabled mods (skip if pre-handled)
+                if (!preHandledConflicts && !installed.IsGameFiles && installed.BackedUpFiles.Count > 0)
                 {
                     var deployedFileNames = installed.BackedUpFiles
                         .Select(b => Path.GetFileName(b.OriginalRelativePath)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
@@ -731,9 +805,11 @@ namespace SSF2ModManager
                                 var overlappingFiles = conflicts
                                     .Where(kv => kv.Value.Contains(conflictMod))
                                     .Select(kv => kv.Key).ToList();
-                                _modManager.PartialDisableMod(conflictMod, overlappingFiles);
+                                _modManager.PartialDisableMod(conflictMod, overlappingFiles, false);
                             }
                             DebugLogger.Log($"Partially disabled {conflictMods.Count} conflicting mod(s)");
+                            // Refresh installed mods list so disabled states are reflected
+                            RefreshInstalledMods();
                         }
                     }
                 }
@@ -1130,6 +1206,54 @@ namespace SSF2ModManager
             var mod = (InstalledMod)((Button)sender).Tag;
             try
             {
+                // If enabling a disabled mod, check for file conflicts with other enabled mods
+                if (!mod.Enabled)
+                {
+                    try
+                    {
+                        var modPath = System.IO.Path.Combine(_modManager.ModsBaseDir, mod.Category, mod.FolderName);
+                        var ssfNames = _modManager.GetSsfFileNames(modPath);
+                        var conflicts = _modManager.GetFileConflicts(mod.TargetVersion, ssfNames, mod.GameBananaId);
+                        if (conflicts.Count > 0)
+                        {
+                            var conflictLines = new List<string>();
+                            foreach (var (file, mods2) in conflicts)
+                            {
+                                var modNames = string.Join(", ", mods2.Select(m => m.Name));
+                                conflictLines.Add($"  • {file} → conflicts with: {modNames}");
+                            }
+                            var conflictText = string.Join("\n", conflictLines);
+                            var conflictMods = conflicts.Values.SelectMany(m => m).Distinct().ToList();
+
+                            var conflictResult = MessageBox.Show(
+                                $"⚠ File Conflicts Detected!\n\n" +
+                                $"\"{mod.Name}\" will replace files that are also used by other mods:\n\n" +
+                                $"{conflictText}\n\n" +
+                                $"The new mod takes priority. Would you like to partially disable the conflicting mods?\n\n" +
+                                $"• YES = Disable only the overlapping files in conflicting mods\n" +
+                                $"• NO = Leave as-is (new mod's files will overwrite)",
+                                "File Conflict", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                            if (conflictResult == MessageBoxResult.Yes)
+                            {
+                                foreach (var conflictMod in conflictMods)
+                                {
+                                    var overlappingFiles = conflicts
+                                        .Where(kv => kv.Value.Contains(conflictMod))
+                                        .Select(kv => kv.Key).ToList();
+                                    _modManager.PartialDisableMod(conflictMod, overlappingFiles, false);
+                                }
+                                DebugLogger.Log($"Partially disabled {conflictMods.Count} conflicting mod(s)");
+                                RefreshInstalledMods();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        DebugLogger.Error("Failed conflict check before enabling", ex);
+                    }
+                }
+
                 _modManager.ToggleMod(mod);
             }
             catch (Exception ex)
