@@ -1,4 +1,4 @@
-[OnStartup] 3/22/2026 8:26:43 PM: Entered
+[OnStartup] 3/22/2026 10:08:48 PM: Entered
 [OnStartup] Loading language: en
 [OnStartup] Language loaded
 [OnStartup] base.OnStartup complete
@@ -8,229 +8,6 @@
 [MainWindow] InitializeComponent succeeded
 [MainWindow] ctor: InitializeComponent done
 [MainWindow] ctor: UI text set
-[MainWindow] Theme selected: theme-default
-[MainWindow] DumpThemeDebug:
-Applied theme: theme-default
-Merged dictionaries: 1
-  [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-Key: BackgroundBrush => SolidColorBrush #FF1A1A2E
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: TextPrimaryBrush => SolidColorBrush #FFE0E0E0
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: TextSecondaryBrush => SolidColorBrush #FF9E9E9E
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: AccentBrush => SolidColorBrush #FFFFA726
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: CardBrush => SolidColorBrush #FF0F3460
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: PrimaryBrush => SolidColorBrush #FF1E88E5
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: SidebarBrush => SolidColorBrush #FF0D1B2A
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: SurfaceBrush => SolidColorBrush #FF16213E
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Keys present: BackgroundBrush, TextPrimaryBrush, TextSecondaryBrush, AccentBrush, CardBrush, PrimaryBrush, SidebarBrush, SurfaceBrush
-
-[MainWindow] LiveValues:
-Window.Background: #FF1A1A2E
-BtnBrowse.Background: #FFFFA726
-BtnBrowse.Foreground: #FF0D1B2A
-
-[MainWindow] DumpThemeDebug:
-Applied theme: theme-default
-Merged dictionaries: 1
-  [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-Key: BackgroundBrush => SolidColorBrush #FF1A1A2E
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: TextPrimaryBrush => SolidColorBrush #FFE0E0E0
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: TextSecondaryBrush => SolidColorBrush #FF9E9E9E
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: AccentBrush => SolidColorBrush #FFFFA726
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: CardBrush => SolidColorBrush #FF0F3460
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: PrimaryBrush => SolidColorBrush #FF1E88E5
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: SidebarBrush => SolidColorBrush #FF0D1B2A
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: SurfaceBrush => SolidColorBrush #FF16213E
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Keys present: BackgroundBrush, TextPrimaryBrush, TextSecondaryBrush, AccentBrush, CardBrush, PrimaryBrush, SidebarBrush, SurfaceBrush
-
-[MainWindow] LiveValues:
-Window.Background: #FF1A1A2E
-BtnBrowse.Background: #FFFFA726
-BtnBrowse.Foreground: #FF0D1B2A
-
-[MainWindow] ctor: End
-[MainWindow] Loaded handler start
-[OnStartup] MainWindow.Show() complete
-[MainWindow] Loaded handler complete
-[MainWindow] Theme selected: theme-friendly
-[MainWindow] DumpThemeDebug:
-Applied theme: theme-friendly
-Merged dictionaries: 1
-  [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-Key: BackgroundBrush => SolidColorBrush #FFF6C0DB
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: TextPrimaryBrush => SolidColorBrush #FF2F2F2F
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: TextSecondaryBrush => SolidColorBrush #FF816565
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: AccentBrush => SolidColorBrush #FFF5C648
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: CardBrush => SolidColorBrush #FFFFF6EE
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: PrimaryBrush => SolidColorBrush #FFF5C648
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: SidebarBrush => SolidColorBrush #FFFFF6EE
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: SurfaceBrush => SolidColorBrush #FFFFF6EE
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Keys present: BackgroundBrush, TextPrimaryBrush, TextSecondaryBrush, AccentBrush, CardBrush, PrimaryBrush, SidebarBrush, SurfaceBrush
-
-[MainWindow] LiveValues:
-Window.Background: #FFF6C0DB
-BtnBrowse.Background: #00FFFFFF
-BtnBrowse.Foreground: #FF816565
-
-[MainWindow] Theme selected: theme-default
-[MainWindow] DumpThemeDebug:
-Applied theme: theme-default
-Merged dictionaries: 1
-  [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-Key: BackgroundBrush => SolidColorBrush #FF1A1A2E
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: TextPrimaryBrush => SolidColorBrush #FFE0E0E0
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: TextSecondaryBrush => SolidColorBrush #FF9E9E9E
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: AccentBrush => SolidColorBrush #FFFFA726
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: CardBrush => SolidColorBrush #FF0F3460
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: PrimaryBrush => SolidColorBrush #FF1E88E5
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: SidebarBrush => SolidColorBrush #FF0D1B2A
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: SurfaceBrush => SolidColorBrush #FF16213E
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Keys present: BackgroundBrush, TextPrimaryBrush, TextSecondaryBrush, AccentBrush, CardBrush, PrimaryBrush, SidebarBrush, SurfaceBrush
-
-[MainWindow] LiveValues:
-Window.Background: #FF1A1A2E
-BtnBrowse.Background: #00FFFFFF
-BtnBrowse.Foreground: #FF9E9E9E
-
-[MainWindow] Theme selected: theme-friendly
-[MainWindow] DumpThemeDebug:
-Applied theme: theme-friendly
-Merged dictionaries: 1
-  [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-Key: BackgroundBrush => SolidColorBrush #FFF6C0DB
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: TextPrimaryBrush => SolidColorBrush #FF2F2F2F
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: TextSecondaryBrush => SolidColorBrush #FF816565
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: AccentBrush => SolidColorBrush #FFF5C648
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: CardBrush => SolidColorBrush #FFFFF6EE
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: PrimaryBrush => SolidColorBrush #FFF5C648
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: SidebarBrush => SolidColorBrush #FFFFF6EE
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Key: SurfaceBrush => SolidColorBrush #FFFFF6EE
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
-    provider: application resources
-    TryFindResource: SolidColorBrush
-Keys present: BackgroundBrush, TextPrimaryBrush, TextSecondaryBrush, AccentBrush, CardBrush, PrimaryBrush, SidebarBrush, SurfaceBrush
-
-[MainWindow] LiveValues:
-Window.Background: #FFF6C0DB
-BtnBrowse.Background: #00FFFFFF
-BtnBrowse.Foreground: #FF816565
-
 [MainWindow] Theme selected: theme-dark
 [MainWindow] DumpThemeDebug:
 Applied theme: theme-dark
@@ -272,50 +49,53 @@ Keys present: BackgroundBrush, TextPrimaryBrush, TextSecondaryBrush, AccentBrush
 
 [MainWindow] LiveValues:
 Window.Background: #FF121212
-BtnBrowse.Background: #00FFFFFF
-BtnBrowse.Foreground: #FFB3B3B3
+BtnBrowse.Background: #FFFFC107
+BtnBrowse.Foreground: #FF0D1B2A
 
-[MainWindow] Theme selected: theme-default
 [MainWindow] DumpThemeDebug:
-Applied theme: theme-default
+Applied theme: theme-dark
 Merged dictionaries: 1
-  [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
-Key: BackgroundBrush => SolidColorBrush #FF1A1A2E
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
+  [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
+Key: BackgroundBrush => SolidColorBrush #FF121212
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: TextPrimaryBrush => SolidColorBrush #FFE0E0E0
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
+Key: TextPrimaryBrush => SolidColorBrush #FFFFFFFF
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: TextSecondaryBrush => SolidColorBrush #FF9E9E9E
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
+Key: TextSecondaryBrush => SolidColorBrush #FFB3B3B3
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: AccentBrush => SolidColorBrush #FFFFA726
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
+Key: AccentBrush => SolidColorBrush #FFFFC107
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: CardBrush => SolidColorBrush #FF0F3460
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
+Key: CardBrush => SolidColorBrush #FF1E1E1F
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: PrimaryBrush => SolidColorBrush #FF1E88E5
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
+Key: PrimaryBrush => SolidColorBrush #FFFFC107
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
 Key: SidebarBrush => SolidColorBrush #FF0D1B2A
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
 Key: SurfaceBrush => SolidColorBrush #FF16213E
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
 Keys present: BackgroundBrush, TextPrimaryBrush, TextSecondaryBrush, AccentBrush, CardBrush, PrimaryBrush, SidebarBrush, SurfaceBrush
 
 [MainWindow] LiveValues:
-Window.Background: #FF1A1A2E
-BtnBrowse.Background: #00FFFFFF
-BtnBrowse.Foreground: #FF9E9E9E
+Window.Background: #FF121212
+BtnBrowse.Background: #FFFFC107
+BtnBrowse.Foreground: #FF0D1B2A
 
+[MainWindow] ctor: End
+[MainWindow] Loaded handler start
+[OnStartup] MainWindow.Show() complete
+[MainWindow] Loaded handler complete

@@ -27,20 +27,30 @@ namespace SSF2ModManager.Dialogs
 
         public List<string> SelectedFiles { get; private set; } = new();
 
-        public FileSelectionDialog(string title, string prompt, IEnumerable<FileSelectionItem> files)
+        public class InfoMetadata
+        {
+            public string? Creator { get; set; }
+            public string? Ssf2Version { get; set; }
+            public string? ModType { get; set; }
+        }
+
+        public FileSelectionDialog(string title, string prompt, IEnumerable<FileSelectionItem> files, InfoMetadata? metadata = null)
         {
             Title = title;
             Width = 560;
             Height = 550;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
             ResizeMode = ResizeMode.NoResize;
-            Background = new SolidColorBrush(Color.FromRgb(26, 26, 46));
 
-            var cardBg = new SolidColorBrush(Color.FromRgb(15, 52, 96));
-            var textPrimary = new SolidColorBrush(Color.FromRgb(224, 224, 224));
-            var textSecondary = new SolidColorBrush(Color.FromRgb(160, 160, 180));
-            var accent = new SolidColorBrush(Color.FromRgb(30, 136, 229));
-            var danger = new SolidColorBrush(Color.FromRgb(229, 57, 53));
+            var app = System.Windows.Application.Current;
+            var bgBrush = app.TryFindResource("SurfaceBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(26, 26, 46));
+            Background = bgBrush;
+
+            var cardBg = app.TryFindResource("CardBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(15, 52, 96));
+            var textPrimary = app.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(224, 224, 224));
+            var textSecondary = app.TryFindResource("TextSecondaryBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(160, 160, 180));
+            var accent = app.TryFindResource("PrimaryBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(30, 136, 229));
+            var danger = app.TryFindResource("ErrorBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(229, 57, 53));
 
             var dock = new DockPanel { Margin = new Thickness(20) };
 
@@ -56,6 +66,22 @@ namespace SSF2ModManager.Dialogs
             DockPanel.SetDock(promptBlock, Dock.Top);
             dock.Children.Add(promptBlock);
 
+            // If metadata provided, show a small info panel
+            if (metadata != null)
+            {
+                var infoBorder = new Border { Background = cardBg, CornerRadius = new CornerRadius(6), Padding = new Thickness(8), Margin = new Thickness(0, 0, 0, 12) };
+                var infoStack = new StackPanel();
+                if (!string.IsNullOrWhiteSpace(metadata.Creator))
+                    infoStack.Children.Add(new TextBlock { Text = $"Creator: {metadata.Creator}", Foreground = textPrimary, FontSize = 12 });
+                if (!string.IsNullOrWhiteSpace(metadata.Ssf2Version))
+                    infoStack.Children.Add(new TextBlock { Text = $"SSF2 Version: {metadata.Ssf2Version}", Foreground = textPrimary, FontSize = 12 });
+                if (!string.IsNullOrWhiteSpace(metadata.ModType))
+                    infoStack.Children.Add(new TextBlock { Text = $"Mod Type: {metadata.ModType}", Foreground = textPrimary, FontSize = 12 });
+                infoBorder.Child = infoStack;
+                DockPanel.SetDock(infoBorder, Dock.Top);
+                dock.Children.Add(infoBorder);
+            }
+
             // Select All / None row
             var selectRow = new StackPanel
             {
@@ -67,7 +93,7 @@ namespace SSF2ModManager.Dialogs
                 Content = "Select All",
                 Padding = new Thickness(10, 4, 10, 4),
                 Background = accent,
-                Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? Brushes.Black,
+                Foreground = textPrimary,
                 BorderThickness = new Thickness(0),
                 FontSize = 11,
                 Cursor = Cursors.Hand,
@@ -79,8 +105,8 @@ namespace SSF2ModManager.Dialogs
             {
                 Content = "Select None",
                 Padding = new Thickness(10, 4, 10, 4),
-                Background = new SolidColorBrush(Color.FromRgb(30, 30, 55)),
-                Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? Brushes.Black,
+                Background = cardBg,
+                Foreground = textPrimary,
                 BorderThickness = new Thickness(0),
                 FontSize = 11,
                 Cursor = Cursors.Hand
@@ -105,7 +131,7 @@ namespace SSF2ModManager.Dialogs
                 Content = "  Install Selected  ",
                 Padding = new Thickness(16, 8, 16, 8),
                 Background = accent,
-                Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? Brushes.Black,
+                Foreground = textPrimary,
                 BorderThickness = new Thickness(0),
                 FontSize = 13,
                 Cursor = Cursors.Hand,
@@ -131,7 +157,7 @@ namespace SSF2ModManager.Dialogs
                 Content = "Cancel",
                 Padding = new Thickness(16, 8, 16, 8),
                 Background = danger,
-                Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? Brushes.Black,
+                Foreground = textPrimary,
                 BorderThickness = new Thickness(0),
                 FontSize = 13,
                 Cursor = Cursors.Hand

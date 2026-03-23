@@ -967,6 +967,34 @@ namespace SSF2ModManager
                 var archiveContents = _modManager.PreviewArchiveContents(fileBytes, selectedFile.FileName);
                 if (archiveContents.Count > 1)
                 {
+                    // Try to extract info.json from the archive and pass metadata into the selection dialog
+                    FileSelectionDialog.InfoMetadata? metadata = null;
+                    try
+                    {
+                        using var mstream = new System.IO.MemoryStream(fileBytes);
+                        using var archive = ArchiveFactory.Open(mstream);
+                        var infoEntry = archive.Entries.FirstOrDefault(en => !en.IsDirectory && (en.Key?.Equals("info.json", StringComparison.OrdinalIgnoreCase) == true || en.Key?.EndsWith("/info.json", StringComparison.OrdinalIgnoreCase) == true || en.Key?.EndsWith("\\info.json", StringComparison.OrdinalIgnoreCase) == true));
+                        if (infoEntry != null)
+                        {
+                            using var s = infoEntry.OpenEntryStream();
+                            using var sr = new System.IO.StreamReader(s);
+                            var infoText = sr.ReadToEnd();
+                            try
+                            {
+                                dynamic? info = Newtonsoft.Json.JsonConvert.DeserializeObject(infoText);
+                                if (info != null)
+                                {
+                                    metadata = new FileSelectionDialog.InfoMetadata();
+                                    if (info.creator != null) metadata.Creator = (string)info.creator;
+                                    if (info.ssf2_version != null) metadata.Ssf2Version = (string)info.ssf2_version;
+                                    if (info.mod_type != null) metadata.ModType = (string)info.mod_type;
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+                    catch { }
+
                     var items = archiveContents.Select(a => new FileSelectionItem
                     {
                         Path = a.Path,
@@ -974,7 +1002,7 @@ namespace SSF2ModManager
                         IsSelected = true
                     });
                     var dialog = new FileSelectionDialog(mod.Name,
-                        $"Select which files to install from \"{selectedFile.FileName}\":", items);
+                        $"Select which files to install from \"{selectedFile.FileName}\":", items, metadata);
                     dialog.Owner = this;
                     if (dialog.ShowDialog() != true)
                         return;

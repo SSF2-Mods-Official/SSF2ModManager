@@ -830,11 +830,11 @@
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                     <TextBlock Text="SSF2 Version:" Width="80" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                                    <ComboBox x:Name="CmbInfoSSF2Version" Width="260"/>
+                                    <ComboBox x:Name="CmbInfoSSF2Version" Width="260" Style="{StaticResource ModernComboBox}"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                     <TextBlock Text="Mod Type:" Width="80" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                                    <ComboBox x:Name="CmbInfoModType" Width="260">
+                                    <ComboBox x:Name="CmbInfoModType" Width="260" Style="{StaticResource ModernComboBox}">
                                         <ComboBoxItem>Character</ComboBoxItem>
                                         <ComboBoxItem>Stage</ComboBoxItem>
                                         <ComboBoxItem>Texture</ComboBoxItem>
