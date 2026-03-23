@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -108,7 +109,10 @@ namespace SSF2ModManager
             private bool _languageComboInitialized = false;
         private readonly GameBananaApiClient _apiClient;
         private readonly ModManagerService _modManager;
+        private ThemeManager? _themeManager;
+        private SettingsService? _settingsService;
         private int _currentPage = 1;
+        private string _activePageName = "browse";
         private string _currentSearch = "";
         private string _currentSort = "default";
         private string _searchMode = "text"; // "text", "author", "category"
@@ -183,6 +187,73 @@ namespace SSF2ModManager
             _apiClient = new GameBananaApiClient();
             _modManager = new ModManagerService(_apiClient);
 
+            // Theme manager: load themes from Themes/ and populate settings UI
+            try
+            {
+                _settingsService = new SettingsService();
+                _themeManager = new ThemeManager();
+                _themeManager.ThemeApplied += () =>
+                {
+                    try
+                    {
+                        Dispatcher.Invoke(() => { SetActivePage(_activePageName); });
+                    }
+                    catch { }
+                };
+                if (FindName("CmbTheme") is System.Windows.Controls.ComboBox themeCombo)
+                {
+                    themeCombo.Items.Clear();
+                    foreach (var t in _themeManager.GetAvailableThemes())
+                    {
+                        // Display nicer name by stripping leading "theme-" if present
+                        var display = t.StartsWith("theme-", StringComparison.OrdinalIgnoreCase) ? t[6..] : t;
+                        var item = new ComboBoxItem() { Content = display, Tag = t };
+                        themeCombo.Items.Add(item);
+                    }
+
+                    // If saved theme exists, select it
+                    var saved = _settingsService.GetTheme();
+                    if (!string.IsNullOrEmpty(saved))
+                    {
+                        for (int i = 0; i < themeCombo.Items.Count; i++)
+                        {
+                            if (themeCombo.Items[i] is ComboBoxItem ci && ci.Tag is string tag && tag.Equals(saved, StringComparison.OrdinalIgnoreCase))
+                            {
+                                themeCombo.SelectedIndex = i;
+                                _themeManager.ApplyTheme(tag);
+                                try { DumpThemeDebug(tag); } catch { }
+                                break;
+                            }
+                        }
+                    }
+                    else if (themeCombo.Items.Count > 0)
+                    {
+                        themeCombo.SelectedIndex = 0;
+                    }
+                }
+
+                _themeManager.ThemesChanged += () =>
+                {
+                    if (FindName("CmbTheme") is System.Windows.Controls.ComboBox cmb)
+                    {
+                        var sel = (cmb.SelectedItem as ComboBoxItem)?.Tag as string;
+                        cmb.Items.Clear();
+                        foreach (var t in _themeManager.GetAvailableThemes())
+                        {
+                            var display = t.StartsWith("theme-", StringComparison.OrdinalIgnoreCase) ? t[6..] : t;
+                            var item = new ComboBoxItem() { Content = display, Tag = t };
+                            cmb.Items.Add(item);
+                        }
+                        if (!string.IsNullOrEmpty(sel))
+                        {
+                            for (int i = 0; i < cmb.Items.Count; i++)
+                                if (cmb.Items[i] is ComboBoxItem ci && ci.Tag is string tag && tag.Equals(sel, StringComparison.OrdinalIgnoreCase)) { cmb.SelectedIndex = i; break; }
+                        }
+                    }
+                };
+            }
+            catch { }
+
             RefreshVersionsList();
             RefreshPlayButton();
             DebugLogger.Log("Application started");
@@ -247,6 +318,154 @@ namespace SSF2ModManager
             catch (Exception ex)
             {
                 try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] SelectionChanged EX: {ex}\n"); } catch { }
+            }
+        }
+
+        private void CmbTheme_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                if (sender is System.Windows.Controls.ComboBox cmb && cmb.SelectedItem is ComboBoxItem item && item.Tag is string themeName)
+                {
+                    File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Theme selected: {themeName}\n");
+                    _themeManager?.ApplyTheme(themeName);
+                    try { _settingsService?.SetTheme(themeName); } catch { }
+                    try { DumpThemeDebug(themeName); } catch { }
+                }
+            }
+            catch (Exception ex)
+            {
+                try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Theme change EX: {ex}\n"); } catch { }
+            }
+        }
+
+        private void DumpThemeDebug(string themeName)
+        {
+            try
+            {
+                var app = System.Windows.Application.Current;
+                var md = app.Resources.MergedDictionaries;
+                var sb = new StringBuilder();
+                sb.AppendLine($"Applied theme: {themeName}");
+                sb.AppendLine($"Merged dictionaries: {md.Count}");
+                for (int i = 0; i < md.Count; i++)
+                {
+                    var rd = md[i];
+                    var src = rd.Source != null ? rd.Source.OriginalString : "(inline)";
+                    sb.AppendLine($"  [{i}] {src}");
+                }
+
+                // Keys we care about and their resolved values
+                var keys = new[] { "BackgroundBrush", "TextPrimaryBrush", "TextSecondaryBrush", "AccentBrush", "CardBrush", "PrimaryBrush", "SidebarBrush", "SurfaceBrush" };
+                var present = new List<string>();
+                var missing = new List<string>();
+                foreach (var k in keys)
+                {
+                    object? resolved = null;
+                    // Prefer values provided by merged dictionaries (themes) when present
+                    for (int i = md.Count - 1; i >= 0; i--)
+                    {
+                        try
+                        {
+                            var rd = md[i];
+                            if (rd.Contains(k))
+                            {
+                                resolved = rd[k];
+                                break;
+                            }
+                        }
+                        catch { }
+                    }
+                    // Fall back to application-level resource if not found in merged dictionaries
+                    if (resolved == null && app.Resources.Contains(k)) resolved = app.Resources[k];
+
+                    if (resolved != null)
+                    {
+                        present.Add(k);
+                        // Describe the value
+                        string desc;
+                        switch (resolved)
+                        {
+                            case SolidColorBrush scb:
+                                desc = $"SolidColorBrush {scb.Color}";
+                                break;
+                            case Color c:
+                                desc = $"Color {c}";
+                                break;
+                            case Brush b:
+                                desc = $"Brush ({b.GetType().Name})";
+                                break;
+                            case Style s:
+                                desc = $"Style ({s.TargetType?.Name ?? "?"})";
+                                break;
+                            default:
+                                desc = resolved.ToString() ?? "(null)";
+                                break;
+                        }
+                        sb.AppendLine($"Key: {k} => {desc}");
+                        // Also list which dictionaries provide this key
+                        for (int i = 0; i < md.Count; i++)
+                        {
+                            try
+                            {
+                                var rd = md[i];
+                                if (rd.Contains(k))
+                                {
+                                    var src = rd.Source != null ? rd.Source.OriginalString : "(inline)";
+                                    sb.AppendLine($"    provider: [{i}] {src}");
+                                }
+                            }
+                            catch { }
+                        }
+                        if (app.Resources.Contains(k))
+                            sb.AppendLine($"    provider: application resources");
+                        // Also report the result of TryFindResource (what WPF would resolve at runtime)
+                        try
+                        {
+                            var tryRes = this.TryFindResource(k);
+                            sb.AppendLine($"    TryFindResource: {(tryRes != null ? tryRes.GetType().Name : "(null)")}");
+                        }
+                        catch { }
+                    }
+                    else
+                    {
+                        missing.Add(k);
+                        sb.AppendLine($"Key: {k} => MISSING");
+                    }
+                }
+
+                sb.AppendLine($"Keys present: {string.Join(", ", present)}");
+                if (missing.Count > 0) sb.AppendLine($"Keys missing: {string.Join(", ", missing)}");
+
+                var txt = sb.ToString();
+                try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] DumpThemeDebug:\n{txt}\n"); } catch { }
+
+                if (FindName("TxtThemeDebug") is TextBlock tb)
+                {
+                    var shortPresent = present.Count > 0 ? string.Join(", ", present) : "(none)";
+                    tb.Text = $"Applied: {themeName} — dicts: {md.Count} — keys: {shortPresent}";
+                }
+
+                // Inspect a few live UI element values to show what the window is actually using
+                try
+                {
+                    var wndBg = this.Background;
+                    var liveSb = new StringBuilder();
+                    liveSb.AppendLine($"Window.Background: {(wndBg is SolidColorBrush sbg ? sbg.Color.ToString() : wndBg?.GetType().Name ?? "(null)")}");
+                    if (FindName("BtnBrowse") is Button btn)
+                    {
+                        var bbg = btn.Background as SolidColorBrush;
+                        var bfg = btn.Foreground as SolidColorBrush;
+                        liveSb.AppendLine($"BtnBrowse.Background: {(bbg != null ? bbg.Color.ToString() : btn.Background?.GetType().Name ?? "(null)")}");
+                        liveSb.AppendLine($"BtnBrowse.Foreground: {(bfg != null ? bfg.Color.ToString() : btn.Foreground?.GetType().Name ?? "(null)")}");
+                    }
+                    try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] LiveValues:\n{liveSb}\n"); } catch { }
+                }
+                catch { }
+            }
+            catch (Exception ex)
+            {
+                try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] DumpThemeDebug EX: {ex}\n"); } catch { }
             }
         }
 
@@ -328,6 +547,7 @@ namespace SSF2ModManager
 
         private void SetActivePage(string page)
         {
+            _activePageName = page;
             PageBrowse.Visibility = page == "browse" ? Visibility.Visible : Visibility.Collapsed;
             PageInstalled.Visibility = page == "installed" ? Visibility.Visible : Visibility.Collapsed;
             PageBuilds.Visibility = page == "builds" ? Visibility.Visible : Visibility.Collapsed;
@@ -347,6 +567,20 @@ namespace SSF2ModManager
             BtnResources.Style = (Style)FindResource(page == "resources" ? "SidebarButtonActive" : "SidebarButton");
             BtnSettings.Style = (Style)FindResource(page == "settings" ? "SidebarButtonActive" : "SidebarButton");
             BtnLog.Style = (Style)FindResource(page == "log" ? "SidebarButtonActive" : "SidebarButton");
+
+            // Ensure sidebar button foregrounds follow the active/inactive selection brushes (some themes override hard-coded values)
+            Brush activeFg = TryFindResource("SelectionForegroundBrush") as Brush ?? TryFindResource("TextPrimaryBrush") as Brush;
+            Brush inactiveFg = TryFindResource("TextSecondaryBrush") as Brush;
+
+            BtnBrowse.Foreground = page == "browse" ? activeFg : inactiveFg;
+            BtnInstalled.Foreground = page == "installed" ? activeFg : inactiveFg;
+            BtnBuilds.Foreground = page == "builds" ? activeFg : inactiveFg;
+            BtnCostumes.Foreground = page == "costumes" ? activeFg : inactiveFg;
+            BtnEvents.Foreground = page == "events" ? activeFg : inactiveFg;
+            BtnModSSF2.Foreground = page == "modssf2" ? activeFg : inactiveFg;
+            BtnResources.Foreground = page == "resources" ? activeFg : inactiveFg;
+            BtnSettings.Foreground = page == "settings" ? activeFg : inactiveFg;
+            BtnLog.Foreground = page == "log" ? activeFg : inactiveFg;
         }
 
         private void BtnBrowse_Click(object sender, RoutedEventArgs e) => SetActivePage("browse");
@@ -552,6 +786,7 @@ namespace SSF2ModManager
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+                // (no-op for theme changes here)
             }
 
             if (mod.Files == null || mod.Files.Count == 0)

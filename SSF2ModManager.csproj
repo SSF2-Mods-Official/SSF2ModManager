@@ -20,6 +20,11 @@
     <ItemGroup>
       <None Include="Languages\**" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
+    <ItemGroup>
+      <Content Include="Themes\**\*.xaml">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
 
   <ItemGroup>
     <Resource Include="SSF2M.png" />

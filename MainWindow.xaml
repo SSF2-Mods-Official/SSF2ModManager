@@ -10,7 +10,7 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" ResizeMode="CanResizeWithGrip"
         Icon="pack://application:,,,/SSF2M.png"
-        Background="{StaticResource BackgroundBrush}">
+        Background="{DynamicResource BackgroundBrush}">
 
     <Window.Resources>
         <converters:BoolToEnabledTextConverter x:Key="BoolToEnabledText"/>
@@ -29,7 +29,7 @@
         </Grid.RowDefinitions>
 
         <!-- Custom Title Bar -->
-        <Grid Grid.Row="0" Background="#FF0D1117" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+        <Grid Grid.Row="0" Background="{DynamicResource SidebarBrush}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -40,15 +40,15 @@
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
                 <Image Source="pack://application:,,,/SSF2M.png" Width="20" Height="20" Margin="4,0,6,0" RenderOptions.BitmapScalingMode="HighQuality"/>
                 <TextBlock Text="{local:Loc AppTitle}" FontSize="13" FontWeight="SemiBold"
-                           Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
+                           Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
             </StackPanel>
 
-            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,6,0">
+                                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,6,0">
                 <Button x:Name="BtnDiscord" Content="{local:Loc DiscordButton}" Click="BtnDiscord_Click" Cursor="Hand"
                         FontSize="11" Padding="10,4" Margin="0,0,4,0" VerticalAlignment="Center">
                     <Button.Style>
                         <Style TargetType="Button">
-                            <Setter Property="Background" Value="#FF5865F2"/>
+                            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
                             <Setter Property="Foreground" Value="White"/>
                             <Setter Property="BorderThickness" Value="0"/>
                             <Setter Property="Template">
@@ -72,7 +72,7 @@
                         FontSize="11" Padding="10,4" Margin="0,0,4,0" VerticalAlignment="Center">
                     <Button.Style>
                         <Style TargetType="Button">
-                            <Setter Property="Background" Value="#FF2D87FF"/>
+                            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                             <Setter Property="Foreground" Value="White"/>
                             <Setter Property="BorderThickness" Value="0"/>
                             <Setter Property="Template">
@@ -96,7 +96,7 @@
                         FontSize="11" Padding="10,4" Margin="0,0,4,0" VerticalAlignment="Center">
                     <Button.Style>
                         <Style TargetType="Button">
-                            <Setter Property="Background" Value="#FFFF5E5B"/>
+                            <Setter Property="Background" Value="{DynamicResource ErrorBrush}"/>
                             <Setter Property="Foreground" Value="White"/>
                             <Setter Property="BorderThickness" Value="0"/>
                             <Setter Property="Template">
@@ -123,7 +123,7 @@
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                             <Setter Property="BorderThickness" Value="0"/>
                             <Setter Property="Template">
                                 <Setter.Value>
@@ -146,7 +146,7 @@
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                             <Setter Property="BorderThickness" Value="0"/>
                             <Setter Property="Template">
                                 <Setter.Value>
@@ -169,7 +169,7 @@
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                             <Setter Property="BorderThickness" Value="0"/>
                             <Setter Property="Template">
                                 <Setter.Value>
@@ -199,12 +199,12 @@
             </Grid.ColumnDefinitions>
 
             <!-- Sidebar -->
-            <Border Grid.Column="0" Background="{StaticResource SidebarBrush}">
+                <Border Grid.Column="0" Background="{DynamicResource SidebarBrush}">
                 <DockPanel>
                     <Border DockPanel.Dock="Top" Height="1" Background="#20FFFFFF" Margin="16,14,16,10"/>
 
                     <StackPanel DockPanel.Dock="Bottom" Margin="20,10">
-                        <TextBlock Text="v1.1.0" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <TextBlock Text="v1.1.0" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="GameBanana API" FontSize="10" Foreground="#50FFFFFF"/>
                     </StackPanel>
 
@@ -246,7 +246,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Text="{local:Loc BrowseMods}" FontSize="22" FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
 
                 <Grid Grid.Row="1" Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
@@ -288,17 +288,17 @@
                 <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <TextBlock x:Name="TxtLoading" Text="{local:Loc LoadingMods}" 
-                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"
                                    HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
 
                         <TextBlock x:Name="TxtNoResults" Text="{local:Loc NoModsFound}" 
-                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"
                                    HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
 
                         <ItemsControl x:Name="ModBrowserList">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{StaticResource CardBrush}" CornerRadius="8" 
+                                    <Border Background="{DynamicResource CardBrush}" CornerRadius="8" 
                                             Padding="16" Margin="0,0,0,10"
                                             Tag="{Binding}" MouseEnter="BrowseCard_MouseEnter">
                                         <Grid>
@@ -316,23 +316,23 @@
 
                                             <StackPanel Grid.Column="1" Margin="12,0">
                                                 <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold"
-                                                           Foreground="{StaticResource TextPrimaryBrush}" 
+                                                           Foreground="{DynamicResource TextPrimaryBrush}" 
                                                            TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock FontSize="12" Margin="0,2,0,4">
-                                                    <Hyperlink Foreground="{StaticResource AccentBrush}" 
+                                                    <Hyperlink Foreground="{DynamicResource AccentBrush}" 
                                                                TextDecorations="None" Cursor="Hand"
                                                                Tag="{Binding}" Click="BtnSearchByCreator_Click">
                                                         <Run Text="{Binding AuthorName, Mode=OneWay}"/>
                                                     </Hyperlink>
                                                 </TextBlock>
                                                 <TextBlock Text="{Binding Description}" FontSize="12" MaxHeight="34"
-                                                           Foreground="{StaticResource TextSecondaryBrush}" 
+                                                           Foreground="{DynamicResource TextSecondaryBrush}" 
                                                            TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
                                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                                                     <TextBlock Text="{Binding StatsText}" FontSize="11"
-                                                               Foreground="#70FFFFFF"/>
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                     <TextBlock FontSize="11" Margin="12,0,0,0">
-                                                        <Hyperlink Foreground="{StaticResource PrimaryBrush}" 
+                                                            <Hyperlink Foreground="{DynamicResource PrimaryBrush}" 
                                                                    TextDecorations="None" Cursor="Hand"
                                                                    Tag="{Binding}" Click="BtnSearchByCategory_Click">
                                                             <Run Text="{Binding CategoryName, Mode=OneWay}"/>
@@ -375,7 +375,7 @@
                             <Button x:Name="BtnPrevPage" Content="{local:Loc PrevPageButton}" Style="{StaticResource ModernButton}" 
                                 Click="BtnPrevPage_Click" Margin="0,0,8,0" IsEnabled="False"/>
                         <TextBlock x:Name="TxtPageInfo" Text="Page 1" VerticalAlignment="Center"
-                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="13" Margin="8,0"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13" Margin="8,0"/>
                             <Button x:Name="BtnNextPage" Content="{local:Loc NextPageButton}" Style="{StaticResource ModernButton}" 
                                 Click="BtnNextPage_Click" Margin="8,0,0,0"/>
                     </StackPanel>
@@ -450,16 +450,16 @@
                 </Grid>
 
                 <!-- Mod Preview Panel -->
-                <Border Grid.Row="4" x:Name="PreviewPanel" Background="{StaticResource CardBrush}" 
-                        CornerRadius="8" Padding="16" Margin="0,8,0,0" MinHeight="80"
+                <Border Grid.Row="4" x:Name="PreviewPanel" Background="{DynamicResource CardBrush}" 
+                    CornerRadius="8" Padding="16" Margin="0,8,0,0" MinHeight="80"
                         MaxHeight="160" Visibility="Collapsed">
                     <StackPanel>
                         <TextBlock x:Name="TxtPreviewTitle" FontSize="14" FontWeight="SemiBold"
-                                   Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"
+                                   Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,4"
                                    TextTrimming="CharacterEllipsis"/>
                         <ScrollViewer MaxHeight="100" VerticalScrollBarVisibility="Auto">
                             <TextBlock x:Name="TxtPreviewDescription" FontSize="12" TextWrapping="Wrap"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </ScrollViewer>
                     </StackPanel>
                 </Border>
@@ -475,13 +475,13 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Text="{local:Loc InstalledMods}" FontSize="22" FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
                 <TextBlock x:Name="TxtModCount" Grid.Row="1" Text="{local:Loc InstalledMods}" FontSize="13"
-                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,12"/>
 
                 <!-- Filters -->
                 <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12">
-                    <TextBlock Text="Filter:" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" 
+                    <TextBlock Text="Filter:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" 
                                VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <ComboBox x:Name="CmbFilterBuild" Width="160" Style="{StaticResource ModernComboBox}"
                               SelectionChanged="CmbFilter_Changed" Margin="0,0,8,0"/>
@@ -496,13 +496,13 @@
                 <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <TextBlock x:Name="TxtNoMods" Text="{local:Loc NoModsInstalled}" 
-                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"
                                    HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
 
                         <ItemsControl x:Name="InstalledModsList">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{StaticResource CardBrush}" CornerRadius="8" 
+                                    <Border Background="{DynamicResource CardBrush}" CornerRadius="8" 
                                             Padding="16" Margin="0,0,0,10"
                                             Opacity="{Binding Enabled, Converter={StaticResource BoolToOpacity}}">
                                         <Grid>
@@ -518,16 +518,16 @@
 
                                             <StackPanel Grid.Column="1" Margin="0,0,12,0">
                                                 <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold"
-                                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                                                     <TextBlock Text="{Binding Author}" FontSize="12"
-                                                               Foreground="{StaticResource AccentBrush}"/>
-                                                    <TextBlock Text=" • " Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                                                   Foreground="{DynamicResource AccentBrush}"/>
+                                                    <TextBlock Text=" • " Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
                                                     <TextBlock Text="{Binding Category}" FontSize="12"
-                                                               Foreground="{StaticResource TextSecondaryBrush}"/>
-                                                    <TextBlock Text=" • " Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                    <TextBlock Text=" • " Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
                                                     <TextBlock Text="{Binding BuildDisplayName}" FontSize="12"
-                                                               Foreground="{StaticResource PrimaryBrush}"/>
+                                                                   Foreground="{DynamicResource PrimaryBrush}"/>
                                                 </StackPanel>
                                                 <TextBlock Text="{Binding Enabled, Converter={StaticResource BoolToEnabledText}}" 
                                                            FontSize="11" Margin="0,4,0,0"
@@ -561,18 +561,18 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Text="{local:Loc Settings}" FontSize="22" FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,20"/>
+                      <TextBlock Grid.Row="0" Text="{local:Loc Settings}" FontSize="22" FontWeight="SemiBold"
+                          Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,20"/>
 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <!-- SSF2 Versions -->
-                        <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <StackPanel>
                                 <TextBlock Text="{local:Loc InstalledBuilds}" FontSize="14" FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
                                 <TextBlock Text="{local:Loc AddVersionHelp}" FontSize="12"
-                                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,12"/>
 
                                 <ItemsControl x:Name="VersionsList">
                                     <ItemsControl.ItemTemplate>
@@ -585,10 +585,10 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" Text="{Binding DisplayName}" FontSize="13"
-                                                               FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}"
+                                                                               FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
                                                                MinWidth="100" VerticalAlignment="Center"/>
                                                     <TextBlock Grid.Column="1" Text="{Binding FolderPath}" FontSize="12" 
-                                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                                TextTrimming="CharacterEllipsis" Margin="12,0"
                                                                VerticalAlignment="Center"/>
                                                         <Button Grid.Column="2" Content="{local:Loc RemoveButton}" Style="{StaticResource DangerButton}"
@@ -601,7 +601,7 @@
 
                                 <TextBlock x:Name="TxtNoVersions" 
                                            Text="{local:Loc NoVersionsConfigured}"
-                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
                                            Margin="0,4,0,8" FontStyle="Italic"/>
 
                                 <Button Content="{local:Loc AddVersionButton}" Style="{StaticResource AccentButton}" 
@@ -610,21 +610,29 @@
 
                                 <!-- Language Selection -->
                                 <StackPanel Orientation="Horizontal" Margin="0,16,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{local:Loc Language}" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{local:Loc Language}" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                     <ComboBox x:Name="CmbLanguage" Width="160" SelectionChanged="CmbLanguage_SelectionChanged" Style="{StaticResource DarkComboBox}">
                                         <ComboBoxItem Content="{local:Loc LanguageEnglish}" Tag="en"/>
                                         <ComboBoxItem Content="{local:Loc LanguageSpanish}" Tag="es"/>
                                     </ComboBox>
                                 </StackPanel>
+                                <!-- Theme Selection -->
+                                <StackPanel Orientation="Vertical" Margin="0,12,0,0" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="Theme" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <ComboBox x:Name="CmbTheme" Width="220" SelectionChanged="CmbTheme_SelectionChanged" Style="{StaticResource DarkComboBox}"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="TxtThemeDebug" Text="" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
 
                         <!-- How Mods Work -->
-                        <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <StackPanel>
                                 <TextBlock Text="{local:Loc HowModsWork}" FontSize="14" FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
-                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" LineHeight="22">
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" LineHeight="22">
                                     <Run Text="{local:Loc HowMods_Step1}"/>
                                     <LineBreak/>
                                     <Run Text="{local:Loc HowMods_Step2}"/>
@@ -643,15 +651,15 @@
                         </Border>
 
                         <!-- About -->
-                        <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <StackPanel>
                                 <TextBlock Text="{local:Loc About}" FontSize="14" FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
-                                <TextBlock Text="{local:Loc AppTitle}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
-                                <TextBlock Text="Created by MasterWex" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
-                                <TextBlock Text="Spanish Translation by Fabi" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock Text="{local:Loc AppTitle}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Text="Created by MasterWex" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
+                                <TextBlock Text="Spanish Translation by Little Fabi" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
                                 <TextBlock Text="GameBanana Mod Manager for Super Smash Flash 2" 
-                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
+                                           Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
                                 <TextBlock Text="Powered by the GameBanana API" 
                                            Foreground="#50FFFFFF" FontSize="11" Margin="0,4,0,0"/>
                             </StackPanel>
@@ -677,12 +685,12 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Text="{local:Loc DebugLog}" FontSize="22" FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
 
-                <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="8" Padding="12">
+                <Border Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="12">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" x:Name="LogScrollViewer">
                         <TextBox x:Name="TxtDebugLog" IsReadOnly="True" TextWrapping="Wrap"
-                                 Background="Transparent" Foreground="{StaticResource TextSecondaryBrush}"
+                                 Background="Transparent" Foreground="{DynamicResource TextSecondaryBrush}"
                                  BorderThickness="0" FontFamily="Consolas" FontSize="11"
                                  VerticalScrollBarVisibility="Disabled"/>
                     </ScrollViewer>
@@ -705,20 +713,20 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Text="{local:Loc InstalledBuilds}" FontSize="22" FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
                 <TextBlock x:Name="TxtBuildCount" Grid.Row="1" Text="{local:Loc InstalledBuilds}" FontSize="13"
-                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16"/>
 
                 <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <TextBlock x:Name="TxtNoBuilds" Text="{local:Loc NoBuildsConfigured}" 
-                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="14"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"
                                    HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
 
                         <ItemsControl x:Name="BuildsList">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{StaticResource CardBrush}" CornerRadius="8" 
+                                    <Border Background="{DynamicResource CardBrush}" CornerRadius="8" 
                                             Padding="20" Margin="0,0,0,10">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
@@ -728,21 +736,21 @@
 
                                             <StackPanel Grid.Column="0">
                                                 <TextBlock Text="{Binding DisplayName}" FontSize="17" FontWeight="SemiBold"
-                                                           Foreground="{StaticResource AccentBrush}"/>
+                                                           Foreground="{DynamicResource AccentBrush}"/>
                                                 <TextBlock Text="{Binding FolderPath}" FontSize="12"
-                                                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,8"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,8"
                                                            TextTrimming="CharacterEllipsis"/>
 
                                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                                     <TextBlock Text="{Binding ModCountText}" FontSize="13"
-                                                               Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold"/>
+                                                               Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
                                                 </StackPanel>
 
                                                 <ItemsControl ItemsSource="{Binding CategoryBreakdown}" Margin="4,0,0,0">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
                                                             <TextBlock Text="{Binding}" FontSize="12"
-                                                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,1"/>
+                                                                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,1"/>
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
                                                 </ItemsControl>
@@ -779,10 +787,10 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Text="{local:Loc ManageCostumes}" FontSize="22" FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
-                <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                <Border Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
                     <TextBlock Text="Costume management coming soon. This will let you manage alternate character costumes for SSF2."
-                               FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                               FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                 </Border>
             </Grid>
 
@@ -793,10 +801,10 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Text="{local:Loc ManageEvents}" FontSize="22" FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
-                <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                <Border Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
                     <TextBlock Text="Event management coming soon. This will let you create and manage SSF2 events."
-                               FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                               FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                 </Border>
             </Grid>
 
@@ -807,10 +815,10 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Text="{local:Loc ModSSF2}" FontSize="22" FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
-                <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                <Border Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
                     <TextBlock Text="SSF2 modding tools coming soon. This will provide advanced tools for modding SSF2 directly."
-                               FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                               FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                 </Border>
             </Grid>
 
@@ -821,11 +829,11 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Text="{local:Loc Resources}" FontSize="22" FontWeight="SemiBold"
-                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <!-- Sandbox -->
-                        <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -833,9 +841,9 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="🎨 Sandbox" FontSize="16" FontWeight="SemiBold"
-                                               Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                                               Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,4"/>
                                     <TextBlock Text="Color Vault — A tool for creating and editing SSF2 color palettes and texture swaps."
-                                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                               FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                                 </StackPanel>
                                 <Button Grid.Column="1" Content="{local:Loc OpenButton}" Style="{StaticResource AccentButton}"
                                     Tag="https://color-vault.github.io/Color-Vault/downloads.html"
@@ -844,7 +852,7 @@
                         </Border>
 
                         <!-- Reflash 2 -->
-                        <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -852,9 +860,9 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="⚡ Reflash 2" FontSize="16" FontWeight="SemiBold"
-                                               Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                                               Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,4"/>
                                     <TextBlock Text="An open-source tool for reflashing and modifying SSF2 builds."
-                                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                               FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                                 </StackPanel>
                                 <Button Grid.Column="1" Content="{local:Loc OpenButton}" Style="{StaticResource AccentButton}"
                                     Tag="https://github.com/SSF2-Mods-Official/reflash2"
@@ -863,7 +871,7 @@
                         </Border>
 
                         <!-- SSF2 Modding Vault -->
-                        <Border Background="{StaticResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -871,9 +879,9 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="📦 SSF2 Modding Vault" FontSize="16" FontWeight="SemiBold"
-                                               Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                                               Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,4"/>
                                     <TextBlock Text="A curated collection of SSF2 modding resources, tools, and documentation."
-                                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                               FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                                 </StackPanel>
                                 <Button Grid.Column="1" Content="{local:Loc OpenButton}" Style="{StaticResource AccentButton}"
                                     Tag="https://github.com/SSF2-Mods-Official/ssf2-modding-vault"
@@ -886,18 +894,18 @@
 
             <!-- Download overlay -->
             <Border x:Name="DownloadOverlay" Background="#CC000000" Visibility="Collapsed">
-                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="12" 
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="12" 
                         Padding="32" VerticalAlignment="Center" HorizontalAlignment="Center"
                         MinWidth="350">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock x:Name="TxtDownloadStatus" Text="Downloading mod..." FontSize="16" 
-                                   FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"
+                                   FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"
                                    HorizontalAlignment="Center" Margin="0,0,0,12"/>
                         <ProgressBar x:Name="DownloadProgress" Width="280" Height="6" 
                                      Minimum="0" Maximum="100" Value="0"
-                                     Foreground="{StaticResource PrimaryBrush}" Background="#30FFFFFF"/>
+                                     Foreground="{DynamicResource PrimaryBrush}" Background="#30FFFFFF"/>
                         <TextBlock x:Name="TxtDownloadPercent" Text="0%" FontSize="12"
-                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}" 
                                    HorizontalAlignment="Center" Margin="0,8,0,0"/>
                     </StackPanel>
                 </Border>

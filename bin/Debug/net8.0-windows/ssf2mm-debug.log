@@ -1,4 +1,4 @@
-[OnStartup] 3/22/2026 4:24:11 PM: Entered
+[OnStartup] 3/22/2026 8:22:21 PM: Entered
 [OnStartup] Loading language: en
 [OnStartup] Language loaded
 [OnStartup] base.OnStartup complete
@@ -8,7 +8,146 @@
 [MainWindow] InitializeComponent succeeded
 [MainWindow] ctor: InitializeComponent done
 [MainWindow] ctor: UI text set
+[MainWindow] Theme selected: theme-highcontrast
+[MainWindow] DumpThemeDebug:
+Applied theme: theme-highcontrast
+Merged dictionaries: 1
+  [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+Key: BackgroundBrush => SolidColorBrush #FF000000
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: TextPrimaryBrush => SolidColorBrush #FFFFFFFF
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: TextSecondaryBrush => SolidColorBrush #FFFFFFFF
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: AccentBrush => SolidColorBrush #FFFF00FF
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: CardBrush => SolidColorBrush #FF000000
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: PrimaryBrush => SolidColorBrush #FFFF00FF
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: SidebarBrush => SolidColorBrush #FF000000
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: SurfaceBrush => SolidColorBrush #FF000000
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Keys present: BackgroundBrush, TextPrimaryBrush, TextSecondaryBrush, AccentBrush, CardBrush, PrimaryBrush, SidebarBrush, SurfaceBrush
+
+[MainWindow] LiveValues:
+Window.Background: #FF000000
+BtnBrowse.Background: #FFFF00FF
+BtnBrowse.Foreground: #FFFFFFFF
+
+[MainWindow] DumpThemeDebug:
+Applied theme: theme-highcontrast
+Merged dictionaries: 1
+  [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+Key: BackgroundBrush => SolidColorBrush #FF000000
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: TextPrimaryBrush => SolidColorBrush #FFFFFFFF
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: TextSecondaryBrush => SolidColorBrush #FFFFFFFF
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: AccentBrush => SolidColorBrush #FFFF00FF
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: CardBrush => SolidColorBrush #FF000000
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: PrimaryBrush => SolidColorBrush #FFFF00FF
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: SidebarBrush => SolidColorBrush #FF000000
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: SurfaceBrush => SolidColorBrush #FF000000
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Keys present: BackgroundBrush, TextPrimaryBrush, TextSecondaryBrush, AccentBrush, CardBrush, PrimaryBrush, SidebarBrush, SurfaceBrush
+
+[MainWindow] LiveValues:
+Window.Background: #FF000000
+BtnBrowse.Background: #FFFF00FF
+BtnBrowse.Foreground: #FFFFFFFF
+
 [MainWindow] ctor: End
 [MainWindow] Loaded handler start
 [OnStartup] MainWindow.Show() complete
 [MainWindow] Loaded handler complete
+[MainWindow] Theme selected: theme-default
+[ThemeManager] ApplyTheme EX: System.Windows.Markup.XamlParseException: 'Failed to create a 'Color' from the text '{StaticResource AccentColor}'.' Line number '17' and line position '73'.
+ ---> System.FormatException: Token is not valid.
+   at MS.Internal.Parsers.ParseColor(String color, IFormatProvider formatProvider, ITypeDescriptorContext context)
+   at System.Windows.Media.ColorConverter.ConvertFrom(ITypeDescriptorContext td, CultureInfo ci, Object value)
+   at MS.Internal.Xaml.Runtime.ClrObjectRuntime.CreateObjectWithTypeConverter(ServiceProviderContext serviceContext, XamlValueConverter`1 ts, Object value)
+   at System.Xaml.XamlObjectWriter.Logic_CreateFromValue(ObjectWriterContext ctx, XamlValueConverter`1 typeConverter, Object value, XamlMember property, String targetName, IAddLineInfo lineInfo)
+   --- End of inner exception stack trace ---
+   at System.Windows.Markup.XamlReader.RewrapException(Exception e, IXamlLineInfo lineInfo, Uri baseUri)
+   at System.Windows.Markup.WpfXamlLoader.Load(XamlReader xamlReader, IXamlObjectWriterFactory writerFactory, Boolean skipJournaledProperties, Object rootObject, XamlObjectWriterSettings settings, Uri baseUri)
+   at System.Windows.Markup.WpfXamlLoader.Load(XamlReader xamlReader, Boolean skipJournaledProperties, Uri baseUri)
+   at System.Windows.Markup.XamlReader.Load(XamlReader xamlReader, ParserContext parserContext)
+   at System.Windows.Markup.XamlReader.Load(XmlReader reader, ParserContext parserContext, XamlParseMode parseMode, Boolean useRestrictiveXamlReader, List`1 safeTypes)
+   at System.Windows.Markup.XamlReader.Load(Stream stream, ParserContext parserContext, Boolean useRestrictiveXamlReader)
+   at MS.Internal.AppModel.AppModelKnownContentFactory.XamlConverterCore(Stream stream, Uri baseUri, Boolean canUseTopLevelBrowser, Boolean sandboxExternalContent, Boolean allowAsync, Boolean isJournalNavigation, XamlReader& asyncObjectConverter, Boolean isUnsafe)
+   at MS.Internal.AppModel.MimeObjectFactory.GetObjectAndCloseStreamCore(Stream s, ContentType contentType, Uri baseUri, Boolean canUseTopLevelBrowser, Boolean sandboxExternalContent, Boolean allowAsync, Boolean isJournalNavigation, XamlReader& asyncObjectConverter, Boolean isUnsafe)
+   at System.Windows.ResourceDictionary.set_Source(Uri value)
+   at SSF2ModManager.Services.ThemeManager.ApplyTheme(String themeName) in C:\Users\glwex\Documents\GitHub\SSF2ModManager\Services\ThemeManager.cs:line 78
+[MainWindow] DumpThemeDebug:
+Applied theme: theme-default
+Merged dictionaries: 0
+Key: BackgroundBrush => SolidColorBrush #FF000000
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: TextPrimaryBrush => SolidColorBrush #FFFFFFFF
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: TextSecondaryBrush => SolidColorBrush #FFFFFFFF
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: AccentBrush => SolidColorBrush #FFFF00FF
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: CardBrush => SolidColorBrush #FF000000
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: PrimaryBrush => SolidColorBrush #FFFF00FF
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: SidebarBrush => SolidColorBrush #FF000000
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Key: SurfaceBrush => SolidColorBrush #FF000000
+    provider: application resources
+    TryFindResource: SolidColorBrush
+Keys present: BackgroundBrush, TextPrimaryBrush, TextSecondaryBrush, AccentBrush, CardBrush, PrimaryBrush, SidebarBrush, SurfaceBrush
+
+[MainWindow] LiveValues:
+Window.Background: #FF000000
+BtnBrowse.Background: #00FFFFFF
+BtnBrowse.Foreground: #FFFFFFFF
+

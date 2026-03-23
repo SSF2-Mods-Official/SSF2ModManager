@@ -328,22 +328,38 @@ namespace SSF2ModManager.Dialogs
 
         private static Border MakeSeparator()
         {
+            var sepBrush = System.Windows.Application.Current.TryFindResource("SeparatorBrush") as System.Windows.Media.Brush;
+            if (sepBrush == null)
+            {
+                var secondary = System.Windows.Application.Current.TryFindResource("TextSecondaryBrush") as System.Windows.Media.SolidColorBrush;
+                if (secondary != null)
+                {
+                    var c = secondary.Color;
+                    sepBrush = new System.Windows.Media.SolidColorBrush(Color.FromArgb(0x30, c.R, c.G, c.B));
+                }
+                else
+                {
+                    sepBrush = new System.Windows.Media.SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF));
+                }
+            }
+
             return new Border
             {
                 Height = 1,
-                Background = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
+                Background = sepBrush,
                 Margin = new Thickness(0, 12, 0, 12)
             };
         }
 
         private static Button MakeButton(string text, SolidColorBrush bg, double fontSize)
         {
+            var fg = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? Brushes.Black;
             return new Button
             {
                 Content = text,
                 Padding = new Thickness(14, 7, 14, 7),
                 Background = bg,
-                Foreground = Brushes.White,
+                Foreground = fg,
                 BorderThickness = new Thickness(0),
                 FontSize = fontSize,
                 Cursor = Cursors.Hand,

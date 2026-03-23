@@ -28,3 +28,16 @@ C:\Users\glwex\Documents\GitHub\SSF2ModManager\obj\Debug\net8.0-windows\SSF2ModM
 C:\Users\glwex\Documents\GitHub\SSF2ModManager\obj\Debug\net8.0-windows\ref\SSF2ModManager.dll
 C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Languages\lang-en.json
 C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Languages\lang-es.json
+c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
+c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-forest.xaml
+c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-highcontrast.xaml
+c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-light.xaml
+c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-midnight.xaml
+c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-pastel.xaml
+c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-retro.xaml
+c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-solarized.xaml
+c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-sunset.xaml
+c:\Users\glwex\Documents\GitHub\SSF2ModManager\obj\Debug\net8.0-windows\SSF2ModManager_Content.g.cs
+c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
+C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml

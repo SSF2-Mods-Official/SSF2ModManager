@@ -40,9 +40,9 @@ namespace SSF2ModManager.Dialogs
             _textBox = new TextBox
             {
                 Background = new SolidColorBrush(Color.FromRgb(15, 52, 96)),
-                Foreground = new SolidColorBrush(Color.FromRgb(224, 224, 224)),
+                Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(224, 224, 224)),
                 BorderBrush = new SolidColorBrush(Color.FromRgb(51, 51, 102)),
-                CaretBrush = new SolidColorBrush(Colors.White),
+                CaretBrush = System.Windows.Application.Current.TryFindResource("CaretBrush") as System.Windows.Media.Brush ?? Brushes.Black,
                 FontSize = 14,
                 Padding = new Thickness(10, 8, 10, 8),
                 MaxLength = maxLength > 0 ? maxLength : 0
@@ -67,7 +67,7 @@ namespace SSF2ModManager.Dialogs
                 Content = "  OK  ",
                 Padding = new Thickness(16, 8, 16, 8),
                 Background = new SolidColorBrush(Color.FromRgb(30, 136, 229)),
-                Foreground = Brushes.White,
+                Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? Brushes.Black,
                 BorderThickness = new Thickness(0),
                 FontSize = 13,
                 Cursor = Cursors.Hand,
@@ -84,7 +84,7 @@ namespace SSF2ModManager.Dialogs
                 Content = "Cancel",
                 Padding = new Thickness(16, 8, 16, 8),
                 Background = new SolidColorBrush(Color.FromRgb(229, 57, 53)),
-                Foreground = Brushes.White,
+                Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? Brushes.Black,
                 BorderThickness = new Thickness(0),
                 FontSize = 13,
                 Cursor = Cursors.Hand

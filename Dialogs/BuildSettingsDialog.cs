@@ -82,7 +82,7 @@ namespace SSF2ModManager.Dialogs
                 Background = fieldBg,
                 Foreground = textPrimary,
                 BorderBrush = fieldBorder,
-                CaretBrush = Brushes.White,
+                CaretBrush = System.Windows.Application.Current.TryFindResource("CaretBrush") as System.Windows.Media.Brush ?? Brushes.Black,
                 FontSize = 14,
                 Padding = new Thickness(10, 8, 10, 8)
             };
@@ -120,7 +120,7 @@ namespace SSF2ModManager.Dialogs
             root.Children.Add(new Border
             {
                 Height = 1,
-                Background = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
+                Background = System.Windows.Application.Current.TryFindResource("SeparatorBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
                 Margin = new Thickness(0, 20, 0, 16)
             });
 
@@ -152,7 +152,7 @@ namespace SSF2ModManager.Dialogs
             root.Children.Add(new Border
             {
                 Height = 1,
-                Background = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
+                Background = System.Windows.Application.Current.TryFindResource("SeparatorBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
                 Margin = new Thickness(0, 20, 0, 16)
             });
 
@@ -258,12 +258,13 @@ namespace SSF2ModManager.Dialogs
 
         private static Button MakeButton(string text, SolidColorBrush bg, double fontSize)
         {
+            var fg = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? Brushes.Black;
             return new Button
             {
                 Content = text,
                 Padding = new Thickness(14, 7, 14, 7),
                 Background = bg,
-                Foreground = Brushes.White,
+                Foreground = fg,
                 BorderThickness = new Thickness(0),
                 FontSize = fontSize,
                 Cursor = Cursors.Hand,
