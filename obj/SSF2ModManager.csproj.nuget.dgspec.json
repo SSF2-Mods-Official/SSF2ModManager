@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\glwex\\Documents\\GitHub\\SSF2ModManager\\SSF2ModManager.csproj": {}
+    "c:\\Users\\glwex\\Documents\\GitHub\\SSF2ModManager\\SSF2ModManager.csproj": {}
   },
   "projects": {
-    "C:\\Users\\glwex\\Documents\\GitHub\\SSF2ModManager\\SSF2ModManager.csproj": {
+    "c:\\Users\\glwex\\Documents\\GitHub\\SSF2ModManager\\SSF2ModManager.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\glwex\\Documents\\GitHub\\SSF2ModManager\\SSF2ModManager.csproj",
+        "projectUniqueName": "c:\\Users\\glwex\\Documents\\GitHub\\SSF2ModManager\\SSF2ModManager.csproj",
         "projectName": "SSF2ModManager",
-        "projectPath": "C:\\Users\\glwex\\Documents\\GitHub\\SSF2ModManager\\SSF2ModManager.csproj",
+        "projectPath": "c:\\Users\\glwex\\Documents\\GitHub\\SSF2ModManager\\SSF2ModManager.csproj",
         "packagesPath": "C:\\Users\\glwex\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\glwex\\Documents\\GitHub\\SSF2ModManager\\obj\\",
+        "outputPath": "c:\\Users\\glwex\\Documents\\GitHub\\SSF2ModManager\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

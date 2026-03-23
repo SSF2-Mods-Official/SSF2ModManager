@@ -310,10 +310,7 @@ namespace SSF2ModManager.Services
                 DebugLogger.Log($"Copied file: {file.FileName}");
             }
 
-            // Clean up cache
-            try { File.Delete(cachePath); } catch { }
-
-            // Create mod record
+            // Create mod record early so metadata (info.json) can be applied to it
             var installedMod = new InstalledMod
             {
                 Id = Guid.NewGuid().ToString(),
@@ -332,6 +329,50 @@ namespace SSF2ModManager.Services
                 IsGameFiles = isGameFiles,
                 BackedUpFiles = new List<BackedUpFile>()
             };
+
+            // Look for optional info.json in the extracted mod and apply metadata
+            try
+            {
+                string? infoPath = null;
+                // Prefer root-level info.json
+                var rootCandidate = Path.Combine(modPath, "info.json");
+                if (File.Exists(rootCandidate)) infoPath = rootCandidate;
+                else
+                {
+                    var found = Directory.GetFiles(modPath, "info.json", SearchOption.AllDirectories).FirstOrDefault();
+                    if (found != null) infoPath = found;
+                }
+
+                if (!string.IsNullOrEmpty(infoPath))
+                {
+                    DebugLogger.Log($"Found info.json at {infoPath}, parsing metadata");
+                    try
+                    {
+                        var txt = File.ReadAllText(infoPath);
+                        dynamic? info = JsonConvert.DeserializeObject(txt);
+                        if (info != null)
+                        {
+                            if (info.creator != null) installedMod.Creator = (string)info.creator;
+                            if (info.mod_type != null) installedMod.ModType = (string)info.mod_type;
+                            if (info.ssf2_version != null)
+                            {
+                                var sv = (string)info.ssf2_version;
+                                // If targetVersion was default/empty, adopt info.json version; otherwise keep user selection
+                                if (string.IsNullOrEmpty(targetVersion) || targetVersion.StartsWith("Auto", StringComparison.OrdinalIgnoreCase))
+                                    installedMod.TargetVersion = sv;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        DebugLogger.Error("Failed to parse info.json", ex);
+                    }
+                }
+            }
+            catch { }
+
+            // Clean up cache
+            try { File.Delete(cachePath); } catch { }
 
             // Deploy .ssf files to data folder (unless Game files category)
             if (!isGameFiles)

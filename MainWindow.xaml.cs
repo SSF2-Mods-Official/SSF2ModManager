@@ -206,6 +206,21 @@ namespace SSF2ModManager
                     foreach (var t in _themeManager.GetAvailableThemes())
                     {
                         // Display nicer name by stripping leading "theme-" if present
+                    // Populate Mod SSF2 page version dropdown
+                    try
+                    {
+                        if (FindName("CmbInfoSSF2Version") is System.Windows.Controls.ComboBox ver)
+                        {
+                            ver.Items.Clear();
+                            foreach (var v in ModManagerService.KnownVersions)
+                                ver.Items.Add(new ComboBoxItem() { Content = v });
+                            ver.SelectedIndex = 0;
+                        }
+                        if (FindName("CmbInfoModType") is System.Windows.Controls.ComboBox mt && mt.Items.Count > 0)
+                            mt.SelectedIndex = 0;
+                    }
+                    catch { }
+
                         var display = t.StartsWith("theme-", StringComparison.OrdinalIgnoreCase) ? t[6..] : t;
                         var item = new ComboBoxItem() { Content = display, Tag = t };
                         themeCombo.Items.Add(item);
@@ -337,6 +352,50 @@ namespace SSF2ModManager
             {
                 try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Theme change EX: {ex}\n"); } catch { }
             }
+        }
+
+        private void BtnSaveInfoJson_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var creator = (FindName("TxtInfoCreator") as System.Windows.Controls.TextBox)?.Text ?? "";
+                var ver = (FindName("CmbInfoSSF2Version") as System.Windows.Controls.ComboBox)?.SelectedItem as ComboBoxItem;
+                var verText = ver?.Content?.ToString() ?? "";
+                var mt = (FindName("CmbInfoModType") as System.Windows.Controls.ComboBox)?.SelectedItem as ComboBoxItem;
+                var mtText = mt?.Content?.ToString() ?? "";
+
+                var obj = new
+                {
+                    creator = string.IsNullOrWhiteSpace(creator) ? null : creator,
+                    ssf2_version = string.IsNullOrWhiteSpace(verText) ? null : verText,
+                    mod_type = string.IsNullOrWhiteSpace(mtText) ? null : mtText
+                };
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.Indented,
+                    new Newtonsoft.Json.JsonSerializerSettings { NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore });
+
+                var dlg = new Microsoft.Win32.SaveFileDialog { Title = "Save info.json", Filter = "JSON files|*.json", FileName = "info.json" };
+                if (dlg.ShowDialog() == true)
+                {
+                    File.WriteAllText(dlg.FileName, json);
+                    MessageBox.Show($"Saved info.json to:\n{dlg.FileName}", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to save info.json:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnFillDefaults_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Fill creator with current user / app author and leave other defaults
+                var creatorBox = FindName("TxtInfoCreator") as System.Windows.Controls.TextBox;
+                if (creatorBox != null && string.IsNullOrWhiteSpace(creatorBox.Text))
+                    creatorBox.Text = Environment.UserName ?? "";
+            }
+            catch { }
         }
 
         private void DumpThemeDebug(string themeName)

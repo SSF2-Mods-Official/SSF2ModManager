@@ -817,8 +817,41 @@
                 <TextBlock Grid.Row="0" Text="{local:Loc ModSSF2}" FontSize="22" FontWeight="SemiBold"
                            Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                 <Border Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
-                    <TextBlock Text="SSF2 modding tools coming soon. This will provide advanced tools for modding SSF2 directly."
-                               FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                    <StackPanel>
+                        <TextBlock Text="SSF2 modding tools coming soon. This will provide advanced tools for modding SSF2 directly."
+                                   FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+
+                        <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="6" Padding="12">
+                            <StackPanel>
+                                <TextBlock Text="Create info.json (optional)" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <TextBlock Text="Creator:" Width="80" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBox x:Name="TxtInfoCreator" Width="260"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <TextBlock Text="SSF2 Version:" Width="80" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <ComboBox x:Name="CmbInfoSSF2Version" Width="260"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <TextBlock Text="Mod Type:" Width="80" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <ComboBox x:Name="CmbInfoModType" Width="260">
+                                        <ComboBoxItem>Character</ComboBoxItem>
+                                        <ComboBoxItem>Stage</ComboBoxItem>
+                                        <ComboBoxItem>Texture</ComboBoxItem>
+                                        <ComboBoxItem>Music</ComboBoxItem>
+                                        <ComboBoxItem>Script</ComboBoxItem>
+                                        <ComboBoxItem>Mod Pack</ComboBoxItem>
+                                        <ComboBoxItem>Other</ComboBoxItem>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0" HorizontalAlignment="Left">
+                                    <Button x:Name="BtnSaveInfoJson" Content="Save As" Style="{StaticResource AccentButton}" Click="BtnSaveInfoJson_Click" Padding="12,6"/>
+                                    <Button x:Name="BtnFillDefaults" Content="Fill Defaults" Margin="8,0,0,0" Padding="12,6" Click="BtnFillDefaults_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </Border>
             </Grid>
 

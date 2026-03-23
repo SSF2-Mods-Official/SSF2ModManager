@@ -24,6 +24,9 @@ namespace SSF2ModManager.Models
         public int GameBananaId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Author { get; set; } = string.Empty;
+        // Optional metadata from info.json
+        public string Creator { get; set; } = string.Empty;
+        public string ModType { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
         public string Version { get; set; } = string.Empty;
