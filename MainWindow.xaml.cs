@@ -614,6 +614,7 @@ namespace SSF2ModManager
             PageEvents.Visibility = page == "events" ? Visibility.Visible : Visibility.Collapsed;
             PageModSSF2.Visibility = page == "modssf2" ? Visibility.Visible : Visibility.Collapsed;
             PageResources.Visibility = page == "resources" ? Visibility.Visible : Visibility.Collapsed;
+            PageNews.Visibility = page == "news" ? Visibility.Visible : Visibility.Collapsed;
             PageSettings.Visibility = page == "settings" ? Visibility.Visible : Visibility.Collapsed;
             PageLog.Visibility = page == "log" ? Visibility.Visible : Visibility.Collapsed;
 
@@ -624,6 +625,7 @@ namespace SSF2ModManager
             BtnEvents.Style = (Style)FindResource(page == "events" ? "SidebarButtonActive" : "SidebarButton");
             BtnModSSF2.Style = (Style)FindResource(page == "modssf2" ? "SidebarButtonActive" : "SidebarButton");
             BtnResources.Style = (Style)FindResource(page == "resources" ? "SidebarButtonActive" : "SidebarButton");
+            BtnNews.Style = (Style)FindResource(page == "news" ? "SidebarButtonActive" : "SidebarButton");
             BtnSettings.Style = (Style)FindResource(page == "settings" ? "SidebarButtonActive" : "SidebarButton");
             BtnLog.Style = (Style)FindResource(page == "log" ? "SidebarButtonActive" : "SidebarButton");
 
@@ -638,6 +640,7 @@ namespace SSF2ModManager
             BtnEvents.Foreground = page == "events" ? activeFg : inactiveFg;
             BtnModSSF2.Foreground = page == "modssf2" ? activeFg : inactiveFg;
             BtnResources.Foreground = page == "resources" ? activeFg : inactiveFg;
+            BtnNews.Foreground = page == "news" ? activeFg : inactiveFg;
             BtnSettings.Foreground = page == "settings" ? activeFg : inactiveFg;
             BtnLog.Foreground = page == "log" ? activeFg : inactiveFg;
         }
@@ -652,6 +655,21 @@ namespace SSF2ModManager
 
         private void BtnCostumes_Click(object sender, RoutedEventArgs e) => SetActivePage("costumes");
         private void BtnEvents_Click(object sender, RoutedEventArgs e) => SetActivePage("events");
+        private void BtnNews_Click(object sender, RoutedEventArgs e)
+        {
+            SetActivePage("news");
+            try
+            {
+                var np = FindName("PageNews") as dynamic;
+                if (np != null)
+                {
+                    // Use local News folder in repo for now (explicit workspace path)
+                    var newsPath = @"C:\Users\glwex\Documents\GitHub\SSF2ModManager\News";
+                    np.LoadLocal(newsPath);
+                }
+            }
+            catch { }
+        }
         private void BtnModSSF2_Click(object sender, RoutedEventArgs e) => SetActivePage("modssf2");
         private void BtnResources_Click(object sender, RoutedEventArgs e) => SetActivePage("resources");
 

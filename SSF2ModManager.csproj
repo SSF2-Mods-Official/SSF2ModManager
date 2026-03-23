@@ -15,6 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SharpCompress" Version="0.36.0" />
+    <PackageReference Include="Markdig" Version="0.30.2" />
   </ItemGroup>
 
     <ItemGroup>

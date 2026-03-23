@@ -41,3 +41,6 @@ c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\t
 c:\Users\glwex\Documents\GitHub\SSF2ModManager\obj\Debug\net8.0-windows\SSF2ModManager_Content.g.cs
 c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-friendly.xaml
 C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-default.xaml
+C:\Users\glwex\Documents\GitHub\SSF2ModManager\obj\Debug\net8.0-windows\Views\NewsPage.baml
+C:\Users\glwex\Documents\GitHub\SSF2ModManager\obj\Debug\net8.0-windows\Views\NewsPage.g.cs
+c:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Markdig.dll

@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:SSF2ModManager.Converters"
         xmlns:local="clr-namespace:SSF2ModManager"
+        xmlns:views="clr-namespace:SSF2ModManager.Views"
         mc:Ignorable="d"
         Title="{local:Loc AppTitle}" Height="700" Width="1050" MinWidth="800" MinHeight="550"
         WindowStartupLocation="CenterScreen"
@@ -219,6 +220,8 @@
                             Style="{StaticResource SidebarButton}" Click="BtnCostumes_Click"/>
                         <Button x:Name="BtnEvents" Content="{local:Loc EventsSidebar}" 
                             Style="{StaticResource SidebarButton}" Click="BtnEvents_Click"/>
+                        <Button x:Name="BtnNews" Content="📰  News" 
+                            Style="{StaticResource SidebarButton}" Click="BtnNews_Click"/>
                         <Button x:Name="BtnModSSF2" Content="{local:Loc ModSSF2Sidebar}" 
                             Style="{StaticResource SidebarButton}" Click="BtnModSSF2_Click"/>
                         <Button x:Name="BtnResources" Content="{local:Loc ResourcesSidebar}" 
@@ -676,6 +679,9 @@
                 </ScrollViewer>
             </Grid>
 
+            <!-- ═══ News Page ═══ -->
+            <views:NewsPage x:Name="PageNews" Visibility="Collapsed" Margin="24,20" />
+
             <!-- ═══ Debug Log Page ═══ -->
             <Grid x:Name="PageLog" Margin="24,20" Visibility="Collapsed">
                 <Grid.RowDefinitions>
@@ -773,9 +779,13 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <Button Content="{local:Loc AddVersionButton}" Style="{StaticResource AccentButton}" 
-                            Click="BtnAddVersion_Click" HorizontalAlignment="Left"
-                            Margin="0,12,0,0" Padding="16,8"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0" HorizontalAlignment="Left">
+                            <Button Content="{local:Loc AddVersionButton}" Style="{StaticResource AccentButton}"
+                                Click="BtnAddVersion_Click" Padding="16,8"/>
+                            <Button Content="Download SSF2" Style="{StaticResource ModernButton}"
+                                Tag="https://www.supersmashflash.com/play/ssf2/downloads/archives/"
+                                Click="BtnResourceLink_Click" Margin="8,0,0,0" Padding="12,8"/>
+                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>
@@ -875,7 +885,7 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="🎨 Sandbox" FontSize="16" FontWeight="SemiBold"
                                                Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,4"/>
-                                    <TextBlock Text="Color Vault — A tool for creating and editing SSF2 color palettes and texture swaps."
+                                    <TextBlock Text="Modpack from SSF2 1.3 with large collection of mods and easy installation."
                                                FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                                 </StackPanel>
                                 <Button Grid.Column="1" Content="{local:Loc OpenButton}" Style="{StaticResource AccentButton}"
