@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("GameBanana Mod Manager for Super Smash Flash 2")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2c28d900dbcf256d535d74fccdcd8ff35510b703")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+663afd76be8c1b5f8bf2bae7f5d9383f3c20552c")]
 [assembly: System.Reflection.AssemblyProductAttribute("SSF2ModManager")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SSF2 Mod Manager")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

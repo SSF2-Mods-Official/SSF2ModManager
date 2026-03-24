@@ -10,6 +10,7 @@
     <ApplicationIcon>SSF2M.ico</ApplicationIcon>
     <AssemblyTitle>SSF2 Mod Manager</AssemblyTitle>
     <Description>GameBanana Mod Manager for Super Smash Flash 2</Description>
+    <DefaultItemExcludes>$(DefaultItemExcludes);SSF2ModManager.Tests\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

@@ -29,7 +29,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Custom Title Bar -->
+    <!-- Custom Title Bar -->
         <Grid Grid.Row="0" Background="{DynamicResource SidebarBrush}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -43,6 +43,21 @@
                 <TextBlock Text="{local:Loc AppTitle}" FontSize="13" FontWeight="SemiBold"
                            Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
             </StackPanel>
+
+        <!-- Full-window loading overlay (hidden by default) -->
+        <Grid x:Name="OverlayLoading" Grid.RowSpan="2" Visibility="Collapsed" Background="#80000000" IsHitTestVisible="True">
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Ellipse x:Name="OverlaySpinner" Width="64" Height="64" Stroke="{DynamicResource AccentBrush}" StrokeThickness="6"
+                             StrokeDashArray="2 2" RenderTransformOrigin="0.5,0.5">
+                        <Ellipse.RenderTransform>
+                            <RotateTransform Angle="0"/>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                    <TextBlock x:Name="TxtOverlayMessage" Text="Checking for updates..." Margin="0,12,0,0" HorizontalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
 
                                      <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,6,0">
                 <Button x:Name="BtnDiscord" Content="{local:Loc DiscordButton}" Click="BtnDiscord_Click" Cursor="Hand"
@@ -222,10 +237,8 @@
                             Style="{StaticResource SidebarButton}" Click="BtnEvents_Click"/>
                         <Button x:Name="BtnNews" Content="📰  News" 
                             Style="{StaticResource SidebarButton}" Click="BtnNews_Click"/>
-                        <Button x:Name="BtnModSSF2" Content="{local:Loc ModSSF2Sidebar}" 
-                            Style="{StaticResource SidebarButton}" Click="BtnModSSF2_Click"/>
-                        <Button x:Name="BtnResources" Content="{local:Loc ResourcesSidebar}" 
-                            Style="{StaticResource SidebarButton}" Click="BtnResources_Click"/>
+                        <Button x:Name="BtnGettingStarted" Content="📘  Getting Started" 
+                            Style="{StaticResource SidebarButton}" Click="BtnGettingStarted_Click"/>
                         <Button x:Name="BtnSettings" Content="{local:Loc SettingsSidebar}" 
                             Style="{StaticResource SidebarButton}" Click="BtnSettings_Click"/>
                         <Border Height="1" Background="#20FFFFFF" Margin="16,8"/>
@@ -288,7 +301,7 @@
                             Style="{StaticResource ModernButton}" Click="BtnInstallLocal_Click"/>
                 </Grid>
 
-                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer x:Name="BrowseScrollViewer" Grid.Row="2" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <TextBlock x:Name="TxtLoading" Text="{local:Loc LoadingMods}" 
                                    Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"
@@ -488,17 +501,16 @@
                                VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <ComboBox x:Name="CmbFilterBuild" Width="160" Style="{StaticResource ModernComboBox}"
                               SelectionChanged="CmbFilter_Changed" Margin="0,0,8,0"/>
-                    <ComboBox x:Name="CmbFilterVersion" Width="160" Style="{StaticResource ModernComboBox}"
-                              SelectionChanged="CmbFilter_Changed" Margin="0,0,8,0"/>
+                    <!-- Version filter removed per request -->
                     <ComboBox x:Name="CmbFilterCategory" Width="140" Style="{StaticResource ModernComboBox}"
                               SelectionChanged="CmbFilter_Changed" Margin="0,0,8,0"/>
                     <ComboBox x:Name="CmbFilterCreator" Width="150" Style="{StaticResource ModernComboBox}"
                               SelectionChanged="CmbFilter_Changed"/>
-                        <Button x:Name="BtnCheckAllInstalledUpdates" Content="Check updates" Style="{StaticResource ModernButton}"
+                            <Button x:Name="BtnCheckAllInstalledUpdates" Content="Check for Updates" Style="{StaticResource ModernButton}"
                             Click="BtnCheckAllInstalledUpdates_Click" Margin="12,0,0,0" Padding="10,6"/>
                 </StackPanel>
 
-                <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer x:Name="InstalledScrollViewer" Grid.Row="3" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <TextBlock x:Name="TxtNoMods" Text="{local:Loc NoModsInstalled}" 
                                    Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"
@@ -570,8 +582,9 @@
                       <TextBlock Grid.Row="0" Text="{local:Loc Settings}" FontSize="22" FontWeight="SemiBold"
                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,20"/>
 
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer x:Name="SettingsScrollViewer" Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
+                        <!-- Info.json tool moved to Getting Started (Resources) -->
                         <!-- SSF2 Versions -->
                         <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <StackPanel>
@@ -674,16 +687,6 @@
                                 </StackPanel>
                             </StackPanel>
                         </Border>
-
-                        <!-- Open Folders -->
-                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                <Button Content="{local:Loc OpenModsFolder}" Style="{StaticResource ModernButton}" 
-                                    Click="BtnOpenModsFolder_Click" Margin="0,0,8,0"/>
-                                <Button Content="{local:Loc OpenSSF2Folder}" Style="{StaticResource ModernButton}" 
-                                    Click="BtnOpenSSF2Folder_Click"/>
-                                <Button x:Name="BtnTutorial" Content="{local:Loc Tutorial}" Style="{StaticResource ModernButton}"
-                                    Click="BtnTutorial_Click" Margin="8,0,0,0"/>
-                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>
@@ -836,54 +839,97 @@
                 <TextBlock Grid.Row="0" Text="{local:Loc ModSSF2}" FontSize="22" FontWeight="SemiBold"
                            Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                 <Border Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
-                    <StackPanel>
-                        <TextBlock Text="SSF2 modding tools coming soon. This will provide advanced tools for modding SSF2 directly."
-                                   FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
-
-                        <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="6" Padding="12">
-                            <StackPanel>
-                                <TextBlock Text="Create info.json (optional)" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                    <TextBlock Text="Creator:" Width="80" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                                    <TextBox x:Name="TxtInfoCreator" Width="260"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                    <TextBlock Text="SSF2 Version:" Width="80" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                                    <ComboBox x:Name="CmbInfoSSF2Version" Width="260" Style="{StaticResource ModernComboBox}"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                    <TextBlock Text="Mod Type:" Width="80" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                                    <ComboBox x:Name="CmbInfoModType" Width="260" Style="{StaticResource ModernComboBox}">
-                                        <ComboBoxItem>Character</ComboBoxItem>
-                                        <ComboBoxItem>Stage</ComboBoxItem>
-                                        <ComboBoxItem>Texture</ComboBoxItem>
-                                        <ComboBoxItem>Music</ComboBoxItem>
-                                        <ComboBoxItem>Script</ComboBoxItem>
-                                        <ComboBoxItem>Mod Pack</ComboBoxItem>
-                                        <ComboBoxItem>Other</ComboBoxItem>
-                                    </ComboBox>
-                                </StackPanel>
-
-                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0" HorizontalAlignment="Left">
-                                    <Button x:Name="BtnSaveInfoJson" Content="Save As" Style="{StaticResource AccentButton}" Click="BtnSaveInfoJson_Click" Padding="12,6"/>
-                                    <Button x:Name="BtnFillDefaults" Content="Fill Defaults" Margin="8,0,0,0" Padding="12,6" Click="BtnFillDefaults_Click"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
+                    <TextBlock Text="SSF2 modding tools coming soon. This will provide advanced tools for modding SSF2 directly." FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                 </Border>
             </Grid>
 
-            <!-- ═══ Resources Page ═══ -->
-            <Grid x:Name="PageResources" Margin="24,20" Visibility="Collapsed">
+            <!-- ═══ Getting Started Page (combined) ═══ -->
+            <Grid x:Name="PageGettingStarted" Margin="24,20" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="{local:Loc Resources}" FontSize="22" FontWeight="SemiBold"
+                <TextBlock Grid.Row="0" Text="Getting Started" FontSize="22" FontWeight="SemiBold"
                            Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
+                        <!-- Tutorial Card -->
+                        <Border Background="{DynamicResource AccentBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="📘 Tutorial" FontSize="18" FontWeight="SemiBold"
+                                               Foreground="White" Margin="0,0,0,4"/>
+                                    <TextBlock Text="New to SSF2 Mod Manager? Take a quick tutorial to learn how to add versions, browse mods, and get started modding!"
+                                               FontSize="13" Foreground="#E0FFFFFF" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" x:Name="BtnTutorial" Content="Start Tutorial" 
+                                        Style="{StaticResource ModernButton}"
+                                        Click="BtnTutorial_Click" Padding="16,8" VerticalAlignment="Center"
+                                        Background="White" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
+                            </Grid>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="SSF2 modding tools" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+                                <TextBlock Text="Create info.json (optional)" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="6" Padding="12">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                            <TextBlock Text="Creator:" Width="80" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            <TextBox x:Name="TxtInfoCreator" Width="260"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                            <TextBlock Text="SSF2 Version:" Width="80" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            <ComboBox x:Name="CmbInfoSSF2Version" Width="260" Style="{StaticResource ModernComboBox}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                            <TextBlock Text="Mod Type:" Width="80" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            <ComboBox x:Name="CmbInfoModType" Width="260" Style="{StaticResource ModernComboBox}">
+                                                <ComboBoxItem>Character</ComboBoxItem>
+                                                <ComboBoxItem>Stage</ComboBoxItem>
+                                                <ComboBoxItem>Texture</ComboBoxItem>
+                                                <ComboBoxItem>Music</ComboBoxItem>
+                                                <ComboBoxItem>Script</ComboBoxItem>
+                                                <ComboBoxItem>Mod Pack</ComboBoxItem>
+                                                <ComboBoxItem>Other</ComboBoxItem>
+                                            </ComboBox>
+                                        </StackPanel>
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0" HorizontalAlignment="Left">
+                                            <Button x:Name="BtnSaveInfoJson" Content="Save As" Style="{StaticResource AccentButton}" Click="BtnSaveInfoJson_Click" Padding="12,6"/>
+                                            <Button x:Name="BtnFillDefaults" Content="Fill Defaults" Margin="8,0,0,0" Padding="12,6" Click="BtnFillDefaults_Click"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Resources Section -->
+                        <!-- Wiki -->
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="📖 SSF2 Modding Wiki" FontSize="16" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Official wiki for SSF2 modding, with guides, tutorials, and documentation for modders of all skill levels."
+                                               FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="Open" Style="{StaticResource AccentButton}"
+                                    Tag="https://ssf2mods.miraheze.org/wiki/Main_Page"
+                                    Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
                         <!-- Sandbox -->
                         <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <Grid>
@@ -897,13 +943,12 @@
                                     <TextBlock Text="Modpack from SSF2 1.3 with large collection of mods and easy installation."
                                                FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                                 </StackPanel>
-                                <Button Grid.Column="1" Content="{local:Loc OpenButton}" Style="{StaticResource AccentButton}"
+                                <Button Grid.Column="1" Content="Open" Style="{StaticResource AccentButton}"
                                     Tag="https://color-vault.github.io/Color-Vault/downloads.html"
                                     Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
 
-                        <!-- Reflash 2 -->
                         <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -916,13 +961,12 @@
                                     <TextBlock Text="An open-source tool for reflashing and modifying SSF2 builds."
                                                FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                                 </StackPanel>
-                                <Button Grid.Column="1" Content="{local:Loc OpenButton}" Style="{StaticResource AccentButton}"
+                                <Button Grid.Column="1" Content="Open" Style="{StaticResource AccentButton}"
                                     Tag="https://github.com/SSF2-Mods-Official/reflash2"
                                     Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
 
-                        <!-- SSF2 Modding Vault -->
                         <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -935,7 +979,7 @@
                                     <TextBlock Text="A curated collection of SSF2 modding resources, tools, and documentation."
                                                FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                                 </StackPanel>
-                                <Button Grid.Column="1" Content="{local:Loc OpenButton}" Style="{StaticResource AccentButton}"
+                                <Button Grid.Column="1" Content="Open" Style="{StaticResource AccentButton}"
                                     Tag="https://github.com/SSF2-Mods-Official/ssf2-modding-vault"
                                     Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
                             </Grid>

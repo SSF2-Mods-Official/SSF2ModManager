@@ -156,8 +156,7 @@ namespace SSF2ModManager
             BtnBuilds.Content = "🎮  " + Localization.Get("InstalledBuilds");
             BtnCostumes.Content = "👗  " + Localization.Get("ManageCostumes");
             BtnEvents.Content = "🎉  " + Localization.Get("ManageEvents");
-            BtnModSSF2.Content = "🔧  " + Localization.Get("ModSSF2");
-            BtnResources.Content = "📚  " + Localization.Get("Resources");
+            BtnGettingStarted.Content = "📘  " + "Getting Started";
             BtnSettings.Content = "⚙️  " + Localization.Get("Settings");
             BtnLog.Content = "📋  " + Localization.Get("DebugLog");
 
@@ -167,8 +166,7 @@ namespace SSF2ModManager
             SetTextBlock("PageBuilds", 0, Localization.Get("InstalledBuilds"));
             SetTextBlock("PageCostumes", 0, Localization.Get("ManageCostumes"));
             SetTextBlock("PageEvents", 0, Localization.Get("ManageEvents"));
-            SetTextBlock("PageModSSF2", 0, Localization.Get("ModSSF2"));
-            SetTextBlock("PageResources", 0, Localization.Get("Resources"));
+            SetTextBlock("PageModSSF2", 0, "Getting Started");
             SetTextBlock("PageSettings", 0, Localization.Get("Settings"));
             SetTextBlock("PageLog", 0, Localization.Get("DebugLog"));
 
@@ -397,9 +395,11 @@ namespace SSF2ModManager
         {
             try
             {
+                ShowOverlay("Checking for updates...");
                 var installed = _modManager.InstalledMods.Where(m => m.GameBananaId > 0 && !m.IgnoreUpdates).ToList();
                 if (installed.Count == 0)
                 {
+                    HideOverlay();
                     MessageBox.Show("No installed mods with GameBanana IDs found to check.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
@@ -425,30 +425,42 @@ namespace SSF2ModManager
 
                 if (updates.Count == 0)
                 {
+                    HideOverlay();
                     MessageBox.Show("No updates found. All installed mods are up-to-date.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
                 var summary = string.Join("\n", updates.Select(u => $"{u.inst.Name}: {u.fileName} (added {u.added:g})"));
                 var dr = MessageBox.Show($"Updates found:\n{summary}\n\nInstall all updates now?", "Updates Available", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (dr != MessageBoxResult.Yes) return;
+                if (dr != MessageBoxResult.Yes)
+                {
+                    HideOverlay();
+                    return;
+                }
 
-                // Install updates sequentially
+                // Install updates sequentially (overlay remains visible)
                 _ = System.Threading.Tasks.Task.Run(async () =>
                 {
-                    foreach (var u in updates)
+                    try
                     {
-                        try
+                        foreach (var u in updates)
                         {
-                            await _modManager.UpdateInstalledModAsync(u.inst);
-                            Dispatcher.Invoke(() => RefreshInstalledMods());
+                            try
+                            {
+                                await _modManager.UpdateInstalledModAsync(u.inst);
+                                Dispatcher.Invoke(() => RefreshInstalledMods());
+                            }
+                            catch (Exception ex)
+                            {
+                                try { File.AppendAllText("ssf2mm-debug.log", $"[BulkUpdate] EX for {u.inst.Name}: {ex}\n"); } catch { }
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            try { File.AppendAllText("ssf2mm-debug.log", $"[BulkUpdate] EX for {u.inst.Name}: {ex}\n"); } catch { }
-                        }
+                        Dispatcher.Invoke(() => MessageBox.Show("Bulk update process completed.", "Updates", MessageBoxButton.OK, MessageBoxImage.Information));
                     }
-                    Dispatcher.Invoke(() => MessageBox.Show("Bulk update process completed.", "Updates", MessageBoxButton.OK, MessageBoxImage.Information));
+                    finally
+                    {
+                        Dispatcher.Invoke(() => HideOverlay());
+                    }
                 });
             }
             catch (Exception ex)
@@ -456,6 +468,40 @@ namespace SSF2ModManager
                 try { File.AppendAllText("ssf2mm-debug.log", $"[BtnCheckAllInstalledUpdates_Click] EX: {ex}\n"); } catch { }
                 MessageBox.Show($"Failed to check/install updates: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void ShowOverlay(string message)
+        {
+            try
+            {
+                if (FindName("TxtOverlayMessage") is TextBlock tb) tb.Text = message;
+                if (FindName("OverlayLoading") is Grid g) { g.Visibility = Visibility.Visible; g.IsHitTestVisible = true; }
+                try
+                {
+                    if (FindName("OverlaySpinner") is System.Windows.Shapes.Ellipse el && el.RenderTransform is RotateTransform rt)
+                    {
+                        var anim = new System.Windows.Media.Animation.DoubleAnimation(0, 360, new Duration(TimeSpan.FromSeconds(1))) { RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever };
+                        rt.BeginAnimation(System.Windows.Media.RotateTransform.AngleProperty, anim);
+                    }
+                }
+                catch { }
+            }
+            catch { }
+        }
+
+        private void HideOverlay()
+        {
+            try
+            {
+                if (FindName("OverlayLoading") is Grid g) { g.Visibility = Visibility.Collapsed; g.IsHitTestVisible = false; }
+                try
+                {
+                    if (FindName("OverlaySpinner") is System.Windows.Shapes.Ellipse el && el.RenderTransform is RotateTransform rt)
+                        rt.BeginAnimation(System.Windows.Media.RotateTransform.AngleProperty, null);
+                }
+                catch { }
+            }
+            catch { }
         }
 
         private async System.Threading.Tasks.Task CheckProgramVersionAsync()
@@ -618,6 +664,7 @@ namespace SSF2ModManager
                     "news" => "news",
                     "settings" => "settings",
                     "tools" => "resources",
+                    "getting started" => "gettingstarted",
                     _ => page.ToLowerInvariant()
                 };
                 Dispatcher.Invoke(() =>
@@ -631,7 +678,7 @@ namespace SSF2ModManager
                             "browse" => "BtnBrowse",
                             "news" => "BtnNews",
                             "settings" => "BtnSettings",
-                            "resources" => "BtnResources",
+                            "gettingstarted" => "BtnGettingStarted",
                             _ => null
                         };
                         if (!string.IsNullOrWhiteSpace(btnName) && FindName(btnName) is System.Windows.Controls.Control c)
@@ -645,14 +692,17 @@ namespace SSF2ModManager
 
             var steps = new List<(string title, string body, string? page)>
             {
-                ("Welcome","Welcome to SSF2 Mod Manager — this short tour will show core features.", null),
-                ("Sidebar","Use the sidebar to switch pages: Mods, Installed Mods, News, Settings, Tools.", "Mods"),
-                ("Installed Mods","This view lists mods you've installed. You can enable/disable or open details here.", "Installed"),
-                ("Installed Builds","Installed builds show your configured game builds and folders.", "Builds"),
-                ("News","The News page shows local and remote articles. Try opening the mock article.", "News"),
-                ("Install Mods","Install mods via URLs or the Install button in the Mods page.", "Mods"),
-                ("Settings","Open Settings to configure paths and preferences.", "Settings"),
-                ("Finish","That’s it — enjoy SSF2 Mod Manager!", null)
+                ("Welcome","Welcome to SSF2 Mod Manager! This tutorial will walk you through setting up your first version and installing a mod. Let's get started!", null),
+                ("Step 1: Add a Version","First, go to Settings and add a version. A 'version' is a game build folder (like SSF2 v1.3 or a mod build). Click 'Add Version' and select your SSF2 folder.", "Settings"),
+                ("Why Multiple Versions?","You can have multiple SSF2 versions (vanilla, modded builds, different releases). Each version has its own mods list, so you can keep different setups organized without conflicts.", "Settings"),
+                ("Step 2: Browse Mods","Now let's find a mod to install! Click 'Browse Mods' in the sidebar. This page shows mods from GameBanana that you can install.", "Mods"),
+                ("Step 3: Choose a Mod","Browse the mods list or use the search box to find something you like. Each mod shows its name, author, category, and download stats. Hover over a mod card to see more info.", "Mods"),
+                ("Step 4: Install a Mod","When you find a mod you want, click the 'Install' button. You'll be asked to choose which version to install it to - this is why we set up a version first!", "Mods"),
+                ("Step 5: Check Installed Mods","After installing, go to the 'Installed' page to see your mods. They're organized by version, so you can see exactly what's in each build.", "Installed"),
+                ("Step 6: Manage Your Mods","From the Installed page, you can enable/disable mods, uninstall them, or check for updates. You can also change which version a mod is assigned to.", "Installed"),
+                ("Step 7: Start Playing!","Once you have mods installed, you can launch your game from the 'Installed Builds' page or use the Play button. Select your version and click 'Play' to start with your mods!", "Installed"),
+                ("Step 8: Pro Tips","You can have multiple versions with different mod loadouts. This is perfect for testing mods, trying different characters, or keeping a clean vanilla version alongside modded builds.", "Builds"),
+                ("That's It!","You're all set! Browse mods, build your collection, and have fun with SSF2. If you need help, check the Getting Started page for documentation and resources.", "Getting Started")
             };
 
             w.SetSteps(steps);
@@ -1017,19 +1067,33 @@ namespace SSF2ModManager
             PageBuilds.Visibility = page == "builds" ? Visibility.Visible : Visibility.Collapsed;
             PageCostumes.Visibility = page == "costumes" ? Visibility.Visible : Visibility.Collapsed;
             PageEvents.Visibility = page == "events" ? Visibility.Visible : Visibility.Collapsed;
+            // Getting Started uses a dedicated page that contains the info.json tool + resource cards
+            PageGettingStarted.Visibility = page == "gettingstarted" ? Visibility.Visible : Visibility.Collapsed;
             PageModSSF2.Visibility = page == "modssf2" ? Visibility.Visible : Visibility.Collapsed;
-            PageResources.Visibility = page == "resources" ? Visibility.Visible : Visibility.Collapsed;
             PageNews.Visibility = page == "news" ? Visibility.Visible : Visibility.Collapsed;
             PageSettings.Visibility = page == "settings" ? Visibility.Visible : Visibility.Collapsed;
             PageLog.Visibility = page == "log" ? Visibility.Visible : Visibility.Collapsed;
+
+            // Reset scroll position to top when switching pages
+            try
+            {
+                if (page == "browse" && BrowseScrollViewer != null)
+                    BrowseScrollViewer.ScrollToVerticalOffset(0);
+                if (page == "installed" && InstalledScrollViewer != null)
+                    InstalledScrollViewer.ScrollToVerticalOffset(0);
+                if (page == "settings" && SettingsScrollViewer != null)
+                    SettingsScrollViewer.ScrollToVerticalOffset(0);
+                if (page == "log" && LogScrollViewer != null)
+                    LogScrollViewer.ScrollToVerticalOffset(0);
+            }
+            catch { }
 
             BtnBrowse.Style = (Style)FindResource(page == "browse" ? "SidebarButtonActive" : "SidebarButton");
             BtnInstalled.Style = (Style)FindResource(page == "installed" ? "SidebarButtonActive" : "SidebarButton");
             BtnBuilds.Style = (Style)FindResource(page == "builds" ? "SidebarButtonActive" : "SidebarButton");
             BtnCostumes.Style = (Style)FindResource(page == "costumes" ? "SidebarButtonActive" : "SidebarButton");
             BtnEvents.Style = (Style)FindResource(page == "events" ? "SidebarButtonActive" : "SidebarButton");
-            BtnModSSF2.Style = (Style)FindResource(page == "modssf2" ? "SidebarButtonActive" : "SidebarButton");
-            BtnResources.Style = (Style)FindResource(page == "resources" ? "SidebarButtonActive" : "SidebarButton");
+            BtnGettingStarted.Style = (Style)FindResource(page == "gettingstarted" ? "SidebarButtonActive" : "SidebarButton");
             BtnNews.Style = (Style)FindResource(page == "news" ? "SidebarButtonActive" : "SidebarButton");
             BtnSettings.Style = (Style)FindResource(page == "settings" ? "SidebarButtonActive" : "SidebarButton");
             BtnLog.Style = (Style)FindResource(page == "log" ? "SidebarButtonActive" : "SidebarButton");
@@ -1043,8 +1107,7 @@ namespace SSF2ModManager
             BtnBuilds.Foreground = page == "builds" ? activeFg : inactiveFg;
             BtnCostumes.Foreground = page == "costumes" ? activeFg : inactiveFg;
             BtnEvents.Foreground = page == "events" ? activeFg : inactiveFg;
-            BtnModSSF2.Foreground = page == "modssf2" ? activeFg : inactiveFg;
-            BtnResources.Foreground = page == "resources" ? activeFg : inactiveFg;
+            BtnGettingStarted.Foreground = page == "gettingstarted" ? activeFg : inactiveFg;
             BtnNews.Foreground = page == "news" ? activeFg : inactiveFg;
             BtnSettings.Foreground = page == "settings" ? activeFg : inactiveFg;
             BtnLog.Foreground = page == "log" ? activeFg : inactiveFg;
@@ -1093,8 +1156,9 @@ namespace SSF2ModManager
             }
             catch { }
         }
-        private void BtnModSSF2_Click(object sender, RoutedEventArgs e) => SetActivePage("modssf2");
-        private void BtnResources_Click(object sender, RoutedEventArgs e) => SetActivePage("resources");
+        private void BtnModSSF2_Click(object sender, RoutedEventArgs e) => SetActivePage("gettingstarted");
+
+        private void BtnGettingStarted_Click(object sender, RoutedEventArgs e) => SetActivePage("gettingstarted");
 
         private void BtnSettings_Click(object sender, RoutedEventArgs e) => SetActivePage("settings");
 
@@ -2328,14 +2392,7 @@ namespace SSF2ModManager
                 CmbFilterBuild.Items.Add(new ComboBoxItem { Content = b });
             CmbFilterBuild.SelectedIndex = 0;
 
-            // Version filter
-            var versions = new List<string> { "All Versions" };
-            versions.AddRange(mods.Select(m => m.TargetVersion).Where(v => !string.IsNullOrEmpty(v)).Distinct().OrderBy(v => v));
-            var prevVersion = CmbFilterVersion.SelectedItem as ComboBoxItem;
-            CmbFilterVersion.Items.Clear();
-            foreach (var v in versions)
-                CmbFilterVersion.Items.Add(new ComboBoxItem { Content = v });
-            CmbFilterVersion.SelectedIndex = 0;
+            // Version filter removed — handled via Build filter
 
             // Category filter
             var categories = new List<string> { "All Types" };
@@ -2372,9 +2429,7 @@ namespace SSF2ModManager
                     mods = mods.Where(m => m.TargetVersion == entry.VersionName || m.TargetVersion == entry.Nickname);
             }
 
-            var versionFilter = (CmbFilterVersion.SelectedItem as ComboBoxItem)?.Content?.ToString();
-            if (!string.IsNullOrEmpty(versionFilter) && versionFilter != "All Versions")
-                mods = mods.Where(m => m.TargetVersion == versionFilter);
+            // Version filter removed — no per-version filtering
 
             var categoryFilter = (CmbFilterCategory.SelectedItem as ComboBoxItem)?.Content?.ToString();
             if (!string.IsNullOrEmpty(categoryFilter) && categoryFilter != "All Types")
