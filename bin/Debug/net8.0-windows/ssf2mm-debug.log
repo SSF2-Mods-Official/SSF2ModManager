@@ -1,4 +1,4 @@
-[OnStartup] 3/23/2026 11:59:20 PM: Entered
+[OnStartup] 3/24/2026 12:08:23 AM: Entered
 [OnStartup] Loading language: en
 [OnStartup] Language loaded
 [OnStartup] base.OnStartup complete
@@ -8,92 +8,92 @@
 [MainWindow] InitializeComponent succeeded
 [MainWindow] ctor: InitializeComponent done
 [MainWindow] ctor: UI text set
-[MainWindow] Theme selected: theme-neon
+[MainWindow] Theme selected: theme-dark
 [MainWindow] DumpThemeDebug:
-Applied theme: theme-neon
+Applied theme: theme-dark
 Merged dictionaries: 1
-  [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
-Key: BackgroundBrush => SolidColorBrush #FF0B0B2A
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+  [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
+Key: BackgroundBrush => SolidColorBrush #FF121212
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: TextPrimaryBrush => SolidColorBrush #FFE6F7FF
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: TextPrimaryBrush => SolidColorBrush #FFFFFFFF
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: TextSecondaryBrush => SolidColorBrush #FF9FD1FF
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: TextSecondaryBrush => SolidColorBrush #FFB3B3B3
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: AccentBrush => SolidColorBrush #FF00E5FF
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: AccentBrush => SolidColorBrush #FFFFC107
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: CardBrush => SolidColorBrush #FF101034
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: CardBrush => SolidColorBrush #FF1E1E1F
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: PrimaryBrush => SolidColorBrush #FF00E5FF
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: PrimaryBrush => SolidColorBrush #FFFFC107
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: SidebarBrush => SolidColorBrush #FF07071A
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: SidebarBrush => SolidColorBrush #FF0D1B2A
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: SurfaceBrush => SolidColorBrush #FF0E1230
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: SurfaceBrush => SolidColorBrush #FF16213E
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
 Keys present: BackgroundBrush, TextPrimaryBrush, TextSecondaryBrush, AccentBrush, CardBrush, PrimaryBrush, SidebarBrush, SurfaceBrush
 
 [MainWindow] LiveValues:
-Window.Background: #FF0B0B2A
-BtnBrowse.Background: #FF00E5FF
-BtnBrowse.Foreground: #FFE6F7FF
+Window.Background: #FF121212
+BtnBrowse.Background: #FFFFC107
+BtnBrowse.Foreground: #FF0D1B2A
 
 [MainWindow] DumpThemeDebug:
-Applied theme: theme-neon
+Applied theme: theme-dark
 Merged dictionaries: 1
-  [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
-Key: BackgroundBrush => SolidColorBrush #FF0B0B2A
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+  [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
+Key: BackgroundBrush => SolidColorBrush #FF121212
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: TextPrimaryBrush => SolidColorBrush #FFE6F7FF
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: TextPrimaryBrush => SolidColorBrush #FFFFFFFF
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: TextSecondaryBrush => SolidColorBrush #FF9FD1FF
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: TextSecondaryBrush => SolidColorBrush #FFB3B3B3
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: AccentBrush => SolidColorBrush #FF00E5FF
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: AccentBrush => SolidColorBrush #FFFFC107
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: CardBrush => SolidColorBrush #FF101034
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: CardBrush => SolidColorBrush #FF1E1E1F
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: PrimaryBrush => SolidColorBrush #FF00E5FF
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: PrimaryBrush => SolidColorBrush #FFFFC107
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: SidebarBrush => SolidColorBrush #FF07071A
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: SidebarBrush => SolidColorBrush #FF0D1B2A
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
-Key: SurfaceBrush => SolidColorBrush #FF0E1230
-    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-neon.xaml
+Key: SurfaceBrush => SolidColorBrush #FF16213E
+    provider: [0] C:\Users\glwex\Documents\GitHub\SSF2ModManager\bin\Debug\net8.0-windows\Themes\theme-dark.xaml
     provider: application resources
     TryFindResource: SolidColorBrush
 Keys present: BackgroundBrush, TextPrimaryBrush, TextSecondaryBrush, AccentBrush, CardBrush, PrimaryBrush, SidebarBrush, SurfaceBrush
 
 [MainWindow] LiveValues:
-Window.Background: #FF0B0B2A
-BtnBrowse.Background: #FF00E5FF
-BtnBrowse.Foreground: #FFE6F7FF
+Window.Background: #FF121212
+BtnBrowse.Background: #FFFFC107
+BtnBrowse.Foreground: #FF0D1B2A
 
 [MainWindow] ctor: End
 [MainWindow] Loaded handler start
