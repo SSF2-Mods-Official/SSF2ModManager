@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SSF2ModManager.csproj" />
+    <ProjectReference Include="..\..\src\SSF2ModManager.csproj" />
   </ItemGroup>
 
 </Project>

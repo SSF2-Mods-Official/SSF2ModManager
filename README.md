@@ -37,21 +37,32 @@ Requires [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
 ```powershell
 git clone https://github.com/SSF2-Mods-Official/SSF2ModManager.git
 cd SSF2ModManager
-dotnet build -c Release
-.\bin\Release\net8.0-windows\SSF2ModManager.exe
+dotnet build SSF2ModManager.sln -c Release
+.\src\bin\Release\net8.0-windows\SSF2ModManager.exe
 ```
 
-Or double-click `run.bat` (builds Release and launches).
+Or run `scripts\run.bat` (builds Release and launches).
+
+### Repository layout
+
+```
+SSF2ModManager/
+├── .github/          CI workflows
+├── scripts/          build, clean, publish, run
+├── src/              WPF app (all source code)
+├── tests/            unit tests
+├── README.md
+├── LICENSE
+└── SSF2ModManager.sln
+```
 
 ### Clean up local build clutter
 
-After building, `bin/` and `obj/` folders accumulate (~1000+ generated files). They are gitignored and safe to delete:
+After building, `src/bin` and `src/obj` accumulate generated files. They are gitignored:
 
 ```powershell
 .\scripts\clean.ps1
 ```
-
-Your repo only has **~75 tracked source files**; the rest on disk is build output.
 
 ### First launch
 
@@ -76,7 +87,7 @@ The app registers the `ssf2mm:` protocol on first launch (per-user, no admin req
 **1. Check registration**
 
 ```powershell
-.\bin\Release\net8.0-windows\SSF2ModManager.exe --diagnostics
+.\src\bin\Release\net8.0-windows\SSF2ModManager.exe --diagnostics
 ```
 
 You should see `Registered (points to current executable)` and the command path.
@@ -84,7 +95,7 @@ You should see `Registered (points to current executable)` and the command path.
 **2. Re-register if needed**
 
 ```powershell
-.\bin\Release\net8.0-windows\SSF2ModManager.exe --register-protocol
+.\src\bin\Release\net8.0-windows\SSF2ModManager.exe --register-protocol
 ```
 
 **3. Test from PowerShell** (replace with a real GameBanana download URL + mod ID)
@@ -96,7 +107,7 @@ You should see `Registered (points to current executable)` and the command path.
 Or manually:
 
 ```powershell
-Start-Process ".\bin\Release\net8.0-windows\SSF2ModManager.exe" -ArgumentList 'ssf2mm:https://files.gamebanana.com/mmdownload/...,Character,12345'
+Start-Process ".\src\bin\Release\net8.0-windows\SSF2ModManager.exe" -ArgumentList 'ssf2mm:https://files.gamebanana.com/mmdownload/...,Character,12345'
 ```
 
 **4. Test from browser**
@@ -136,7 +147,7 @@ Output zip: `dist\SSF2ModManager-win-x64.zip`
 
 **~2 files, ~70–90 MB.** No separate DLLs, no runtime install. Languages and themes are bundled inside the `.exe`.
 
-**App version** (sidebar, e.g. `v1.0.0`) comes from `Services/AppInfo.cs` — not GameBanana.
+**App version** (sidebar, e.g. `v1.0.0`) comes from `src/Services/AppInfo.cs` — not GameBanana.
 
 ## CLI (automation)
 
@@ -152,11 +163,9 @@ SSF2ModManager.exe --enable="Mod Name"
 ## Development
 
 ```powershell
-dotnet test
-dotnet build -c Release
+dotnet test SSF2ModManager.sln
+dotnet build SSF2ModManager.sln -c Release
 ```
-
-See `SSF2ModManager.Tests/README.md` for test details.
 
 ## Disclaimer
 

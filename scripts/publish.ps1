@@ -10,7 +10,7 @@ try {
     New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
     Write-Host "Publishing self-contained single-file (win-x64)..."
-    dotnet publish SSF2ModManager.csproj `
+    dotnet publish (Join-Path $root "src\SSF2ModManager.csproj") `
         -c Release `
         -r win-x64 `
         --self-contained true `

@@ -1269,21 +1269,7 @@ namespace SSF2ModManager
 
         private void BtnCostumes_Click(object sender, RoutedEventArgs e) => SetActivePage("costumes");
         private void BtnEvents_Click(object sender, RoutedEventArgs e) => SetActivePage("events");
-        private void BtnNews_Click(object sender, RoutedEventArgs e)
-        {
-            SetActivePage("news");
-            try
-            {
-                var np = FindName("PageNews") as dynamic;
-                if (np != null)
-                {
-                    // Use local News folder in repo for now (explicit workspace path)
-                    var newsPath = @"C:\Users\glwex\Documents\GitHub\SSF2ModManager\News";
-                    np.LoadLocal(newsPath);
-                }
-            }
-            catch { }
-        }
+        private void BtnNews_Click(object sender, RoutedEventArgs e) => OpenNews();
 
         // Public helper to open News page programmatically (used by CLI handlers)
         public void OpenNews(string? newsPath = null)

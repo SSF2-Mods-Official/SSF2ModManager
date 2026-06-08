@@ -14,7 +14,6 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <InformationalVersion>1.0.0</InformationalVersion>
-    <DefaultItemExcludes>$(DefaultItemExcludes);SSF2ModManager.Tests\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <!-- Self-contained single-file publish (used by scripts/publish.ps1) -->
@@ -34,6 +33,7 @@
 
     <ItemGroup>
       <None Include="Languages\**" CopyToOutputDirectory="PreserveNewest" />
+      <None Include="News\**" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
     <ItemGroup>
       <Content Include="Themes\**\*.xaml">

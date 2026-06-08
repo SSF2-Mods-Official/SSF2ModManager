@@ -8,9 +8,12 @@ param(
 
 $root = Split-Path -Parent $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($ExePath)) {
-    $ExePath = Join-Path $root "bin\Release\net8.0-windows\SSF2ModManager.exe"
+    $ExePath = Join-Path $root "src\bin\Release\net8.0-windows\SSF2ModManager.exe"
     if (-not (Test-Path $ExePath)) {
-        $ExePath = Join-Path $root "bin\Debug\net8.0-windows\SSF2ModManager.exe"
+        $ExePath = Join-Path $root "publish\SSF2ModManager.exe"
+    }
+    if (-not (Test-Path $ExePath)) {
+        $ExePath = Join-Path $root "src\bin\Debug\net8.0-windows\SSF2ModManager.exe"
     }
 }
 

@@ -5,10 +5,12 @@ $root = Split-Path -Parent $PSScriptRoot
 $paths = @(
     "bin",
     "obj",
+    "src\bin",
+    "src\obj",
+    "tests\SSF2ModManager.Tests\bin",
+    "tests\SSF2ModManager.Tests\obj",
     "publish",
     "dist",
-    "SSF2ModManager.Tests\bin",
-    "SSF2ModManager.Tests\obj",
     "ssf2mm-debug.log",
     "user-settings.json"
 )

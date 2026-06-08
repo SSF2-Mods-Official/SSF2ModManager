@@ -27,7 +27,7 @@ jobs:
         run: dotnet test SSF2ModManager.sln -c Release --no-build --verbosity normal
 
       - name: Publish (self-contained single-file)
-        run: dotnet publish SSF2ModManager.csproj -c Release -r win-x64 -o publish
+        run: dotnet publish src/SSF2ModManager.csproj -c Release -r win-x64 -o publish
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

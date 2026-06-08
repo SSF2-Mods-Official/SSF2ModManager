@@ -2,9 +2,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSF2ModManager", "SSF2ModManager.csproj", "{417AE832-00D3-A83E-D3CB-F8937F442958}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSF2ModManager", "src\SSF2ModManager.csproj", "{417AE832-00D3-A83E-D3CB-F8937F442958}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SSF2ModManager.Tests", "SSF2ModManager.Tests\SSF2ModManager.Tests.csproj", "{B8E4A392-7C1D-4F5E-9B2A-1D8F6E3C4A5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SSF2ModManager.Tests", "tests\SSF2ModManager.Tests\SSF2ModManager.Tests.csproj", "{B8E4A392-7C1D-4F5E-9B2A-1D8F6E3C4A5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
