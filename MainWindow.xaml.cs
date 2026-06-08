@@ -133,6 +133,9 @@ namespace SSF2ModManager
             }
             DevFileLog.Write( $"[MainWindow] ctor: InitializeComponent done\n");
 
+            if (FindName("TxtAppVersion") is TextBlock txtAppVersion)
+                txtAppVersion.Text = AppInfo.DisplayVersion;
+
             // Set language ComboBox to current language
             if (FindName("CmbLanguage") is System.Windows.Controls.ComboBox cmb)
             {

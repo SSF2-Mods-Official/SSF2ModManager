@@ -107,6 +107,23 @@ Get-ItemProperty "HKCU:\Software\Classes\ssf2mm\shell\open\command"
 
 Output zip: `dist\SSF2ModManager-win-x64.zip`
 
+### What’s in the release zip?
+
+A normal **.NET 8 framework-dependent** app — not a single `.exe`. You need the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) installed once on the PC.
+
+| File / folder | Purpose |
+|---------------|---------|
+| `SSF2ModManager.exe` | App launcher |
+| `SSF2ModManager.dll` | Application code |
+| `Newtonsoft.Json.dll`, `SharpCompress.dll`, `Markdig.dll`, `ZstdSharp.dll` | NuGet dependencies (JSON, archives, news markdown) |
+| `Languages/` | English + Spanish UI strings |
+| `Themes/` | 12 UI themes |
+| `*.runtimeconfig.json`, `*.deps.json` | .NET runtime metadata (required) |
+
+That’s **~20 files** total — expected for this type of build. A single-file `.exe` is possible but much larger and still extracts dependencies at runtime.
+
+**App version** is shown in the sidebar (e.g. `v1.0.0`) and comes from `Services/AppInfo.cs` / the project version — not from GameBanana.
+
 ## CLI (automation)
 
 ```powershell

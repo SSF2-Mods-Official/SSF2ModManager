@@ -220,8 +220,8 @@
                     <Border DockPanel.Dock="Top" Height="1" Background="#20FFFFFF" Margin="16,14,16,10"/>
 
                     <StackPanel DockPanel.Dock="Bottom" Margin="20,10">
-                        <TextBlock Text="v1.1.0" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                        <TextBlock Text="GameBanana API" FontSize="10" Foreground="#50FFFFFF"/>
+                        <TextBlock x:Name="TxtAppVersion" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        <TextBlock Text="{local:Loc PoweredBy}" FontSize="10" Foreground="#50FFFFFF"/>
                     </StackPanel>
 
                         <StackPanel>
