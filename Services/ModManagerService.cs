@@ -23,6 +23,7 @@ namespace SSF2ModManager.Services
 
         public static readonly string[] KnownVersions =
         {
+            "Sandbox",
             "SSF2 Beta 1.4.0",
             "SSF2 Beta 1.3.1.2",
             "SSF2 Beta 1.3.1.1",
@@ -298,11 +299,12 @@ namespace SSF2ModManager.Services
             var categoryDir = Path.Combine(_modsBaseDir, categoryFolder);
             var modPath = Path.Combine(categoryDir, modFolderName);
 
-            // Remove existing if reinstalling
-            var existing = _database.Mods.FirstOrDefault(m => m.GameBananaId == mod.Id);
+            // Remove existing if reinstalling in the SAME build
+            var existing = _database.Mods.FirstOrDefault(m => 
+                m.GameBananaId == mod.Id && m.TargetVersion == targetVersion);
             if (existing != null)
             {
-                DebugLogger.Log($"Reinstalling - removing existing: {existing.Name}");
+                DebugLogger.Log($"Reinstalling - removing existing: {existing.Name} from {existing.TargetVersion}");
                 await UninstallModAsync(existing);
             }
 
@@ -422,7 +424,18 @@ namespace SSF2ModManager.Services
             // Deploy .ssf files to data folder (unless Game files category)
             if (!isGameFiles)
             {
-                DeployModToData(installedMod, modPath);
+                // Check if target version is Sandbox for special deployment
+                var versionEntry = GetVersionEntry(targetVersion);
+                bool isSandbox = versionEntry?.VersionName?.Equals("Sandbox", StringComparison.OrdinalIgnoreCase) ?? false;
+                
+                if (isSandbox)
+                {
+                    DeployModToSandbox(installedMod, modPath);
+                }
+                else
+                {
+                    DeployModToData(installedMod, modPath);
+                }
             }
             else
             {
@@ -437,6 +450,180 @@ namespace SSF2ModManager.Services
         }
 
         // ── Deploy / Restore ────────────────────────────────────
+
+        private void DeployModToSandbox(InstalledMod mod, string modFolderPath)
+        {
+            var versionPath = GetVersionPath(mod.TargetVersion);
+            if (string.IsNullOrEmpty(versionPath))
+            {
+                throw new InvalidOperationException($"Version path not found for {mod.TargetVersion}");
+            }
+
+            var workshopDir = Path.Combine(versionPath, "workshop");
+            if (!Directory.Exists(workshopDir))
+            {
+                Directory.CreateDirectory(workshopDir);
+            }
+
+            // Find all .ssf and .swf files in the mod
+            string[] modFiles;
+            try
+            {
+                modFiles = Directory.GetFiles(modFolderPath, "*.ssf", SearchOption.AllDirectories)
+                    .Concat(Directory.GetFiles(modFolderPath, "*.swf", SearchOption.AllDirectories))
+                    .ToArray();
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Error("Failed to scan mod for .ssf/.swf files", ex);
+                return;
+            }
+
+            if (modFiles.Length == 0)
+            {
+                DebugLogger.Log("No .ssf/.swf files found in mod - nothing to deploy to Sandbox");
+                return;
+            }
+
+            DebugLogger.Log($"Found {modFiles.Length} file(s) to deploy to Sandbox");
+
+            // Determine if this is a Map or Character based on category or mod type
+            bool isMap = mod.Category?.Contains("Map", StringComparison.OrdinalIgnoreCase) ?? false;
+            bool isStage = mod.Category?.Contains("Stage", StringComparison.OrdinalIgnoreCase) ?? false;
+            bool isCharacter = mod.Category?.Contains("Character", StringComparison.OrdinalIgnoreCase) ?? false;
+            
+            if (mod.ModType != null)
+            {
+                isMap = isMap || mod.ModType.Contains("Map", StringComparison.OrdinalIgnoreCase);
+                isStage = isStage || mod.ModType.Contains("Stage", StringComparison.OrdinalIgnoreCase);
+                isCharacter = isCharacter || mod.ModType.Contains("Character", StringComparison.OrdinalIgnoreCase);
+            }
+
+            if (isMap || isStage)
+            {
+                // Deploy Map/Stage to workshop\stage\Battlefield
+                var battlefieldDir = Path.Combine(workshopDir, "stage", "Battlefield");
+                Directory.CreateDirectory(battlefieldDir);
+
+                foreach (var ssfFile in modFiles)
+                {
+                    var fileName = Path.GetFileName(ssfFile);
+                    var destPath = Path.Combine(battlefieldDir, fileName);
+                    
+                    try
+                    {
+                        File.Copy(ssfFile, destPath, true);
+                        DebugLogger.Log($"Deployed Map/Stage to Sandbox: {fileName} -> workshop\\stage\\Battlefield");
+                    }
+                    catch (Exception ex)
+                    {
+                        DebugLogger.Error($"Failed to deploy {fileName} to Battlefield", ex);
+                    }
+                }
+            }
+            else if (isCharacter)
+            {
+                // Deploy Character to workshop\Character\<ModName>
+                var sanitizedModName = SanitizeFileName(mod.Name);
+                var characterDir = Path.Combine(workshopDir, "Character", sanitizedModName);
+                Directory.CreateDirectory(characterDir);
+
+                // Copy all files from mod folder
+                try
+                {
+                    foreach (var file in Directory.GetFiles(modFolderPath, "*.*", SearchOption.AllDirectories))
+                    {
+                        var relativePath = Path.GetRelativePath(modFolderPath, file);
+                        var destPath = Path.Combine(characterDir, relativePath);
+                        var destDir = Path.GetDirectoryName(destPath);
+                        
+                        if (destDir != null)
+                        {
+                            Directory.CreateDirectory(destDir);
+                        }
+                        
+                        File.Copy(file, destPath, true);
+                    }
+
+                    // Rename .ssf or .swf to data.swf
+                    foreach (var modFile in modFiles)
+                    {
+                        var fileName = Path.GetFileName(modFile);
+                        var relativePath = Path.GetRelativePath(modFolderPath, modFile);
+                        var copiedPath = Path.Combine(characterDir, relativePath);
+                        var ext = Path.GetExtension(fileName).ToLowerInvariant();
+                        
+                        if (ext == ".ssf" || ext == ".swf")
+                        {
+                            var dataSwfPath = Path.Combine(Path.GetDirectoryName(copiedPath) ?? characterDir, "data.swf");
+                            
+                            // If multiple files exist, only rename if data.swf doesn't exist yet
+                            if (!File.Exists(dataSwfPath) || copiedPath.Equals(copiedPath, StringComparison.OrdinalIgnoreCase))
+                            {
+                                File.Move(copiedPath, dataSwfPath, true);
+                                DebugLogger.Log($"Renamed {fileName} to data.swf in Character folder");
+                            }
+                        }
+                    }
+
+                    DebugLogger.Log($"Deployed Character to Sandbox: workshop\\Character\\{sanitizedModName}");
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Error($"Failed to deploy character {mod.Name}", ex);
+                }
+            }
+            else
+            {
+                // Unknown category - try to deploy as character by default
+                DebugLogger.Log($"Unknown category '{mod.Category}' - deploying as character by default");
+                var sanitizedModName = SanitizeFileName(mod.Name);
+                var characterDir = Path.Combine(workshopDir, "Character", sanitizedModName);
+                Directory.CreateDirectory(characterDir);
+
+                try
+                {
+                    foreach (var file in Directory.GetFiles(modFolderPath, "*.*", SearchOption.AllDirectories))
+                    {
+                        var relativePath = Path.GetRelativePath(modFolderPath, file);
+                        var destPath = Path.Combine(characterDir, relativePath);
+                        var destDir = Path.GetDirectoryName(destPath);
+                        
+                        if (destDir != null)
+                        {
+                            Directory.CreateDirectory(destDir);
+                        }
+                        
+                        File.Copy(file, destPath, true);
+                    }
+
+                    // Rename .ssf or .swf to data.swf
+                    foreach (var modFile in modFiles)
+                    {
+                        var fileName = Path.GetFileName(modFile);
+                        var relativePath = Path.GetRelativePath(modFolderPath, modFile);
+                        var copiedPath = Path.Combine(characterDir, relativePath);
+                        var ext = Path.GetExtension(fileName).ToLowerInvariant();
+                        
+                        if (ext == ".ssf" || ext == ".swf")
+                        {
+                            var dataSwfPath = Path.Combine(Path.GetDirectoryName(copiedPath) ?? characterDir, "data.swf");
+                            if (!File.Exists(dataSwfPath))
+                            {
+                                File.Move(copiedPath, dataSwfPath, true);
+                                DebugLogger.Log($"Renamed {fileName} to data.swf");
+                            }
+                        }
+                    }
+
+                    DebugLogger.Log($"Deployed to Sandbox: workshop\\Character\\{sanitizedModName}");
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Error($"Failed to deploy {mod.Name}", ex);
+                }
+            }
+        }
 
         private void DeployModToData(InstalledMod mod, string modFolderPath)
         {
@@ -598,7 +785,14 @@ namespace SSF2ModManager.Services
                     var modPath = Path.Combine(_modsBaseDir, mod.Category, mod.FolderName);
                     if (Directory.Exists(modPath))
                     {
-                        DeployModToData(mod, modPath);
+                        // Check if target version is Sandbox
+                        var versionEntry = GetVersionEntry(mod.TargetVersion);
+                        bool isSandbox = versionEntry?.VersionName?.Equals("Sandbox", StringComparison.OrdinalIgnoreCase) ?? false;
+                        
+                        if (isSandbox)
+                            DeployModToSandbox(mod, modPath);
+                        else
+                            DeployModToData(mod, modPath);
                     }
                     else
                     {
@@ -994,7 +1188,14 @@ namespace SSF2ModManager.Services
 
             if (!isGameFiles)
             {
-                DeployModToData(installedMod, modPath);
+                // Check if target version is Sandbox
+                var versionEntry = GetVersionEntry(targetVersion);
+                bool isSandbox = versionEntry?.VersionName?.Equals("Sandbox", StringComparison.OrdinalIgnoreCase) ?? false;
+                
+                if (isSandbox)
+                    DeployModToSandbox(installedMod, modPath);
+                else
+                    DeployModToData(installedMod, modPath);
             }
 
             _database.Mods.Add(installedMod);
@@ -1022,7 +1223,14 @@ namespace SSF2ModManager.Services
             mod.BackedUpFiles.Clear();
             if (!mod.IsGameFiles)
             {
-                DeployModToData(mod, modPath);
+                // Check if target version is Sandbox
+                var versionEntry = GetVersionEntry(mod.TargetVersion);
+                bool isSandbox = versionEntry?.VersionName?.Equals("Sandbox", StringComparison.OrdinalIgnoreCase) ?? false;
+                
+                if (isSandbox)
+                    DeployModToSandbox(mod, modPath);
+                else
+                    DeployModToData(mod, modPath);
             }
             mod.Enabled = true;
             SaveDatabase();

@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using SSF2ModManager.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace SSF2ModManager.Services
         public GameBananaApiClient()
         {
             _httpClient = new HttpClient();
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", "SSF2ModManager/1.0");
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", AppInfo.UserAgent);
             _httpClient.Timeout = TimeSpan.FromSeconds(30);
         }
 
@@ -165,23 +166,23 @@ namespace SSF2ModManager.Services
             response.EnsureSuccessStatusCode();
 
             var totalBytes = response.Content.Headers.ContentLength ?? -1;
-            using var stream = await response.Content.ReadAsStreamAsync();
+            await using var stream = await response.Content.ReadAsStreamAsync();
+            using var ms = totalBytes > 0
+                ? new MemoryStream((int)Math.Min(totalBytes, int.MaxValue))
+                : new MemoryStream();
 
-            var buffer = new byte[8192];
-            var allBytes = new List<byte>();
-            int bytesRead;
+            var buffer = new byte[81920];
             long totalRead = 0;
-
-            while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            int bytesRead;
+            while ((bytesRead = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length))) > 0)
             {
-                allBytes.AddRange(new ArraySegment<byte>(buffer, 0, bytesRead));
+                ms.Write(buffer, 0, bytesRead);
                 totalRead += bytesRead;
-
                 if (totalBytes > 0)
                     progress?.Report((double)totalRead / totalBytes * 100.0);
             }
 
-            return allBytes.ToArray();
+            return ms.ToArray();
         }
 
         public void Dispose()

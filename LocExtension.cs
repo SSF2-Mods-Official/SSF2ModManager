@@ -7,7 +7,7 @@ namespace SSF2ModManager
     // <TextBlock Text="{local:Loc AppTitle}" />
     public class LocExtension : MarkupExtension
     {
-        public string Key { get; set; }
+        public string Key { get; set; } = string.Empty;
 
         public LocExtension() { }
         public LocExtension(string key)

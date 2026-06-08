@@ -257,7 +257,10 @@ namespace SSF2ModManager.Views
                 else if (inline is AutolinkInline al)
                 {
                     var hl = new Hyperlink(new Run(al.Url ?? al.ToString()));
-                    try { hl.NavigateUri = new Uri(al.Url); } catch { }
+                    if (!string.IsNullOrEmpty(al.Url))
+                    {
+                        try { hl.NavigateUri = new Uri(al.Url); } catch { }
+                    }
                     inlines.Add(hl);
                 }
                 else if (inline is EmphasisInline ei)

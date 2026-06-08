@@ -32,7 +32,7 @@ namespace SSF2ModManager
             }
             catch (Exception ex)
             {
-                try { File.AppendAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ssf2mm-debug.log"), $"[Localization] Failed to load {path}: {ex}\n"); } catch { }
+                Services.DevFileLog.Write($"[Localization] Failed to load {path}: {ex}\n");
                 // Ensure we have at least English fallback in memory
                 if (CurrentLanguage != "en")
                 {

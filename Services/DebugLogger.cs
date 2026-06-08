@@ -12,11 +12,7 @@ namespace SSF2ModManager.Services
 
         static DebugLogger()
         {
-            var appData = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "SSF2ModManager");
-            Directory.CreateDirectory(appData);
-            _logPath = Path.Combine(appData, "debug.log");
+            _logPath = Path.Combine(AppPaths.AppDataDir, "debug.log");
         }
 
         public static IReadOnlyList<string> Entries => _entries;

@@ -1,3 +1,38 @@
-bin/
-obj/
+# Build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
 
+# MSBuild / WPF temp
+*.wpftmp*
+*.baml
+*_wpftmp.*
+
+# User/runtime files (also written beside the exe during dev)
+*.log
+user-settings.json
+ssf2mm-debug.log
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+*.sln.docstates
+*.DotSettings.user
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Publish / distribution (generated locally)
+publish/
+dist/
+
+# Test / coverage
+TestResults/
+coverage/
+*.opencover.xml

@@ -243,6 +243,18 @@ namespace SSF2ModManager.Dialogs
                 var entry = _modManager.Versions.FirstOrDefault(v => v.DisplayName == picker.SelectedItem);
                 if (entry != null)
                 {
+                    // Check if mod already exists in target build
+                    var existing = _modManager.InstalledMods.FirstOrDefault(m =>
+                        m.GameBananaId == _mod.GameBananaId && m.TargetVersion == entry.VersionName);
+
+                    if (existing != null)
+                    {
+                        MessageBox.Show(
+                            $"\"{_mod.Name}\" is already installed in {entry.DisplayName}.",
+                            "Already Exists", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
+
                     // Create a clone of the installed mod for the new version
                     var clone = new InstalledMod
                     {
@@ -250,8 +262,11 @@ namespace SSF2ModManager.Dialogs
                         GameBananaId = _mod.GameBananaId,
                         Name = _mod.Name,
                         Author = _mod.Author,
+                        Creator = _mod.Creator,
+                        ModType = _mod.ModType,
                         Description = _mod.Description,
                         Category = _mod.Category,
+                        Version = _mod.Version,
                         FolderName = _mod.FolderName,
                         ThumbnailUrl = _mod.ThumbnailUrl,
                         ProfileUrl = _mod.ProfileUrl,
@@ -260,14 +275,44 @@ namespace SSF2ModManager.Dialogs
                         InstalledFiles = _mod.InstalledFiles.ToList(),
                         TargetVersion = entry.VersionName,
                         IsGameFiles = _mod.IsGameFiles,
+                        IgnoreUpdates = _mod.IgnoreUpdates,
                         BackedUpFiles = new System.Collections.Generic.List<BackedUpFile>()
                     };
 
                     _modManager.InstalledMods.Add(clone);
                     _modManager.SaveDatabase();
                     Changed = true;
-                    MessageBox.Show($"Added to {entry.DisplayName} (disabled). Enable it from Installed Mods.",
-                        "Done", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    // Ask if user wants to enable it now
+                    var enableResult = MessageBox.Show(
+                        $"Mod added to {entry.DisplayName}.\n\n" +
+                        $"Do you want to enable it now?",
+                        "Enable Mod?", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                    if (enableResult == MessageBoxResult.Yes)
+                    {
+                        try
+                        {
+                            _modManager.ToggleMod(clone);
+                            Changed = true;
+                            MessageBox.Show($"Mod enabled in {entry.DisplayName}.", "Done",
+                                MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(
+                                $"Error enabling mod:\n{ex.Message}\n\n" +
+                                $"You can enable it manually from the Installed Mods page.",
+                                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            $"Mod added to {entry.DisplayName} (disabled).\n" +
+                            $"Enable it from the Installed Mods page.",
+                            "Done", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
                 }
             }
         }
@@ -306,23 +351,72 @@ namespace SSF2ModManager.Dialogs
 
         private async void BtnRemove_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show(
-                $"Are you sure you want to remove \"{_mod.Name}\"?\nOriginal game files will be restored.",
-                "Confirm Removal", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result == MessageBoxResult.Yes)
+            // Check if this mod is installed in multiple builds
+            var allInstances = _modManager.InstalledMods
+                .Where(m => m.GameBananaId == _mod.GameBananaId && m.GameBananaId > 0)
+                .ToList();
+
+            bool removeFromAll = false;
+
+            if (allInstances.Count > 1)
             {
-                try
+                // Mod is in multiple builds - ask which ones to remove
+                var builds = string.Join(", ", allInstances.Select(m => 
                 {
+                    var entry = _modManager.Versions.FirstOrDefault(v => v.VersionName == m.TargetVersion);
+                    return entry?.DisplayName ?? m.TargetVersion;
+                }));
+
+                var choice = MessageBox.Show(
+                    $"\"{_mod.Name}\" is installed in {allInstances.Count} builds:\n{builds}\n\n" +
+                    $"Do you want to remove it from ALL builds?\n\n" +
+                    $"• YES = Remove from all builds\n" +
+                    $"• NO = Remove from this build only\n" +
+                    $"• CANCEL = Don't remove",
+                    "Remove from Multiple Builds?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+                if (choice == MessageBoxResult.Cancel)
+                    return;
+
+                removeFromAll = (choice == MessageBoxResult.Yes);
+            }
+            else
+            {
+                // Single build - standard confirmation
+                var result = MessageBox.Show(
+                    $"Are you sure you want to remove \"{_mod.Name}\"?\nOriginal game files will be restored.",
+                    "Confirm Removal", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                
+                if (result != MessageBoxResult.Yes)
+                    return;
+            }
+
+            try
+            {
+                if (removeFromAll)
+                {
+                    // Remove all instances
+                    foreach (var instance in allInstances.ToList())
+                    {
+                        await _modManager.UninstallModAsync(instance);
+                    }
+                    MessageBox.Show($"Removed \"{_mod.Name}\" from all builds.", "Done",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    // Remove only this instance
                     await _modManager.UninstallModAsync(_mod);
-                    ModRemoved = true;
-                    Changed = true;
-                    DialogResult = true;
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error removing mod:\n{ex.Message}", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+
+                ModRemoved = true;
+                Changed = true;
+                DialogResult = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error removing mod:\n{ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

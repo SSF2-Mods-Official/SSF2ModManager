@@ -44,6 +44,36 @@ namespace SSF2ModManager.Dialogs
             DockPanel.SetDock(promptBlock, Dock.Top);
             dock.Children.Add(promptBlock);
 
+            _listBox = new ListBox
+            {
+                Background = new SolidColorBrush(Color.FromRgb(15, 52, 96)),
+                Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(224, 224, 224)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(51, 51, 102)),
+                FontSize = 13
+            };
+
+            foreach (var item in items)
+            {
+                _listBox.Items.Add(new ListBoxItem
+                {
+                    Content = item,
+                    Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(224, 224, 224)),
+                    Padding = new Thickness(10, 6, 10, 6)
+                });
+            }
+
+            if (_listBox.Items.Count > 0)
+                ((ListBoxItem)_listBox.Items[0]!).IsSelected = true;
+
+            _listBox.MouseDoubleClick += (s, e) =>
+            {
+                if (_listBox.SelectedItem is ListBoxItem { Content: { } content })
+                {
+                    SelectedItem = content.ToString();
+                    DialogResult = true;
+                }
+            };
+
             // Buttons at bottom (docked before listbox so they always show)
             var btnPanel = new StackPanel
             {
@@ -65,9 +95,9 @@ namespace SSF2ModManager.Dialogs
             };
             btnOk.Click += (s, e) =>
             {
-                if (_listBox.SelectedItem is ListBoxItem selected)
+                if (_listBox.SelectedItem is ListBoxItem { Content: { } content })
                 {
-                    SelectedItem = selected.Content?.ToString();
+                    SelectedItem = content.ToString();
                     DialogResult = true;
                 }
             };
@@ -110,37 +140,6 @@ namespace SSF2ModManager.Dialogs
             btnPanel.Children.Add(btnCancel);
             DockPanel.SetDock(btnPanel, Dock.Bottom);
             dock.Children.Add(btnPanel);
-
-            // ListBox fills remaining space
-            _listBox = new ListBox
-            {
-                Background = new SolidColorBrush(Color.FromRgb(15, 52, 96)),
-                Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(224, 224, 224)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(51, 51, 102)),
-                FontSize = 13
-            };
-
-            foreach (var item in items)
-            {
-                _listBox.Items.Add(new ListBoxItem
-                {
-                    Content = item,
-                    Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(224, 224, 224)),
-                    Padding = new Thickness(10, 6, 10, 6)
-                });
-            }
-
-            if (_listBox.Items.Count > 0)
-                ((ListBoxItem)_listBox.Items[0]).IsSelected = true;
-
-            _listBox.MouseDoubleClick += (s, e) =>
-            {
-                if (_listBox.SelectedItem is ListBoxItem selected)
-                {
-                    SelectedItem = selected.Content?.ToString();
-                    DialogResult = true;
-                }
-            };
 
             dock.Children.Add(_listBox);
 

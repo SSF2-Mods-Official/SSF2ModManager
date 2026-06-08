@@ -96,7 +96,7 @@ namespace SSF2ModManager.Services
             }
             catch (Exception ex)
             {
-                try { File.AppendAllText("ssf2mm-debug.log", $"[ThemeManager] ApplyTheme EX: {ex}\n"); } catch { }
+                DevFileLog.Write($"[ThemeManager] ApplyTheme EX: {ex}\n");
             }
         }
     }

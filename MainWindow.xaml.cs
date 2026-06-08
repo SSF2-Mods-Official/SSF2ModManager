@@ -14,10 +14,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.IO;
 using MessageBox = System.Windows.MessageBox;
 using System.Net.Http;
-using System.Reflection;
 using Button = System.Windows.Controls.Button;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
@@ -122,18 +120,18 @@ namespace SSF2ModManager
 
         public MainWindow()
         {
-            File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] ctor: Start\n");
+            DevFileLog.Write( $"[MainWindow] ctor: Start\n");
             try
             {
                 InitializeComponent();
-                File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] InitializeComponent succeeded\n");
+                DevFileLog.Write( $"[MainWindow] InitializeComponent succeeded\n");
             }
             catch (Exception ex)
             {
-                try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] InitializeComponent EX: {ex}\n"); } catch { }
+                try { DevFileLog.Write( $"[MainWindow] InitializeComponent EX: {ex}\n"); } catch { }
                 throw;
             }
-            File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] ctor: InitializeComponent done\n");
+            DevFileLog.Write( $"[MainWindow] ctor: InitializeComponent done\n");
 
             // Set language ComboBox to current language
             if (FindName("CmbLanguage") is System.Windows.Controls.ComboBox cmb)
@@ -184,7 +182,7 @@ namespace SSF2ModManager
             SetButtonContent("BtnOpenModsFolder", "📂 " + Localization.Get("OpenModsFolder"));
             SetButtonContent("BtnOpenSSF2Folder", "📂 " + Localization.Get("OpenSSF2Folder"));
 
-            File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] ctor: UI text set\n");
+            DevFileLog.Write( $"[MainWindow] ctor: UI text set\n");
             _apiClient = new GameBananaApiClient();
             _modManager = new ModManagerService(_apiClient);
 
@@ -278,21 +276,21 @@ namespace SSF2ModManager
             {
                 try
                 {
-                    File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Loaded handler start\n");
+                    DevFileLog.Write( $"[MainWindow] Loaded handler start\n");
                     await LoadBrowseModsAsync();
-                    File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Loaded handler complete\n");
+                    DevFileLog.Write( $"[MainWindow] Loaded handler complete\n");
                 }
                 catch (Exception ex)
                 {
-                    try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Loaded EX: {ex}\n"); } catch { }
+                    try { DevFileLog.Write( $"[MainWindow] Loaded EX: {ex}\n"); } catch { }
                 }
             };
             // Check program version on startup (non-blocking)
             _ = CheckProgramVersionAsync();
-            File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] ctor: End\n");
+            DevFileLog.Write( $"[MainWindow] ctor: End\n");
         }
 
-        private async void BtnCheckModUpdates_Click(object sender, RoutedEventArgs e)
+        private void BtnCheckModUpdates_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -341,7 +339,7 @@ namespace SSF2ModManager
                                             }
                                             catch (Exception ex)
                                             {
-                                                try { File.AppendAllText("ssf2mm-debug.log", $"[UpdateInstalled] EX: {ex}\n"); } catch { }
+                                                try { DevFileLog.Write( $"[UpdateInstalled] EX: {ex}\n"); } catch { }
                                                 Dispatcher.Invoke(() => MessageBox.Show($"Failed to update mod: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error));
                                             }
                                         });
@@ -366,7 +364,7 @@ namespace SSF2ModManager
                         }
                         catch (Exception ex)
                         {
-                            try { File.AppendAllText("ssf2mm-debug.log", $"[CheckModUpdates] EX: {ex}\n"); } catch { }
+                            try { DevFileLog.Write( $"[CheckModUpdates] EX: {ex}\n"); } catch { }
                             Dispatcher.Invoke(() => MessageBox.Show($"Failed to check updates: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error));
                         }
                     });
@@ -374,7 +372,7 @@ namespace SSF2ModManager
             }
             catch (Exception ex)
             {
-                try { File.AppendAllText("ssf2mm-debug.log", $"[BtnCheckModUpdates_Click] EX: {ex}\n"); } catch { }
+                try { DevFileLog.Write( $"[BtnCheckModUpdates_Click] EX: {ex}\n"); } catch { }
             }
         }
 
@@ -386,7 +384,7 @@ namespace SSF2ModManager
             }
             catch (Exception ex)
             {
-                try { File.AppendAllText("ssf2mm-debug.log", $"[BtnCheckProgramUpdate_Click] EX: {ex}\n"); } catch { }
+                try { DevFileLog.Write( $"[BtnCheckProgramUpdate_Click] EX: {ex}\n"); } catch { }
                 MessageBox.Show($"Failed to check program version: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -452,7 +450,7 @@ namespace SSF2ModManager
                             }
                             catch (Exception ex)
                             {
-                                try { File.AppendAllText("ssf2mm-debug.log", $"[BulkUpdate] EX for {u.inst.Name}: {ex}\n"); } catch { }
+                                try { DevFileLog.Write( $"[BulkUpdate] EX for {u.inst.Name}: {ex}\n"); } catch { }
                             }
                         }
                         Dispatcher.Invoke(() => MessageBox.Show("Bulk update process completed.", "Updates", MessageBoxButton.OK, MessageBoxImage.Information));
@@ -465,7 +463,7 @@ namespace SSF2ModManager
             }
             catch (Exception ex)
             {
-                try { File.AppendAllText("ssf2mm-debug.log", $"[BtnCheckAllInstalledUpdates_Click] EX: {ex}\n"); } catch { }
+                try { DevFileLog.Write( $"[BtnCheckAllInstalledUpdates_Click] EX: {ex}\n"); } catch { }
                 MessageBox.Show($"Failed to check/install updates: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -506,12 +504,11 @@ namespace SSF2ModManager
 
         private async System.Threading.Tasks.Task CheckProgramVersionAsync()
         {
-            var rawUrl = "https://raw.githubusercontent.com/SSF2-Mods-Official/SSF2ModManager/main/version.txt";
             try
             {
                 using var http = new HttpClient();
                 http.Timeout = TimeSpan.FromSeconds(10);
-                var remote = await http.GetStringAsync(rawUrl);
+                var remote = await http.GetStringAsync(AppInfo.VersionCheckUrl);
                 if (string.IsNullOrWhiteSpace(remote))
                 {
                     MessageBox.Show("Could not read remote version information.", "Version Check", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -519,24 +516,24 @@ namespace SSF2ModManager
                 }
 
                 var remoteVer = remote.Trim().Split('\n')[0].Trim();
-                var asmVer = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0.0.0.0";
+                var localVer = AppInfo.Version;
 
-                if (string.Equals(remoteVer, asmVer, StringComparison.OrdinalIgnoreCase))
+                if (AppInfo.IsUpToDate(localVer, remoteVer))
                 {
-                    MessageBox.Show($"You are running the latest version ({asmVer}).", "Version Check", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"You are running the latest version ({AppInfo.DisplayVersion}).", "Version Check", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    var dr = MessageBox.Show($"A newer version is available:\nRemote: {remoteVer}\nLocal: {asmVer}\nOpen project on GitHub to download?", "Update Available", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    var dr = MessageBox.Show(
+                        $"A newer version is available:\nRemote: {remoteVer}\nLocal: {AppInfo.DisplayVersion}\n\nOpen GitHub Releases to download?",
+                        "Update Available", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (dr == MessageBoxResult.Yes)
-                    {
-                        Process.Start(new ProcessStartInfo("https://github.com/SSF2-Mods-Official/SSF2ModManager") { UseShellExecute = true });
-                    }
+                        Process.Start(new ProcessStartInfo(AppInfo.GitHubRepo + "/releases") { UseShellExecute = true });
                 }
             }
             catch (Exception ex)
             {
-                try { File.AppendAllText("ssf2mm-debug.log", $"[CheckProgramVersionAsync] EX: {ex}\n"); } catch { }
+                DevFileLog.Write($"[CheckProgramVersionAsync] EX: {ex}\n");
                 MessageBox.Show($"Failed to check remote version: {ex.Message}", "Version Check", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -549,12 +546,12 @@ namespace SSF2ModManager
                     return;
                 if (sender is System.Windows.Controls.ComboBox cmb && cmb.SelectedItem is ComboBoxItem item && item.Tag is string langCode)
                 {
-                    File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Language change requested: {langCode}\n");
+                    DevFileLog.Write( $"[MainWindow] Language change requested: {langCode}\n");
 
                     var exe = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
                     if (string.IsNullOrEmpty(exe))
                     {
-                        File.AppendAllText("ssf2mm-debug.log", "[MainWindow] Relaunch failed: exe path empty\n");
+                        DevFileLog.Write( "[MainWindow] Relaunch failed: exe path empty\n");
                         return;
                     }
 
@@ -568,15 +565,15 @@ namespace SSF2ModManager
                         try
                         {
                             timer.Stop();
-                            File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Starting new process: {exe} {args}\n");
+                            DevFileLog.Write( $"[MainWindow] Starting new process: {exe} {args}\n");
                             var psi = new System.Diagnostics.ProcessStartInfo(exe, args) { UseShellExecute = true };
                             System.Diagnostics.Process.Start(psi);
-                            File.AppendAllText("ssf2mm-debug.log", "[MainWindow] New process started successfully\n");
+                            DevFileLog.Write( "[MainWindow] New process started successfully\n");
                             System.Windows.Application.Current.Dispatcher.Invoke(() => System.Windows.Application.Current.Shutdown());
                         }
                         catch (Exception ex)
                         {
-                            try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Relaunch EX: {ex}\n"); } catch { }
+                            try { DevFileLog.Write( $"[MainWindow] Relaunch EX: {ex}\n"); } catch { }
                         }
                     };
                     timer.Start();
@@ -584,7 +581,7 @@ namespace SSF2ModManager
             }
             catch (Exception ex)
             {
-                try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] SelectionChanged EX: {ex}\n"); } catch { }
+                try { DevFileLog.Write( $"[MainWindow] SelectionChanged EX: {ex}\n"); } catch { }
             }
         }
 
@@ -594,7 +591,7 @@ namespace SSF2ModManager
             {
                 if (sender is System.Windows.Controls.ComboBox cmb && cmb.SelectedItem is ComboBoxItem item && item.Tag is string themeName)
                 {
-                    File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Theme selected: {themeName}\n");
+                    DevFileLog.Write( $"[MainWindow] Theme selected: {themeName}\n");
                     _themeManager?.ApplyTheme(themeName);
                     try { _settingsService?.SetTheme(themeName); } catch { }
                     try { DumpThemeDebug(themeName); } catch { }
@@ -602,7 +599,7 @@ namespace SSF2ModManager
             }
             catch (Exception ex)
             {
-                try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] Theme change EX: {ex}\n"); } catch { }
+                try { DevFileLog.Write( $"[MainWindow] Theme change EX: {ex}\n"); } catch { }
             }
         }
 
@@ -712,6 +709,7 @@ namespace SSF2ModManager
 
         private void DumpThemeDebug(string themeName)
         {
+            if (!DevFileLog.Enabled) return;
             try
             {
                 var app = System.Windows.Application.Current;
@@ -809,7 +807,7 @@ namespace SSF2ModManager
                 if (missing.Count > 0) sb.AppendLine($"Keys missing: {string.Join(", ", missing)}");
 
                 var txt = sb.ToString();
-                try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] DumpThemeDebug:\n{txt}\n"); } catch { }
+                try { DevFileLog.Write( $"[MainWindow] DumpThemeDebug:\n{txt}\n"); } catch { }
 
                 if (FindName("TxtThemeDebug") is TextBlock tb)
                 {
@@ -830,13 +828,13 @@ namespace SSF2ModManager
                         liveSb.AppendLine($"BtnBrowse.Background: {(bbg != null ? bbg.Color.ToString() : btn.Background?.GetType().Name ?? "(null)")}");
                         liveSb.AppendLine($"BtnBrowse.Foreground: {(bfg != null ? bfg.Color.ToString() : btn.Foreground?.GetType().Name ?? "(null)")}");
                     }
-                    try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] LiveValues:\n{liveSb}\n"); } catch { }
+                    try { DevFileLog.Write( $"[MainWindow] LiveValues:\n{liveSb}\n"); } catch { }
                 }
                 catch { }
             }
             catch (Exception ex)
             {
-                try { File.AppendAllText("ssf2mm-debug.log", $"[MainWindow] DumpThemeDebug EX: {ex}\n"); } catch { }
+                try { DevFileLog.Write( $"[MainWindow] DumpThemeDebug EX: {ex}\n"); } catch { }
             }
         }
 
@@ -854,162 +852,305 @@ namespace SSF2ModManager
                 btn.Content = text;
         }
 
-        // Called by App.xaml.cs for protocol handler
-        public async void InstallModFromProtocol(string archiveUrl, string modType, string modId)
+        private SSF2VersionEntry? ResolveTargetVersionEntry()
+        {
+            if (_modManager.Versions.Count == 0) return null;
+
+            if (!string.IsNullOrEmpty(_modManager.ActiveVersion))
+            {
+                var active = _modManager.GetVersionEntry(_modManager.ActiveVersion);
+                if (active != null) return active;
+            }
+
+            if (_modManager.Versions.Count == 1)
+                return _modManager.Versions[0];
+
+            var versionDisplayNames = _modManager.Versions
+                .Select(v => $"{v.Nickname}  —  {v.VersionName}  —  {v.FolderPath}").ToList();
+            var picker = new ListPickerDialog("Target Version",
+                "Which SSF2 build should this mod be installed to?",
+                versionDisplayNames);
+            picker.Owner = this;
+            if (picker.ShowDialog() != true || picker.SelectedItem == null)
+                return null;
+
+            var targetNickname = picker.SelectedItem.Split("  —  ", 3)[0].Trim();
+            return _modManager.GetVersionEntry(targetNickname);
+        }
+
+        private InstalledMod? FindInstalledModByTarget(string target) =>
+            _modManager.InstalledMods.FirstOrDefault(m =>
+                m.Id.Equals(target, StringComparison.OrdinalIgnoreCase) ||
+                m.Name.Equals(target, StringComparison.OrdinalIgnoreCase) ||
+                m.GameBananaId.ToString() == target);
+
+        public void InstallModFromProtocol(string archiveUrl, string modType, string modId) =>
+            _ = InstallModFromProtocolAsync(archiveUrl, modType, modId);
+
+        public async System.Threading.Tasks.Task InstallModFromProtocolAsync(string archiveUrl, string modType, string modId)
         {
             try
             {
-                MessageBox.Show($"Received 1-Click Mod Install:\nURL: {archiveUrl}\nType: {modType}\nID: {modId}", "1-Click Install", MessageBoxButton.OK, MessageBoxImage.Information);
-                // TODO: Download and install mod using archiveUrl/modId
-                // You can call your existing download/install logic here
+                if (_modManager.Versions.Count == 0)
+                {
+                    MessageBox.Show(
+                        "No SSF2 builds configured.\n\nAdd a version in Settings before using 1-Click install.",
+                        "1-Click Install", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    SetActivePage("settings");
+                    return;
+                }
+
+                GameBananaMod? mod = null;
+                GameBananaFile? file = null;
+                var downloadUrl = archiveUrl;
+
+                if (int.TryParse(modId, out var gbId) && gbId > 0)
+                {
+                    mod = await _apiClient.GetModAsync(gbId);
+                    var files = await _apiClient.GetModFilesAsync(gbId);
+                    file = files?.FirstOrDefault(f =>
+                        (!string.IsNullOrEmpty(f.DownloadUrl) && archiveUrl.Contains(f.DownloadUrl, StringComparison.OrdinalIgnoreCase)) ||
+                        archiveUrl.Contains(f.FileName, StringComparison.OrdinalIgnoreCase))
+                        ?? files?.OrderByDescending(f => f.DateAdded).FirstOrDefault();
+                    if (file != null && !string.IsNullOrEmpty(file.DownloadUrl))
+                        downloadUrl = file.DownloadUrl;
+                }
+
+                if (mod == null)
+                {
+                    var fallbackName = "1-Click Mod";
+                    if (Uri.TryCreate(archiveUrl, UriKind.Absolute, out var uri))
+                        fallbackName = Path.GetFileNameWithoutExtension(uri.LocalPath) ?? fallbackName;
+
+                    mod = new GameBananaMod
+                    {
+                        Id = int.TryParse(modId, out var parsedId) ? parsedId : 0,
+                        Name = fallbackName,
+                        Category = new GameBananaCategory { Name = string.IsNullOrWhiteSpace(modType) ? "Other" : modType }
+                    };
+                }
+
+                if (file == null)
+                {
+                    var fileName = "download.zip";
+                    if (Uri.TryCreate(downloadUrl, UriKind.Absolute, out var dlUri))
+                        fileName = Path.GetFileName(dlUri.LocalPath);
+                    if (string.IsNullOrWhiteSpace(fileName))
+                        fileName = "download.zip";
+
+                    file = new GameBananaFile
+                    {
+                        FileName = fileName,
+                        DownloadUrl = downloadUrl
+                    };
+                }
+
+                if (file.HasScanWarning)
+                {
+                    var warn = MessageBox.Show(
+                        $"⚠ Scan warning for \"{file.FileName}\":\n{file.ScanSummary}\n\nInstall anyway?",
+                        "1-Click Install", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    if (warn != MessageBoxResult.Yes) return;
+                }
+
+                var confirm = MessageBox.Show(
+                    $"Install this mod via 1-Click?\n\nMod: {mod.Name}\nFile: {file.FileName}\nType: {modType}\nBuild: (choose next if multiple)",
+                    "1-Click Install", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (confirm != MessageBoxResult.Yes) return;
+
+                var targetEntry = ResolveTargetVersionEntry();
+                if (targetEntry == null) return;
+
+                DownloadOverlay.Visibility = Visibility.Visible;
+                TxtDownloadStatus.Text = $"Downloading {mod.Name}...";
+                DownloadProgress.Value = 0;
+                TxtDownloadPercent.Text = "0%";
+
+                var progress = new Progress<double>(p =>
+                {
+                    DownloadProgress.Value = p;
+                    TxtDownloadPercent.Text = $"{p:F0}%";
+                });
+
+                byte[] fileBytes;
+                try
+                {
+                    fileBytes = await _apiClient.DownloadFileAsync(downloadUrl, progress);
+                }
+                catch (Exception dlEx)
+                {
+                    DownloadOverlay.Visibility = Visibility.Collapsed;
+                    DebugLogger.Error($"1-Click download failed: {mod.Name}", dlEx);
+                    MessageBox.Show($"Failed to download mod:\n{dlEx.Message}", "1-Click Install",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                TxtDownloadStatus.Text = $"Installing {mod.Name}...";
+                TxtDownloadPercent.Text = "Installing...";
+
+                var installed = await _modManager.InstallModAsync(
+                    mod, file, targetEntry.VersionName, progress, preDownloadedBytes: fileBytes);
+
+                _modManager.ActiveVersion = targetEntry.Nickname;
+                RefreshPlayButton();
+                RefreshInstalledMods();
+                DownloadOverlay.Visibility = Visibility.Collapsed;
+
+                if (installed.IsGameFiles)
+                {
+                    MessageBox.Show(
+                        $"\"{mod.Name}\" was downloaded but not deployed (Game files mod).\nDeploy it from Installed Mods when ready.",
+                        "1-Click Install", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show($"\"{mod.Name}\" installed to {targetEntry.DisplayName}.",
+                        "1-Click Install", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+
+                SetActivePage("installed");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to install mod from 1-click URL:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                DownloadOverlay.Visibility = Visibility.Collapsed;
+                DebugLogger.Error("InstallModFromProtocol failed", ex);
+                MessageBox.Show($"Failed to install mod from 1-click URL:\n{ex.Message}", "1-Click Install",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // Apply parsed CLI options (parsed in App.xaml.cs)
-        public void ApplyCliOptions(SSF2ModManager.Models.CliOptions cli)
+        public void ApplyCliOptions(CliOptions cli)
         {
             try
             {
-                File.AppendAllText("ssf2mm-debug.log", $"[CLI] Applying options: {System.Text.Json.JsonSerializer.Serialize(cli)}\n");
+                DevFileLog.Write($"[CLI] Applying options: {System.Text.Json.JsonSerializer.Serialize(cli)}\n");
 
-                if (cli.RegisterProtocol)
-                {
-                    try { File.AppendAllText("ssf2mm-debug.log", "[CLI] Registering protocol...\n"); } catch { }
-                    // Protocol registration handled by App.TryRegisterProtocol on startup; duplicate call optional
-                }
-                if (cli.UnregisterProtocol)
-                {
-                    try { File.AppendAllText("ssf2mm-debug.log", "[CLI] Unregister protocol requested (not implemented)\n"); } catch { }
-                }
+                if (cli.RegisterProtocol) ProtocolService.Register();
+                if (cli.UnregisterProtocol) ProtocolService.Unregister();
 
                 if (!string.IsNullOrWhiteSpace(cli.Theme))
-                {
-                    try { _themeManager?.ApplyTheme(cli.Theme); } catch { }
-                }
+                    _themeManager?.ApplyTheme(cli.Theme);
 
                 if (!string.IsNullOrWhiteSpace(cli.OpenPage))
-                {
                     SetActivePage(cli.OpenPage);
-                }
 
                 if (cli.OpenNews)
                 {
                     OpenNews(cli.NewsPath);
                     if (cli.NewsPreviewOnly)
                     {
-                        // If preview-only, exit after a short delay to allow rendering
-                        System.Threading.Tasks.Task.Delay(800).ContinueWith(_ => System.Windows.Application.Current.Dispatcher.Invoke(() => System.Windows.Application.Current.Shutdown()));
+                        System.Threading.Tasks.Task.Delay(800).ContinueWith(_ =>
+                            Dispatcher.Invoke(() => System.Windows.Application.Current.Shutdown()));
                         return;
                     }
                 }
 
-                // Install targets: if URL-ish, call InstallModFromProtocol; if file path, TODO: implement local install
                 foreach (var t in cli.Install)
                 {
                     if (string.IsNullOrWhiteSpace(t)) continue;
-                    if (t.StartsWith("http://") || t.StartsWith("https://"))
-                    {
-                        InstallModFromProtocol(t, "", "");
-                    }
+                    if (ProtocolService.TryParse(t, out var proto))
+                        _ = InstallModFromProtocolAsync(proto.ArchiveUrl, proto.ModType, proto.ModId?.ToString() ?? "");
+                    else if (t.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                             t.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                        _ = InstallModFromProtocolAsync(t, "", "");
                     else if (File.Exists(t))
-                    {
-                        MessageBox.Show($"Install from local file requested: {t}", "CLI Install", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
+                        _ = InstallLocalFileFromCliAsync(t);
                     else
-                    {
-                        MessageBox.Show($"Install requested: {t}", "CLI Install", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
+                        DevFileLog.Write($"[CLI] Unknown install target: {t}\n");
                 }
 
-                // Other operations: log them for now
-                if (cli.Uninstall.Count > 0) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Uninstall targets: {string.Join(',', cli.Uninstall)}\n");
-                if (cli.Enable.Count > 0) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Enable targets: {string.Join(',', cli.Enable)}\n");
-                if (cli.Disable.Count > 0) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Disable targets: {string.Join(',', cli.Disable)}\n");
-                if (cli.Update.Count > 0)
+                foreach (var t in cli.Uninstall)
                 {
-                    File.AppendAllText("ssf2mm-debug.log", $"[CLI] Update targets: {string.Join(',', cli.Update)}\n");
-                    // Process updates in background
-                    foreach (var t in cli.Update)
-                    {
-                        if (string.IsNullOrWhiteSpace(t)) continue;
-                        if (t.StartsWith("http://") || t.StartsWith("https://"))
-                        {
-                            // Treat as install URL
-                            InstallModFromProtocol(t, "", "");
-                            continue;
-                        }
-
-                        // If numeric, treat as GameBanana ID
-                        if (int.TryParse(t, out var gbId))
-                        {
-                            _ = System.Threading.Tasks.Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    var modInfo = await _apiClient.GetModAsync(gbId);
-                                    var files = await _apiClient.GetModFilesAsync(gbId);
-                                    var file = files?.OrderByDescending(f => f.DateAdded).FirstOrDefault();
-                                    if (modInfo != null && file != null)
-                                    {
-                                        await _modManager.InstallModAsync(modInfo, file, "");
-                                        Dispatcher.Invoke(() => RefreshInstalledMods());
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    try { File.AppendAllText("ssf2mm-debug.log", $"[CLI] Update EX for {t}: {ex}\n"); } catch { }
-                                }
-                            });
-                            continue;
-                        }
-
-                        // Try matching installed mod by ID or name
-                        var inst = _modManager.InstalledMods.FirstOrDefault(m => m.Id == t || string.Equals(m.Name, t, StringComparison.OrdinalIgnoreCase));
-                        if (inst != null)
-                        {
-                            _ = System.Threading.Tasks.Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    await _modManager.UpdateInstalledModAsync(inst);
-                                    Dispatcher.Invoke(() => RefreshInstalledMods());
-                                }
-                                catch (Exception ex)
-                                {
-                                    try { File.AppendAllText("ssf2mm-debug.log", $"[CLI] Update EX for installed {t}: {ex}\n"); } catch { }
-                                }
-                            });
-                            continue;
-                        }
-
-                        // Unknown target - log
-                        File.AppendAllText("ssf2mm-debug.log", $"[CLI] Unknown update target: {t}\n");
-                    }
+                    var mod = FindInstalledModByTarget(t);
+                    if (mod != null) _ = _modManager.UninstallModAsync(mod);
                 }
 
-                if (!string.IsNullOrWhiteSpace(cli.ConfigPath)) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Config path: {cli.ConfigPath}\n");
-                if (!string.IsNullOrWhiteSpace(cli.ExportConfig)) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Export config: {cli.ExportConfig}\n");
-                if (!string.IsNullOrWhiteSpace(cli.ImportConfig)) File.AppendAllText("ssf2mm-debug.log", $"[CLI] Import config: {cli.ImportConfig}\n");
+                foreach (var t in cli.Enable)
+                {
+                    var mod = FindInstalledModByTarget(t);
+                    if (mod != null && !mod.Enabled) _modManager.ToggleMod(mod);
+                }
+
+                foreach (var t in cli.Disable)
+                {
+                    var mod = FindInstalledModByTarget(t);
+                    if (mod != null && mod.Enabled) _modManager.ToggleMod(mod);
+                }
+
+                foreach (var t in cli.Update)
+                {
+                    if (string.IsNullOrWhiteSpace(t)) continue;
+                    if (ProtocolService.TryParse(t, out var proto))
+                    {
+                        _ = InstallModFromProtocolAsync(proto.ArchiveUrl, proto.ModType, proto.ModId?.ToString() ?? "");
+                        continue;
+                    }
+                    if (t.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                        t.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _ = InstallModFromProtocolAsync(t, "", "");
+                        continue;
+                    }
+                    if (int.TryParse(t, out var gbId))
+                    {
+                        _ = System.Threading.Tasks.Task.Run(async () =>
+                        {
+                            var modInfo = await _apiClient.GetModAsync(gbId);
+                            var files = await _apiClient.GetModFilesAsync(gbId);
+                            var file = files?.OrderByDescending(f => f.DateAdded).FirstOrDefault();
+                            var entry = ResolveTargetVersionEntry();
+                            if (modInfo != null && file != null && entry != null)
+                            {
+                                await _modManager.InstallModAsync(modInfo, file, entry.VersionName);
+                                Dispatcher.Invoke(RefreshInstalledMods);
+                            }
+                        });
+                        continue;
+                    }
+                    var inst = FindInstalledModByTarget(t);
+                    if (inst != null)
+                    {
+                        _ = System.Threading.Tasks.Task.Run(async () =>
+                        {
+                            await _modManager.UpdateInstalledModAsync(inst);
+                            Dispatcher.Invoke(RefreshInstalledMods);
+                        });
+                    }
+                }
 
                 if (cli.CheckUpdates)
-                {
-                    MessageBox.Show("Check for updates requested (not implemented).", "CLI", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
+                    _ = CheckProgramVersionAsync();
 
                 if (!string.IsNullOrWhiteSpace(cli.DumpLog))
                 {
-                    try { File.Copy("ssf2mm-debug.log", cli.DumpLog, true); } catch { }
+                    try { File.Copy(AppPaths.DebugLogFile, cli.DumpLog, true); } catch { }
                 }
-
             }
             catch (Exception ex)
             {
-                try { File.AppendAllText("ssf2mm-debug.log", $"[CLI] ApplyCliOptions EX: {ex}\n"); } catch { }
+                DevFileLog.Write($"[CLI] ApplyCliOptions EX: {ex}\n");
+                DebugLogger.Error("ApplyCliOptions failed", ex);
             }
+        }
+
+        private async System.Threading.Tasks.Task InstallLocalFileFromCliAsync(string path)
+        {
+            if (_modManager.Versions.Count == 0)
+            {
+                MessageBox.Show("Add an SSF2 build in Settings before installing.", "CLI Install",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var entry = ResolveTargetVersionEntry();
+            if (entry == null) return;
+
+            var fileName = Path.GetFileName(path);
+            var modName = Path.GetFileNameWithoutExtension(path) ?? "Local Mod";
+            var fileBytes = await File.ReadAllBytesAsync(path);
+            await _modManager.InstallLocalModAsync(modName, "Other", fileName, fileBytes, entry.VersionName);
+            RefreshInstalledMods();
         }
 
         // ── Title Bar ────────────────────────────────────────────
@@ -1099,8 +1240,10 @@ namespace SSF2ModManager
             BtnLog.Style = (Style)FindResource(page == "log" ? "SidebarButtonActive" : "SidebarButton");
 
             // Ensure sidebar button foregrounds follow the active/inactive selection brushes (some themes override hard-coded values)
-            Brush activeFg = TryFindResource("SelectionForegroundBrush") as Brush ?? TryFindResource("TextPrimaryBrush") as Brush;
-            Brush inactiveFg = TryFindResource("TextSecondaryBrush") as Brush;
+            Brush activeFg = TryFindResource("SelectionForegroundBrush") as Brush
+                ?? TryFindResource("TextPrimaryBrush") as Brush
+                ?? Brushes.White;
+            Brush inactiveFg = TryFindResource("TextSecondaryBrush") as Brush ?? Brushes.Gray;
 
             BtnBrowse.Foreground = page == "browse" ? activeFg : inactiveFg;
             BtnInstalled.Foreground = page == "installed" ? activeFg : inactiveFg;
@@ -1368,12 +1511,22 @@ namespace SSF2ModManager
             }
             else
             {
-                var fileList = string.Join("\n", mod.Files.Select((f, i) => $"{i + 1}. {f.FileName} ({f.FileSizeFormatted})"));
-                var result = MessageBox.Show(
-                    $"This mod has multiple files:\n\n{fileList}\n\nInstall the first file?",
-                    "Select File", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (result != MessageBoxResult.Yes) return;
-                selectedFile = mod.Files[0];
+                // Let user choose which file to install
+                var fileOptions = mod.Files
+                    .Select(f => $"{f.FileName}  —  {f.FileSizeFormatted}")
+                    .ToList();
+                
+                var filePicker = new ListPickerDialog("Select File",
+                    $"\"{mod.Name}\" has multiple files. Which one do you want to install?",
+                    fileOptions);
+                filePicker.Owner = this;
+                
+                if (filePicker.ShowDialog() != true || filePicker.SelectedItem == null)
+                    return;
+                
+                // Extract the selected file by matching the filename
+                var selectedFileName = filePicker.SelectedItem.Split("  —  ", 2)[0].Trim();
+                selectedFile = mod.Files.First(f => f.FileName == selectedFileName);
             }
 
             // Show virus scan report
@@ -1425,13 +1578,13 @@ namespace SSF2ModManager
             if (targetEntry == null) return;
             var targetVersion = targetEntry.VersionName;
 
-            // Check for existing mod with same GameBanana ID
-            var existingMod = _modManager.InstalledMods.FirstOrDefault(m => m.GameBananaId == mod.Id);
+            // Check for existing mod with same GameBanana ID in the SAME build
+            var existingMod = _modManager.InstalledMods.FirstOrDefault(m => 
+                m.GameBananaId == mod.Id && m.TargetVersion == targetVersion);
             if (existingMod != null)
             {
                 var overrideResult = MessageBox.Show(
-                    $"\"{mod.Name}\" is already installed.\n\n" +
-                    $"Version: {existingMod.TargetVersion}\n" +
+                    $"\"{mod.Name}\" is already installed in {targetEntry.DisplayName}.\n\n" +
                     $"Status: {(existingMod.Enabled ? "Enabled" : "Disabled")}\n\n" +
                     $"Reinstalling will remove the existing installation first.\nContinue?",
                     "Mod Already Installed", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -2095,24 +2248,70 @@ namespace SSF2ModManager
         private async void BtnUninstallMod_Click(object sender, RoutedEventArgs e)
         {
             var mod = (InstalledMod)((Button)sender).Tag;
-            var result = MessageBox.Show(
-                $"Are you sure you want to remove \"{mod.Name}\"?\nOriginal game files will be restored.",
-                "Confirm Removal", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            if (result == MessageBoxResult.Yes)
+            // Check if this mod is installed in multiple builds
+            var allInstances = _modManager.InstalledMods
+                .Where(m => m.GameBananaId == mod.GameBananaId && m.GameBananaId > 0)
+                .ToList();
+
+            bool removeFromAll = false;
+
+            if (allInstances.Count > 1)
             {
-                try
+                // Mod is in multiple builds - ask which ones to remove
+                var builds = string.Join(", ", allInstances.Select(m => 
                 {
+                    var entry = _modManager.Versions.FirstOrDefault(v => v.VersionName == m.TargetVersion);
+                    return entry?.DisplayName ?? m.TargetVersion;
+                }));
+
+                var choice = MessageBox.Show(
+                    $"\"{mod.Name}\" is installed in {allInstances.Count} builds:\n{builds}\n\n" +
+                    $"Do you want to remove it from ALL builds?\n\n" +
+                    $"• YES = Remove from all builds\n" +
+                    $"• NO = Remove from this build only\n" +
+                    $"• CANCEL = Don't remove",
+                    "Remove from Multiple Builds?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+                if (choice == MessageBoxResult.Cancel)
+                    return;
+
+                removeFromAll = (choice == MessageBoxResult.Yes);
+            }
+            else
+            {
+                // Single build - standard confirmation
+                var result = MessageBox.Show(
+                    $"Are you sure you want to remove \"{mod.Name}\"?\nOriginal game files will be restored.",
+                    "Confirm Removal", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                
+                if (result != MessageBoxResult.Yes)
+                    return;
+            }
+
+            try
+            {
+                if (removeFromAll)
+                {
+                    // Remove all instances
+                    foreach (var instance in allInstances.ToList())
+                    {
+                        await _modManager.UninstallModAsync(instance);
+                    }
+                }
+                else
+                {
+                    // Remove only this instance
                     await _modManager.UninstallModAsync(mod);
                 }
-                catch (Exception ex)
-                {
-                    DebugLogger.Error($"Uninstall failed: {mod.Name}", ex);
-                    MessageBox.Show($"Error removing mod:\n{ex.Message}", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                RefreshInstalledMods();
             }
+            catch (Exception ex)
+            {
+                DebugLogger.Error($"Uninstall failed: {mod.Name}", ex);
+                MessageBox.Show($"Error removing mod:\n{ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            RefreshInstalledMods();
         }
 
         private void BtnInstalledModSettings_Click(object sender, RoutedEventArgs e)
