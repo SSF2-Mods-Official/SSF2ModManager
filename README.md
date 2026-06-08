@@ -18,12 +18,21 @@ A Windows desktop mod manager for **Super Smash Flash 2**. Browse GameBanana mod
 
 ## Requirements
 
-- **Windows 10/11**
-- [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) (or use the self-contained publish build)
+- **Windows 10/11 (64-bit)**
+- **Release zip:** nothing else to install
+- **Building from source:** [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
 ## Quick start
 
-### From source
+### Download (recommended)
+
+Grab `SSF2ModManager-win-x64.zip` from [GitHub Releases](https://github.com/SSF2-Mods-Official/SSF2ModManager/releases). Extract and run **`SSF2ModManager.exe`** — **no .NET install required**.
+
+The release is a single portable executable (~70–90 MB). Languages and themes are embedded and extract automatically on first run.
+
+### From source (developers)
+
+Requires [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
 
 ```powershell
 git clone https://github.com/SSF2-Mods-Official/SSF2ModManager.git
@@ -33,6 +42,16 @@ dotnet build -c Release
 ```
 
 Or double-click `run.bat` (builds Release and launches).
+
+### Clean up local build clutter
+
+After building, `bin/` and `obj/` folders accumulate (~1000+ generated files). They are gitignored and safe to delete:
+
+```powershell
+.\scripts\clean.ps1
+```
+
+Your repo only has **~75 tracked source files**; the rest on disk is build output.
 
 ### First launch
 
@@ -102,6 +121,7 @@ Get-ItemProperty "HKCU:\Software\Classes\ssf2mm\shell\open\command"
 ## Publishing a release
 
 ```powershell
+.\scripts\clean.ps1    # optional — remove old bin/obj
 .\scripts\publish.ps1
 ```
 
@@ -109,20 +129,14 @@ Output zip: `dist\SSF2ModManager-win-x64.zip`
 
 ### What’s in the release zip?
 
-A normal **.NET 8 framework-dependent** app — not a single `.exe`. You need the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) installed once on the PC.
+| File | Purpose |
+|------|---------|
+| `SSF2ModManager.exe` | Portable app + .NET 8 runtime + all dependencies (single file) |
+| `README.txt` | Quick start for end users |
 
-| File / folder | Purpose |
-|---------------|---------|
-| `SSF2ModManager.exe` | App launcher |
-| `SSF2ModManager.dll` | Application code |
-| `Newtonsoft.Json.dll`, `SharpCompress.dll`, `Markdig.dll`, `ZstdSharp.dll` | NuGet dependencies (JSON, archives, news markdown) |
-| `Languages/` | English + Spanish UI strings |
-| `Themes/` | 12 UI themes |
-| `*.runtimeconfig.json`, `*.deps.json` | .NET runtime metadata (required) |
+**~2 files, ~70–90 MB.** No separate DLLs, no runtime install. Languages and themes are bundled inside the `.exe`.
 
-That’s **~20 files** total — expected for this type of build. A single-file `.exe` is possible but much larger and still extracts dependencies at runtime.
-
-**App version** is shown in the sidebar (e.g. `v1.0.0`) and comes from `Services/AppInfo.cs` / the project version — not from GameBanana.
+**App version** (sidebar, e.g. `v1.0.0`) comes from `Services/AppInfo.cs` — not GameBanana.
 
 ## CLI (automation)
 
