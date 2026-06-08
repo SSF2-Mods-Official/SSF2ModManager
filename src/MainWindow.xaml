@@ -231,10 +231,6 @@
                             Style="{StaticResource SidebarButton}" Click="BtnInstalled_Click"/>
                         <Button x:Name="BtnBuilds" Content="{local:Loc BuildsSidebar}" 
                             Style="{StaticResource SidebarButton}" Click="BtnBuilds_Click"/>
-                        <Button x:Name="BtnCostumes" Content="{local:Loc CostumesSidebar}" 
-                            Style="{StaticResource SidebarButton}" Click="BtnCostumes_Click"/>
-                        <Button x:Name="BtnEvents" Content="{local:Loc EventsSidebar}" 
-                            Style="{StaticResource SidebarButton}" Click="BtnEvents_Click"/>
                         <Button x:Name="BtnNews" Content="📰  News" 
                             Style="{StaticResource SidebarButton}" Click="BtnNews_Click"/>
                         <Button x:Name="BtnGettingStarted" Content="📘  Getting Started" 
@@ -802,34 +798,6 @@
                 </ScrollViewer>
             </Grid>
 
-            <!-- ═══ Manage Costumes Page ═══ -->
-            <Grid x:Name="PageCostumes" Margin="24,20" Visibility="Collapsed">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="{local:Loc ManageCostumes}" FontSize="22" FontWeight="SemiBold"
-                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
-                <Border Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
-                    <TextBlock Text="Costume management coming soon. This will let you manage alternate character costumes for SSF2."
-                               FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
-                </Border>
-            </Grid>
-
-            <!-- ═══ Manage Events Page ═══ -->
-            <Grid x:Name="PageEvents" Margin="24,20" Visibility="Collapsed">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="{local:Loc ManageEvents}" FontSize="22" FontWeight="SemiBold"
-                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
-                <Border Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="24" VerticalAlignment="Top">
-                    <TextBlock Text="Event management coming soon. This will let you create and manage SSF2 events."
-                               FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
-                </Border>
-            </Grid>
-
             <!-- ═══ Mod SSF2 Page ═══ -->
             <Grid x:Name="PageModSSF2" Margin="24,20" Visibility="Collapsed">
                 <Grid.RowDefinitions>
@@ -854,7 +822,10 @@
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <!-- Tutorial Card -->
-                        <Border Background="{DynamicResource AccentBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                        <Border Background="{DynamicResource CardBrush}"
+                                BorderBrush="{DynamicResource AccentBrush}"
+                                BorderThickness="3,0,0,0"
+                                CornerRadius="8" Padding="20" Margin="0,0,0,12">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -862,14 +833,14 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="📘 Tutorial" FontSize="18" FontWeight="SemiBold"
-                                               Foreground="White" Margin="0,0,0,4"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
                                     <TextBlock Text="New to SSF2 Mod Manager? Take a quick tutorial to learn how to add versions, browse mods, and get started modding!"
-                                               FontSize="13" Foreground="#E0FFFFFF" TextWrapping="Wrap"/>
+                                               FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                                 </StackPanel>
-                                <Button Grid.Column="1" x:Name="BtnTutorial" Content="Start Tutorial" 
+                                <Button Grid.Column="1" x:Name="BtnTutorial" Content="Start Tutorial"
                                         Style="{StaticResource ModernButton}"
                                         Click="BtnTutorial_Click" Padding="16,8" VerticalAlignment="Center"
-                                        Background="White" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
+                                        FontWeight="SemiBold"/>
                             </Grid>
                         </Border>
 

@@ -155,8 +155,6 @@ namespace SSF2ModManager
             BtnBrowse.Content = "🌐  " + Localization.Get("BrowseMods");
             BtnInstalled.Content = "📦  " + Localization.Get("InstalledMods");
             BtnBuilds.Content = "🎮  " + Localization.Get("InstalledBuilds");
-            BtnCostumes.Content = "👗  " + Localization.Get("ManageCostumes");
-            BtnEvents.Content = "🎉  " + Localization.Get("ManageEvents");
             BtnGettingStarted.Content = "📘  " + "Getting Started";
             BtnSettings.Content = "⚙️  " + Localization.Get("Settings");
             BtnLog.Content = "📋  " + Localization.Get("DebugLog");
@@ -165,8 +163,6 @@ namespace SSF2ModManager
             SetTextBlock("PageBrowse", 0, Localization.Get("BrowseMods"));
             SetTextBlock("PageInstalled", 0, Localization.Get("InstalledMods"));
             SetTextBlock("PageBuilds", 0, Localization.Get("InstalledBuilds"));
-            SetTextBlock("PageCostumes", 0, Localization.Get("ManageCostumes"));
-            SetTextBlock("PageEvents", 0, Localization.Get("ManageEvents"));
             SetTextBlock("PageModSSF2", 0, "Getting Started");
             SetTextBlock("PageSettings", 0, Localization.Get("Settings"));
             SetTextBlock("PageLog", 0, Localization.Get("DebugLog"));
@@ -1273,8 +1269,6 @@ namespace SSF2ModManager
             PageBrowse.Visibility = page == "browse" ? Visibility.Visible : Visibility.Collapsed;
             PageInstalled.Visibility = page == "installed" ? Visibility.Visible : Visibility.Collapsed;
             PageBuilds.Visibility = page == "builds" ? Visibility.Visible : Visibility.Collapsed;
-            PageCostumes.Visibility = page == "costumes" ? Visibility.Visible : Visibility.Collapsed;
-            PageEvents.Visibility = page == "events" ? Visibility.Visible : Visibility.Collapsed;
             // Getting Started uses a dedicated page that contains the info.json tool + resource cards
             PageGettingStarted.Visibility = page == "gettingstarted" ? Visibility.Visible : Visibility.Collapsed;
             PageModSSF2.Visibility = page == "modssf2" ? Visibility.Visible : Visibility.Collapsed;
@@ -1299,8 +1293,6 @@ namespace SSF2ModManager
             BtnBrowse.Style = (Style)FindResource(page == "browse" ? "SidebarButtonActive" : "SidebarButton");
             BtnInstalled.Style = (Style)FindResource(page == "installed" ? "SidebarButtonActive" : "SidebarButton");
             BtnBuilds.Style = (Style)FindResource(page == "builds" ? "SidebarButtonActive" : "SidebarButton");
-            BtnCostumes.Style = (Style)FindResource(page == "costumes" ? "SidebarButtonActive" : "SidebarButton");
-            BtnEvents.Style = (Style)FindResource(page == "events" ? "SidebarButtonActive" : "SidebarButton");
             BtnGettingStarted.Style = (Style)FindResource(page == "gettingstarted" ? "SidebarButtonActive" : "SidebarButton");
             BtnNews.Style = (Style)FindResource(page == "news" ? "SidebarButtonActive" : "SidebarButton");
             BtnSettings.Style = (Style)FindResource(page == "settings" ? "SidebarButtonActive" : "SidebarButton");
@@ -1315,8 +1307,6 @@ namespace SSF2ModManager
             BtnBrowse.Foreground = page == "browse" ? activeFg : inactiveFg;
             BtnInstalled.Foreground = page == "installed" ? activeFg : inactiveFg;
             BtnBuilds.Foreground = page == "builds" ? activeFg : inactiveFg;
-            BtnCostumes.Foreground = page == "costumes" ? activeFg : inactiveFg;
-            BtnEvents.Foreground = page == "events" ? activeFg : inactiveFg;
             BtnGettingStarted.Foreground = page == "gettingstarted" ? activeFg : inactiveFg;
             BtnNews.Foreground = page == "news" ? activeFg : inactiveFg;
             BtnSettings.Foreground = page == "settings" ? activeFg : inactiveFg;
@@ -1331,8 +1321,6 @@ namespace SSF2ModManager
             RefreshInstalledMods();
         }
 
-        private void BtnCostumes_Click(object sender, RoutedEventArgs e) => SetActivePage("costumes");
-        private void BtnEvents_Click(object sender, RoutedEventArgs e) => SetActivePage("events");
         private void BtnNews_Click(object sender, RoutedEventArgs e) => OpenNews();
 
         // Public helper to open News page programmatically (used by CLI handlers)
@@ -1341,16 +1329,13 @@ namespace SSF2ModManager
             SetActivePage("news");
             try
             {
-                var np = FindName("PageNews") as dynamic;
-                if (np != null)
-                {
-                    var path = newsPath;
-                    if (string.IsNullOrWhiteSpace(path))
-                        path = System.IO.Path.Combine(Environment.CurrentDirectory, "News");
-                    try { np.LoadLocal(path); } catch { }
-                }
+                var path = string.IsNullOrWhiteSpace(newsPath) ? AppPaths.NewsFolder : newsPath;
+                PageNews.LoadLocal(path);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                DevFileLog.Write($"[OpenNews] Failed: {ex}\n");
+            }
         }
         private void BtnModSSF2_Click(object sender, RoutedEventArgs e) => SetActivePage("gettingstarted");
 

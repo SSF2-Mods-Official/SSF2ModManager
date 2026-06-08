@@ -20,5 +20,8 @@ namespace SSF2ModManager.Services
         public static string SettingsFile => Path.Combine(AppDataDir, "user-settings.json");
         public static string DebugLogFile => Path.Combine(AppDataDir, "ssf2mm-debug.log");
         public static string ModDatabaseFile => Path.Combine(AppDataDir, "mods.json");
+
+        /// <summary>Bundled news articles copied/extracted next to the executable.</summary>
+        public static string NewsFolder => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "News");
     }
 }
