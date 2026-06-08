@@ -275,6 +275,22 @@ namespace SSF2ModManager
             RefreshPlayButton();
             DebugLogger.Log("Application started");
 
+            SingleInstanceService.StartListening(args =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    try
+                    {
+                        BringToFront();
+                        App.DispatchArguments(this, args);
+                    }
+                    catch (Exception ex)
+                    {
+                        DebugLogger.Error("Forwarded arguments failed", ex);
+                    }
+                });
+            });
+
             Loaded += async (s, e) =>
             {
                 try
@@ -288,8 +304,8 @@ namespace SSF2ModManager
                     try { DevFileLog.Write( $"[MainWindow] Loaded EX: {ex}\n"); } catch { }
                 }
             };
-            // Check program version on startup (non-blocking)
-            _ = CheckProgramVersionAsync();
+            // Check for updates on startup; only notify if a newer version exists
+            _ = CheckProgramVersionAsync(silent: true);
             DevFileLog.Write( $"[MainWindow] ctor: End\n");
         }
 
@@ -505,7 +521,7 @@ namespace SSF2ModManager
             catch { }
         }
 
-        private async System.Threading.Tasks.Task CheckProgramVersionAsync()
+        private async System.Threading.Tasks.Task CheckProgramVersionAsync(bool silent = false)
         {
             try
             {
@@ -514,7 +530,8 @@ namespace SSF2ModManager
                 var remote = await http.GetStringAsync(AppInfo.VersionCheckUrl);
                 if (string.IsNullOrWhiteSpace(remote))
                 {
-                    MessageBox.Show("Could not read remote version information.", "Version Check", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    if (!silent)
+                        MessageBox.Show("Could not read remote version information.", "Version Check", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -523,7 +540,8 @@ namespace SSF2ModManager
 
                 if (AppInfo.IsUpToDate(localVer, remoteVer))
                 {
-                    MessageBox.Show($"You are running the latest version ({AppInfo.DisplayVersion}).", "Version Check", MessageBoxButton.OK, MessageBoxImage.Information);
+                    if (!silent)
+                        MessageBox.Show($"You are running the latest version ({AppInfo.DisplayVersion}).", "Version Check", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
@@ -537,7 +555,8 @@ namespace SSF2ModManager
             catch (Exception ex)
             {
                 DevFileLog.Write($"[CheckProgramVersionAsync] EX: {ex}\n");
-                MessageBox.Show($"Failed to check remote version: {ex.Message}", "Version Check", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (!silent)
+                    MessageBox.Show($"Failed to check remote version: {ex.Message}", "Version Check", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -855,6 +874,17 @@ namespace SSF2ModManager
                 btn.Content = text;
         }
 
+        private void BringToFront()
+        {
+            if (WindowState == WindowState.Minimized)
+                WindowState = WindowState.Normal;
+            Show();
+            Activate();
+            Topmost = true;
+            Topmost = false;
+            Focus();
+        }
+
         private SSF2VersionEntry? ResolveTargetVersionEntry()
         {
             if (_modManager.Versions.Count == 0) return null;
@@ -881,6 +911,38 @@ namespace SSF2ModManager
             return _modManager.GetVersionEntry(targetNickname);
         }
 
+        /// <summary>
+        /// Always shows the target-version picker when multiple builds exist (used by 1-Click install).
+        /// Returns null with ModPackSelected set when the user picks mod-pack install.
+        /// </summary>
+        private SSF2VersionEntry? PickTargetVersionForMod(GameBananaMod mod, out bool modPackSelected)
+        {
+            modPackSelected = false;
+            if (_modManager.Versions.Count == 0) return null;
+            if (_modManager.Versions.Count == 1) return _modManager.Versions[0];
+
+            var versionDisplayNames = _modManager.Versions
+                .Select(v => $"{v.Nickname}  —  {v.VersionName}  —  {v.FolderPath}").ToList();
+            var picker = new ListPickerDialog("Target Version",
+                $"Which SSF2 version should \"{mod.Name}\" be installed to?",
+                versionDisplayNames, showModPackButton: true);
+            picker.Owner = this;
+            if (picker.ShowDialog() != true)
+                return null;
+
+            if (picker.ModPackSelected)
+            {
+                modPackSelected = true;
+                return null;
+            }
+
+            if (picker.SelectedItem == null)
+                return null;
+
+            var targetNickname = picker.SelectedItem.Split("  —  ", 3)[0].Trim();
+            return _modManager.GetVersionEntry(targetNickname);
+        }
+
         private InstalledMod? FindInstalledModByTarget(string target) =>
             _modManager.InstalledMods.FirstOrDefault(m =>
                 m.Id.Equals(target, StringComparison.OrdinalIgnoreCase) ||
@@ -894,6 +956,8 @@ namespace SSF2ModManager
         {
             try
             {
+                BringToFront();
+
                 if (_modManager.Versions.Count == 0)
                 {
                     MessageBox.Show(
@@ -956,12 +1020,12 @@ namespace SSF2ModManager
                     if (warn != MessageBoxResult.Yes) return;
                 }
 
-                var confirm = MessageBox.Show(
-                    $"Install this mod via 1-Click?\n\nMod: {mod.Name}\nFile: {file.FileName}\nType: {modType}\nBuild: (choose next if multiple)",
-                    "1-Click Install", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (confirm != MessageBoxResult.Yes) return;
-
-                var targetEntry = ResolveTargetVersionEntry();
+                var targetEntry = PickTargetVersionForMod(mod, out var modPackSelected);
+                if (modPackSelected)
+                {
+                    await InstallAsModPackAsync(mod, file);
+                    return;
+                }
                 if (targetEntry == null) return;
 
                 DownloadOverlay.Visibility = Visibility.Visible;

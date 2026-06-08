@@ -28,7 +28,7 @@ A Windows desktop mod manager for **Super Smash Flash 2**. Browse GameBanana mod
 
 Grab `SSF2ModManager-win-x64.zip` from [GitHub Releases](https://github.com/SSF2-Mods-Official/SSF2ModManager/releases). Extract and run **`SSF2ModManager.exe`** — **no .NET install required**.
 
-The release is a single portable executable (~70–90 MB). Languages and themes are embedded and extract automatically on first run.
+The release is a single portable executable (~70–90 MB). No .NET install required.
 
 ### From source (developers)
 
@@ -145,7 +145,7 @@ Output zip: `dist\SSF2ModManager-win-x64.zip`
 | `SSF2ModManager.exe` | Portable app + .NET 8 runtime + all dependencies (single file) |
 | `README.txt` | Quick start for end users |
 
-**~2 files, ~70–90 MB.** No separate DLLs, no runtime install. Languages and themes are bundled inside the `.exe`.
+**~2 files, ~60–70 MB.** No separate DLLs, no runtime install.
 
 **App version** (sidebar, e.g. `v1.0.0`) comes from `src/Services/AppInfo.cs` — not GameBanana.
 

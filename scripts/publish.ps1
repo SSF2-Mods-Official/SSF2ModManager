@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $outDir = Join-Path $root "publish"
 $distDir = Join-Path $root "dist"
+$version = (Get-Content (Join-Path $root "version.txt") -Raw).Trim()
 
 Push-Location $root
 try {
@@ -18,24 +19,27 @@ try {
         -p:EnableCompressionInSingleFile=true `
         -p:IncludeNativeLibrariesForSelfExtract=true `
         -p:IncludeAllContentForSelfExtract=true `
+        -p:SatelliteResourceLanguages=en `
         -o $outDir
 
     if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed" }
 
     Get-ChildItem $outDir -Filter "*.pdb" -Recurse | Remove-Item -Force
 
-    # Optional readme dropped next to the exe
-    @"
-SSF2 Mod Manager v1.0.0
+    $readme = @"
+SSF2 Mod Manager v$version
 ========================
 
-Run SSF2ModManager.exe — no .NET install required.
+Run SSF2ModManager.exe - no .NET install required.
 
-Languages and themes are bundled inside the executable and
-extract automatically on first launch.
+Languages and themes are bundled inside the executable.
 
-User data: %AppData%\SSF2ModManager\
-"@ | Set-Content (Join-Path $outDir "README.txt") -Encoding UTF8
+Your settings and mod data are stored in:
+  %AppData%\SSF2ModManager\
+"@
+    $readmePath = Join-Path $outDir "README.txt"
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($readmePath, $readme, $utf8NoBom)
 
     New-Item -ItemType Directory -Force -Path $distDir | Out-Null
     $zip = Join-Path $distDir "SSF2ModManager-win-x64.zip"
@@ -44,14 +48,27 @@ User data: %AppData%\SSF2ModManager\
 
     $files = Get-ChildItem $outDir -Recurse -File
     $totalMb = [math]::Round(($files | Measure-Object Length -Sum).Sum / 1MB, 1)
+    $zipMb = [math]::Round((Get-Item $zip).Length / 1MB, 1)
     Write-Host ""
     Write-Host "Published: $zip"
-    Write-Host "Files in publish folder: $($files.Count) ($totalMb MB)"
-    $files | ForEach-Object {
-        $rel = $_.FullName.Substring($outDir.Length + 1)
-        $mb = [math]::Round($_.Length / 1MB, 2)
-        Write-Host ("  {0,-40} {1,8} MB" -f $rel, $mb)
+    Write-Host "Zip contents: $($files.Count) files ($totalMb MB uncompressed, $zipMb MB zip)"
+
+    Write-Host ""
+    Write-Host "Cleaning up build artifacts..."
+    Remove-Item $outDir -Recurse -Force
+    Write-Host "  removed publish"
+
+    foreach ($rel in @("src\bin", "src\obj")) {
+        $full = Join-Path $root $rel
+        if (Test-Path $full) {
+            Remove-Item $full -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "  removed $rel"
+        }
     }
+
+    dotnet clean (Join-Path $root "SSF2ModManager.sln") -c Release -v q 2>$null | Out-Null
+    Write-Host ""
+    Write-Host "Done. Release ready at: $zip"
 }
 finally {
     Pop-Location

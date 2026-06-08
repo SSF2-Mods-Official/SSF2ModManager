@@ -42,10 +42,15 @@ public partial class App : System.Windows.Application
                 ex.Handled = true;
             };
 
-            const string mutexName = "SSF2ModManager_SINGLE_INSTANCE_MUTEX";
-            _mutex = new System.Threading.Mutex(true, mutexName, out var createdNew);
+            _mutex = new System.Threading.Mutex(true, SingleInstanceService.MutexName, out var createdNew);
             if (!createdNew)
             {
+                if (SingleInstanceService.TryForwardArguments(e.Args))
+                {
+                    Shutdown();
+                    return;
+                }
+
                 System.Windows.MessageBox.Show("SSF2 Mod Manager is already running.", "Already Running",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 Shutdown();
@@ -104,17 +109,6 @@ public partial class App : System.Windows.Application
 
         base.OnStartup(e);
 
-        // Handle ssf2mm: URL launched from browser or test link
-        var protocolArg = e.Args.FirstOrDefault(a => a.StartsWith(ProtocolService.Scheme + ":", StringComparison.OrdinalIgnoreCase));
-        if (protocolArg != null && ProtocolService.TryParse(protocolArg, out var proto))
-        {
-            DevFileLog.Write($"[OnStartup] Protocol URL detected: {proto.RawUrl}\n");
-            var main = new MainWindow();
-            main.Show();
-            _ = main.InstallModFromProtocolAsync(proto.ArchiveUrl, proto.ModType, proto.ModId?.ToString() ?? "");
-            return;
-        }
-
         var win = new MainWindow();
 
         if (cli.StartMinimized)
@@ -123,8 +117,24 @@ public partial class App : System.Windows.Application
         if (!cli.StartHidden)
             win.Show();
 
-        try { win.ApplyCliOptions(cli); }
-        catch (Exception ex) { DebugLogger.Error("ApplyCliOptions failed", ex); }
+        try { DispatchArguments(win, e.Args, cli); }
+        catch (Exception ex) { DebugLogger.Error("DispatchArguments failed", ex); }
+    }
+
+    internal static void DispatchArguments(MainWindow main, string[] args, CliOptions? cli = null)
+    {
+        cli ??= ParseCliOptions(args);
+
+        var protocolArg = args.FirstOrDefault(a =>
+            a.StartsWith(ProtocolService.Scheme + ":", StringComparison.OrdinalIgnoreCase));
+        if (protocolArg != null && ProtocolService.TryParse(protocolArg, out var proto))
+        {
+            DevFileLog.Write($"[DispatchArguments] Protocol URL: {proto.RawUrl}\n");
+            _ = main.InstallModFromProtocolAsync(proto.ArchiveUrl, proto.ModType, proto.ModId?.ToString() ?? "");
+            return;
+        }
+
+        main.ApplyCliOptions(cli);
     }
 
     private static CliOptions ParseCliOptions(string[] args)
