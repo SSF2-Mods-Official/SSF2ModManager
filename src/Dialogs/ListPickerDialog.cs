@@ -2,11 +2,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using Button = System.Windows.Controls.Button;
-using Brushes = System.Windows.Media.Brushes;
-using Color = System.Windows.Media.Color;
-using Cursors = System.Windows.Input.Cursors;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using ListBox = System.Windows.Controls.ListBox;
 using ListBoxItem = System.Windows.Controls.ListBoxItem;
@@ -28,38 +24,29 @@ namespace SSF2ModManager.Dialogs
             Height = 520;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
             ResizeMode = ResizeMode.NoResize;
-            Background = new SolidColorBrush(Color.FromRgb(26, 26, 46));
+            DialogTheme.ApplyWindow(this);
 
             var dock = new DockPanel { Margin = new Thickness(20) };
 
-            // Prompt at top
-            var promptBlock = new TextBlock
-            {
-                Text = prompt,
-                Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(224, 224, 224)),
-                FontSize = 14,
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 0, 0, 12)
-            };
+            var promptBlock = DialogTheme.Text(prompt, wrap: TextWrapping.Wrap);
+            promptBlock.Margin = new Thickness(0, 0, 0, 12);
             DockPanel.SetDock(promptBlock, Dock.Top);
             dock.Children.Add(promptBlock);
 
-            _listBox = new ListBox
-            {
-                Background = new SolidColorBrush(Color.FromRgb(15, 52, 96)),
-                Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(224, 224, 224)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(51, 51, 102)),
-                FontSize = 13
-            };
+            _listBox = new ListBox { FontSize = 13 };
+            DialogTheme.Set(_listBox, ListBox.BackgroundProperty, "CardBrush");
+            DialogTheme.Set(_listBox, ListBox.BorderBrushProperty, "BorderBrush");
+            DialogTheme.Set(_listBox, ListBox.ForegroundProperty, "TextPrimaryBrush");
 
             foreach (var item in items)
             {
-                _listBox.Items.Add(new ListBoxItem
+                var listItem = new ListBoxItem
                 {
                     Content = item,
-                    Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromRgb(224, 224, 224)),
                     Padding = new Thickness(10, 6, 10, 6)
-                });
+                };
+                DialogTheme.Set(listItem, ListBoxItem.ForegroundProperty, "TextPrimaryBrush");
+                _listBox.Items.Add(listItem);
             }
 
             if (_listBox.Items.Count > 0)
@@ -74,7 +61,6 @@ namespace SSF2ModManager.Dialogs
                 }
             };
 
-            // Buttons at bottom (docked before listbox so they always show)
             var btnPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
@@ -82,17 +68,8 @@ namespace SSF2ModManager.Dialogs
                 Margin = new Thickness(0, 12, 0, 0)
             };
 
-            var btnOk = new Button
-            {
-                Content = "  OK  ",
-                Padding = new Thickness(16, 8, 16, 8),
-                Background = new SolidColorBrush(Color.FromRgb(30, 136, 229)),
-                Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? Brushes.Black,
-                BorderThickness = new Thickness(0),
-                FontSize = 13,
-                Cursor = Cursors.Hand,
-                Margin = new Thickness(0, 0, 8, 0)
-            };
+            var btnOk = DialogTheme.StyledButton("  OK  ", "ModernButton", new Thickness(0, 0, 8, 0));
+            btnOk.IsDefault = true;
             btnOk.Click += (s, e) =>
             {
                 if (_listBox.SelectedItem is ListBoxItem { Content: { } content })
@@ -102,32 +79,14 @@ namespace SSF2ModManager.Dialogs
                 }
             };
 
-            var btnCancel = new Button
-            {
-                Content = "Cancel",
-                Padding = new Thickness(16, 8, 16, 8),
-                Background = new SolidColorBrush(Color.FromRgb(229, 57, 53)),
-                Foreground = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? Brushes.Black,
-                BorderThickness = new Thickness(0),
-                FontSize = 13,
-                Cursor = Cursors.Hand
-            };
-            btnCancel.Click += (s, e) => DialogResult = false;
+            var btnCancel = DialogTheme.StyledButton("Cancel", "DangerButton");
+            btnCancel.IsCancel = true;
+            btnCancel.Click += (_, _) => DialogResult = false;
 
             if (showModPackButton)
             {
-                var btnModPack = new Button
-                {
-                    Content = "\U0001F4E6 This is a Mod Pack",
-                    Padding = new Thickness(16, 8, 16, 8),
-                    Background = new SolidColorBrush(Color.FromRgb(255, 167, 38)),
-                    Foreground = new SolidColorBrush(Color.FromRgb(26, 26, 46)),
-                    BorderThickness = new Thickness(0),
-                    FontSize = 13,
-                    FontWeight = System.Windows.FontWeights.SemiBold,
-                    Cursor = Cursors.Hand,
-                    Margin = new Thickness(0, 0, 8, 0)
-                };
+                var btnModPack = DialogTheme.StyledButton("\U0001F4E6 This is a Mod Pack", "AccentButton",
+                    new Thickness(0, 0, 8, 0));
                 btnModPack.Click += (s, e) =>
                 {
                     ModPackSelected = true;

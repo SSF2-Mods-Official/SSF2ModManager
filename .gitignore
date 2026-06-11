@@ -32,6 +32,9 @@ Desktop.ini
 publish/
 dist/
 
+# Local release checklist (personal workflow — not tracked)
+RELEASE.md
+
 # Test / coverage
 TestResults/
 coverage/

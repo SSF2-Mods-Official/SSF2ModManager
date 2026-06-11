@@ -1,7 +1,8 @@
 param(
     [Parameter(Mandatory = $true)]
     [string]$ArchiveUrl,
-    [string]$ModType = "Character",
+    # GameBanana ItemType / ModelName (usually "Mod", not submission category like Maps)
+    [string]$ModType = "Mod",
     [int]$ModId = 0,
     [string]$ExePath = ""
 )

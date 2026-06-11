@@ -215,7 +215,7 @@ public partial class App : System.Windows.Application
           --disable=<name|id>     Disable a mod
           --update=<id|name|url>  Update or install a mod
 
-        Protocol:
+        Protocol (ssf2mm:downloadUrl,Mod,modId):
           --register-protocol     Register ssf2mm: handler
           --unregister-protocol   Remove ssf2mm: handler
 

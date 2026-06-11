@@ -10,25 +10,25 @@ namespace SSF2ModManager.Tests.Services
         public void TryParse_ValidUrl_ShouldExtractParts()
         {
             var ok = ProtocolService.TryParse(
-                "ssf2mm:https://files.gamebanana.com/mmdownload/123/test.zip,Character,456",
+                "ssf2mm:https://gamebanana.com/dl/1708765,Mod,679407",
                 out var req);
 
             ok.Should().BeTrue();
-            req.ArchiveUrl.Should().Be("https://files.gamebanana.com/mmdownload/123/test.zip");
-            req.ModType.Should().Be("Character");
-            req.ModId.Should().Be(456);
+            req.ArchiveUrl.Should().Be("https://gamebanana.com/dl/1708765");
+            req.ModType.Should().Be("Mod");
+            req.ModId.Should().Be(679407);
         }
 
         [Fact]
         public void TryParse_WithoutModId_ShouldStillParse()
         {
             var ok = ProtocolService.TryParse(
-                "ssf2mm:https://example.com/mod.zip,Stage",
+                "ssf2mm:https://example.com/mod.zip,Sound",
                 out var req);
 
             ok.Should().BeTrue();
             req.ModId.Should().BeNull();
-            req.ModType.Should().Be("Stage");
+            req.ModType.Should().Be("Sound");
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace SSF2ModManager.Tests.Services
         [Fact]
         public void BuildTestUrl_ShouldMatchParser()
         {
-            var url = ProtocolService.BuildTestUrl("https://example.com/a.zip", "Character", 99);
+            var url = ProtocolService.BuildTestUrl("https://example.com/a.zip", "Mod", 99);
             ProtocolService.TryParse(url, out var req).Should().BeTrue();
             req.ArchiveUrl.Should().Contain("example.com");
             req.ModId.Should().Be(99);

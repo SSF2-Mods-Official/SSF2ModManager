@@ -77,8 +77,22 @@ Mod data is stored in `%AppData%\SSF2ModManager\`.
 GameBanana can launch the manager with a URL like:
 
 ```text
-ssf2mm:https://files.gamebanana.com/...,Character,12345
+ssf2mm:{downloadUrl},{ModelName},{modId}
 ```
+
+Example (Retro Arcade Stage | Sploder):
+
+```text
+ssf2mm:https://gamebanana.com/dl/1708765,Mod,679407
+```
+
+| Field | Value | Meaning |
+|-------|--------|---------|
+| Download URL | `https://gamebanana.com/dl/1708765` | Direct file link (`/dl/` or `/mmdl/`) |
+| ModelName | `Mod` | GameBanana ItemType / ModelName (usually `Mod`, not the submission category) |
+| Mod ID | `679407` | Submission ID — used to fetch full mod info from the API |
+
+The middle field is optional fallback metadata if the API lookup fails. The mod ID is what matters for install.
 
 The app registers the `ssf2mm:` protocol on first launch (per-user, no admin required).
 
@@ -101,13 +115,13 @@ You should see `Registered (points to current executable)` and the command path.
 **3. Test from PowerShell** (replace with a real GameBanana download URL + mod ID)
 
 ```powershell
-.\scripts\verify-protocol.ps1 -ArchiveUrl "https://files.gamebanana.com/mmdownload/..." -ModType "Character" -ModId 12345
+.\scripts\verify-protocol.ps1 -ArchiveUrl "https://gamebanana.com/dl/1708765" -ModId 679407
 ```
 
 Or manually:
 
 ```powershell
-Start-Process ".\src\bin\Release\net8.0-windows\SSF2ModManager.exe" -ArgumentList 'ssf2mm:https://files.gamebanana.com/mmdownload/...,Character,12345'
+Start-Process ".\src\bin\Release\net8.0-windows\SSF2ModManager.exe" -ArgumentList '"ssf2mm:https://gamebanana.com/dl/1708765,Mod,679407"'
 ```
 
 **4. Test from browser**

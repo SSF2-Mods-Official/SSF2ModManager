@@ -3,14 +3,10 @@ using SSF2ModManager.Services;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
-using Button = System.Windows.Controls.Button;
-using Brushes = System.Windows.Media.Brushes;
-using Color = System.Windows.Media.Color;
-using Cursors = System.Windows.Input.Cursors;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using MessageBox = System.Windows.MessageBox;
 using Orientation = System.Windows.Controls.Orientation;
@@ -38,103 +34,56 @@ namespace SSF2ModManager.Dialogs
             Height = 540;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
             ResizeMode = ResizeMode.NoResize;
-            Background = new SolidColorBrush(Color.FromRgb(26, 26, 46));
-
-            var bg = new SolidColorBrush(Color.FromRgb(26, 26, 46));
-            var cardBg = new SolidColorBrush(Color.FromRgb(30, 30, 55));
-            var accent = new SolidColorBrush(Color.FromRgb(30, 136, 229));
-            var textPrimary = new SolidColorBrush(Color.FromRgb(224, 224, 224));
-            var textSecondary = new SolidColorBrush(Color.FromRgb(160, 160, 180));
-            var danger = new SolidColorBrush(Color.FromRgb(229, 57, 53));
-            var fieldBg = new SolidColorBrush(Color.FromRgb(15, 52, 96));
-            var fieldBorder = new SolidColorBrush(Color.FromRgb(51, 51, 102));
+            DialogTheme.ApplyWindow(this);
 
             var root = new StackPanel { Margin = new Thickness(24) };
 
-            // Header
-            root.Children.Add(new TextBlock
-            {
-                Text = entry.DisplayName,
-                FontSize = 20,
-                FontWeight = FontWeights.SemiBold,
-                Foreground = accent,
-                Margin = new Thickness(0, 0, 0, 4)
-            });
-            root.Children.Add(new TextBlock
-            {
-                Text = entry.VersionName,
-                FontSize = 12,
-                Foreground = textSecondary,
-                Margin = new Thickness(0, 0, 0, 20)
-            });
+            var header = DialogTheme.Text(entry.DisplayName, "PrimaryBrush", fontSize: 20);
+            header.FontWeight = FontWeights.SemiBold;
+            header.Margin = new Thickness(0, 0, 0, 4);
+            root.Children.Add(header);
 
-            // Nickname
-            root.Children.Add(new TextBlock
-            {
-                Text = "Nickname",
-                FontSize = 13,
-                Foreground = textSecondary,
-                Margin = new Thickness(0, 0, 0, 4)
-            });
-            _nicknameBox = new TextBox
-            {
-                Text = entry.Nickname ?? "",
-                Background = fieldBg,
-                Foreground = textPrimary,
-                BorderBrush = fieldBorder,
-                CaretBrush = System.Windows.Application.Current.TryFindResource("CaretBrush") as System.Windows.Media.Brush ?? Brushes.Black,
-                FontSize = 14,
-                Padding = new Thickness(10, 8, 10, 8)
-            };
+            var versionLine = DialogTheme.Text(entry.VersionName, "TextSecondaryBrush", fontSize: 12);
+            versionLine.Margin = new Thickness(0, 0, 0, 20);
+            root.Children.Add(versionLine);
+
+            var nicknameLabel = DialogTheme.Text("Nickname", "TextSecondaryBrush", fontSize: 13);
+            nicknameLabel.Margin = new Thickness(0, 0, 0, 4);
+            root.Children.Add(nicknameLabel);
+
+            _nicknameBox = DialogTheme.Input(fontSize: 14);
+            _nicknameBox.Text = entry.Nickname ?? "";
             root.Children.Add(_nicknameBox);
 
-            // Path
-            root.Children.Add(new TextBlock
-            {
-                Text = "Build Path",
-                FontSize = 13,
-                Foreground = textSecondary,
-                Margin = new Thickness(0, 16, 0, 4)
-            });
+            var pathLabel = DialogTheme.Text("Build Path", "TextSecondaryBrush", fontSize: 13);
+            pathLabel.Margin = new Thickness(0, 16, 0, 4);
+            root.Children.Add(pathLabel);
 
-            var pathRow = new DockPanel { Margin = new Thickness(0, 0, 0, 0) };
-            var btnChangePath = MakeButton("Browse...", accent, 12);
-            DockPanel.SetDock(btnChangePath, Dock.Right);
+            var pathRow = new DockPanel();
+            var btnChangePath = DialogTheme.StyledButton("Browse...", "ModernButton");
+            btnChangePath.FontSize = 12;
+            btnChangePath.Padding = new Thickness(14, 7, 14, 7);
             btnChangePath.Margin = new Thickness(8, 0, 0, 0);
+            DockPanel.SetDock(btnChangePath, Dock.Right);
             btnChangePath.Click += BtnChangePath_Click;
             pathRow.Children.Add(btnChangePath);
 
-            _pathText = new TextBlock
-            {
-                Text = entry.FolderPath,
-                FontSize = 12,
-                Foreground = textPrimary,
-                VerticalAlignment = VerticalAlignment.Center,
-                TextTrimming = TextTrimming.CharacterEllipsis,
-                ToolTip = entry.FolderPath
-            };
+            _pathText = DialogTheme.Text(entry.FolderPath, fontSize: 12);
+            _pathText.VerticalAlignment = VerticalAlignment.Center;
+            _pathText.TextTrimming = TextTrimming.CharacterEllipsis;
+            _pathText.ToolTip = entry.FolderPath;
             pathRow.Children.Add(_pathText);
             root.Children.Add(pathRow);
 
-            // Actions section
-            root.Children.Add(new Border
-            {
-                Height = 1,
-                Background = System.Windows.Application.Current.TryFindResource("SeparatorBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
-                Margin = new Thickness(0, 20, 0, 16)
-            });
+            root.Children.Add(DialogTheme.Separator());
 
-            root.Children.Add(new TextBlock
-            {
-                Text = "Actions",
-                FontSize = 13,
-                Foreground = textSecondary,
-                Margin = new Thickness(0, 0, 0, 8)
-            });
+            var actionsLabel = DialogTheme.Text("Actions", "TextSecondaryBrush", fontSize: 13);
+            actionsLabel.Margin = new Thickness(0, 0, 0, 8);
+            root.Children.Add(actionsLabel);
 
             var actionsPanel = new WrapPanel();
 
-            var btnOpen = MakeButton("📂 Open Folder", cardBg, 12);
+            var btnOpen = DialogTheme.SurfaceButton("📂 Open Folder", fontSize: 12);
             btnOpen.Click += (s, e) =>
             {
                 if (Directory.Exists(_entry.FolderPath))
@@ -142,22 +91,15 @@ namespace SSF2ModManager.Dialogs
             };
             actionsPanel.Children.Add(btnOpen);
 
-            var btnDisable = MakeButton("⛔ Disable All Mods", danger, 12);
+            var btnDisable = DialogTheme.SurfaceButton("⛔ Disable All Mods", "ErrorBrush", fontSize: 12);
             btnDisable.Click += BtnDisableAll_Click;
             actionsPanel.Children.Add(btnDisable);
 
             root.Children.Add(actionsPanel);
-
-            // Bottom buttons
-            root.Children.Add(new Border
-            {
-                Height = 1,
-                Background = System.Windows.Application.Current.TryFindResource("SeparatorBrush") as System.Windows.Media.Brush ?? new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
-                Margin = new Thickness(0, 20, 0, 16)
-            });
+            root.Children.Add(DialogTheme.Separator());
 
             var bottomRow = new DockPanel();
-            var btnRemove = MakeButton("🗑 Remove Build", danger, 12);
+            var btnRemove = DialogTheme.SurfaceButton("🗑 Remove Build", "ErrorBrush", fontSize: 12);
             btnRemove.Click += BtnRemove_Click;
             DockPanel.SetDock(btnRemove, Dock.Left);
             bottomRow.Children.Add(btnRemove);
@@ -168,12 +110,11 @@ namespace SSF2ModManager.Dialogs
                 HorizontalAlignment = HorizontalAlignment.Right
             };
 
-            var btnCancel = MakeButton("Cancel", cardBg, 13);
+            var btnCancel = DialogTheme.SurfaceButton("Cancel", fontSize: 13, margin: new Thickness(0));
             btnCancel.Click += (s, e) => DialogResult = false;
             rightButtons.Children.Add(btnCancel);
 
-            var btnSave = MakeButton("  Save  ", accent, 13);
-            btnSave.Margin = new Thickness(8, 0, 0, 0);
+            var btnSave = DialogTheme.StyledButton("  Save  ", "ModernButton", new Thickness(8, 0, 0, 0));
             btnSave.Click += BtnSave_Click;
             rightButtons.Children.Add(btnSave);
 
@@ -238,7 +179,6 @@ namespace SSF2ModManager.Dialogs
                 return;
             }
 
-            // Check for duplicate nickname (excluding current entry)
             if (_modManager.Versions.Any(v => v != _entry &&
                 v.Nickname.Equals(newNickname, StringComparison.OrdinalIgnoreCase)))
             {
@@ -254,22 +194,6 @@ namespace SSF2ModManager.Dialogs
                 Changed = true;
             }
             DialogResult = true;
-        }
-
-        private static Button MakeButton(string text, SolidColorBrush bg, double fontSize)
-        {
-            var fg = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? Brushes.Black;
-            return new Button
-            {
-                Content = text,
-                Padding = new Thickness(14, 7, 14, 7),
-                Background = bg,
-                Foreground = fg,
-                BorderThickness = new Thickness(0),
-                FontSize = fontSize,
-                Cursor = Cursors.Hand,
-                Margin = new Thickness(0, 0, 8, 0)
-            };
         }
     }
 }

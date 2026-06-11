@@ -6,12 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
-using Button = System.Windows.Controls.Button;
-using Brushes = System.Windows.Media.Brushes;
-using Color = System.Windows.Media.Color;
-using Cursors = System.Windows.Input.Cursors;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using MessageBox = System.Windows.MessageBox;
 using Orientation = System.Windows.Controls.Orientation;
@@ -37,109 +32,77 @@ namespace SSF2ModManager.Dialogs
             Height = 500;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
             ResizeMode = ResizeMode.NoResize;
-            Background = new SolidColorBrush(Color.FromRgb(26, 26, 46));
-
-            var cardBg = new SolidColorBrush(Color.FromRgb(30, 30, 55));
-            var accent = new SolidColorBrush(Color.FromRgb(30, 136, 229));
-            var textPrimary = new SolidColorBrush(Color.FromRgb(224, 224, 224));
-            var textSecondary = new SolidColorBrush(Color.FromRgb(160, 160, 180));
-            var danger = new SolidColorBrush(Color.FromRgb(229, 57, 53));
-            var green = new SolidColorBrush(Color.FromRgb(76, 175, 80));
+            DialogTheme.ApplyWindow(this);
 
             var root = new StackPanel { Margin = new Thickness(24) };
 
-            // Header
-            root.Children.Add(new TextBlock
-            {
-                Text = mod.Name,
-                FontSize = 20,
-                FontWeight = FontWeights.SemiBold,
-                Foreground = accent,
-                Margin = new Thickness(0, 0, 0, 4),
-                TextTrimming = TextTrimming.CharacterEllipsis
-            });
+            var header = DialogTheme.Text(mod.Name, "PrimaryBrush", fontSize: 20);
+            header.FontWeight = FontWeights.SemiBold;
+            header.Margin = new Thickness(0, 0, 0, 4);
+            header.TextTrimming = TextTrimming.CharacterEllipsis;
+            root.Children.Add(header);
 
-            // Info fields
-            root.Children.Add(new TextBlock
-            {
-                Text = $"Author: {mod.Author}  •  {mod.Category}",
-                FontSize = 12,
-                Foreground = textSecondary,
-                Margin = new Thickness(0, 0, 0, 2)
-            });
-            root.Children.Add(new TextBlock
-            {
-                Text = $"Version: {mod.TargetVersion}  •  Status: {(mod.Enabled ? "✅ " + Localization.Get("Enabled") : "⛔ " + Localization.Get("Disabled"))}",
-                FontSize = 12,
-                Foreground = textSecondary,
-                Margin = new Thickness(0, 0, 0, 2)
-            });
-            root.Children.Add(new TextBlock
-            {
-                Text = $"Installed: {mod.InstalledDate:g}",
-                FontSize = 11,
-                Foreground = textSecondary,
-                Margin = new Thickness(0, 0, 0, 16)
-            });
+            var authorLine = DialogTheme.Text($"Author: {mod.Author}  •  {mod.Category}", "TextSecondaryBrush", fontSize: 12);
+            authorLine.Margin = new Thickness(0, 0, 0, 2);
+            root.Children.Add(authorLine);
 
-            // Separator
-            root.Children.Add(MakeSeparator());
+            var statusLine = DialogTheme.Text(
+                $"Version: {mod.TargetVersion}  •  Status: {(mod.Enabled ? "✅ " + Localization.Get("Enabled") : "⛔ " + Localization.Get("Disabled"))}",
+                "TextSecondaryBrush", fontSize: 12);
+            statusLine.Margin = new Thickness(0, 0, 0, 2);
+            root.Children.Add(statusLine);
 
-            root.Children.Add(new TextBlock
-            {
-                Text = "Actions",
-                FontSize = 13,
-                Foreground = textSecondary,
-                Margin = new Thickness(0, 0, 0, 10)
-            });
+            var installedLine = DialogTheme.Text($"Installed: {mod.InstalledDate:g}", "TextSecondaryBrush", fontSize: 11);
+            installedLine.Margin = new Thickness(0, 0, 0, 16);
+            root.Children.Add(installedLine);
 
-            // Toggle button
+            root.Children.Add(DialogTheme.Separator());
+
+            var actionsLabel = DialogTheme.Text("Actions", "TextSecondaryBrush", fontSize: 13);
+            actionsLabel.Margin = new Thickness(0, 0, 0, 10);
+            root.Children.Add(actionsLabel);
+
             var toggleText = mod.Enabled ? ("⏸ " + Localization.Get("Disable")) : ("▶ " + Localization.Get("Enable"));
-            var btnToggle = MakeButton(toggleText, mod.Enabled ? cardBg : green, 12);
+            var btnToggle = DialogTheme.SurfaceButton(toggleText,
+                mod.Enabled ? "CardBrush" : "SuccessBrush", fontSize: 12);
             btnToggle.Click += BtnToggle_Click;
             root.Children.Add(btnToggle);
 
-            // Open folder
-            var btnOpen = MakeButton("📂 " + Localization.Get("OpenModsFolder"), cardBg, 12);
+            var btnOpen = DialogTheme.SurfaceButton("📂 " + Localization.Get("OpenModsFolder"), fontSize: 12);
             btnOpen.Margin = new Thickness(0, 6, 0, 0);
             btnOpen.Click += BtnOpenFolder_Click;
             root.Children.Add(btnOpen);
 
-            // Change version
-            var btnChangeVersion = MakeButton("🔄 " + Localization.Get("ChangeTargetVersion"), cardBg, 12);
+            var btnChangeVersion = DialogTheme.SurfaceButton("🔄 " + Localization.Get("ChangeTargetVersion"), fontSize: 12);
             btnChangeVersion.Margin = new Thickness(0, 6, 0, 0);
             btnChangeVersion.Click += BtnChangeVersion_Click;
             root.Children.Add(btnChangeVersion);
 
-            // Add to another build
-            var btnAddToBuild = MakeButton("➕ " + Localization.Get("AddToAnotherBuild"), cardBg, 12);
+            var btnAddToBuild = DialogTheme.SurfaceButton("➕ " + Localization.Get("AddToAnotherBuild"), fontSize: 12);
             btnAddToBuild.Margin = new Thickness(0, 6, 0, 0);
             btnAddToBuild.Click += BtnAddToBuild_Click;
             root.Children.Add(btnAddToBuild);
 
-            // Re-install from folder (local changes)
-            var btnReinstallLocal = MakeButton("🔄 " + Localization.Get("ReinstallFromFolder"), cardBg, 12);
+            var btnReinstallLocal = DialogTheme.SurfaceButton("🔄 " + Localization.Get("ReinstallFromFolder"), fontSize: 12);
             btnReinstallLocal.Margin = new Thickness(0, 6, 0, 0);
             btnReinstallLocal.Click += BtnReinstallLocal_Click;
             root.Children.Add(btnReinstallLocal);
 
-            // Re-install from GameBanana
-            var btnReinstall = MakeButton("⬇ " + Localization.Get("ReinstallFromGameBanana"), accent, 12);
+            var btnReinstall = DialogTheme.SurfaceButton("⬇ " + Localization.Get("ReinstallFromGameBanana"), "PrimaryBrush", fontSize: 12);
             btnReinstall.Margin = new Thickness(0, 6, 0, 0);
             btnReinstall.Click += BtnReinstall_Click;
             root.Children.Add(btnReinstall);
 
-            // Separator + Remove
-            root.Children.Add(MakeSeparator());
+            root.Children.Add(DialogTheme.Separator());
 
             var bottomRow = new DockPanel();
-            var btnRemove = MakeButton("🗑 " + Localization.Get("RemoveMod"), danger, 12);
+            var btnRemove = DialogTheme.SurfaceButton("🗑 " + Localization.Get("RemoveMod"), "ErrorBrush", fontSize: 12);
             btnRemove.Click += BtnRemove_Click;
             DockPanel.SetDock(btnRemove, Dock.Left);
             bottomRow.Children.Add(btnRemove);
 
-            var btnClose = MakeButton(Localization.Get("Close"), cardBg, 13);
-            btnClose.HorizontalAlignment = HorizontalAlignment.Right;
+            var btnClose = DialogTheme.SurfaceButton(Localization.Get("Close"), fontSize: 13, margin: new Thickness(0),
+                hAlign: HorizontalAlignment.Right);
             btnClose.Click += (s, e) => DialogResult = true;
             bottomRow.Children.Add(btnClose);
 
@@ -420,46 +383,5 @@ namespace SSF2ModManager.Dialogs
             }
         }
 
-        private static Border MakeSeparator()
-        {
-            var sepBrush = System.Windows.Application.Current.TryFindResource("SeparatorBrush") as System.Windows.Media.Brush;
-            if (sepBrush == null)
-            {
-                var secondary = System.Windows.Application.Current.TryFindResource("TextSecondaryBrush") as System.Windows.Media.SolidColorBrush;
-                if (secondary != null)
-                {
-                    var c = secondary.Color;
-                    sepBrush = new System.Windows.Media.SolidColorBrush(Color.FromArgb(0x30, c.R, c.G, c.B));
-                }
-                else
-                {
-                    sepBrush = new System.Windows.Media.SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF));
-                }
-            }
-
-            return new Border
-            {
-                Height = 1,
-                Background = sepBrush,
-                Margin = new Thickness(0, 12, 0, 12)
-            };
-        }
-
-        private static Button MakeButton(string text, SolidColorBrush bg, double fontSize)
-        {
-            var fg = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush ?? Brushes.Black;
-            return new Button
-            {
-                Content = text,
-                Padding = new Thickness(14, 7, 14, 7),
-                Background = bg,
-                Foreground = fg,
-                BorderThickness = new Thickness(0),
-                FontSize = fontSize,
-                Cursor = Cursors.Hand,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                HorizontalContentAlignment = HorizontalAlignment.Left
-            };
-        }
     }
 }

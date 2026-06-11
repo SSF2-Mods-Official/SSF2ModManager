@@ -8,6 +8,7 @@ namespace SSF2ModManager.Services
     public sealed class ProtocolInstallRequest
     {
         public string ArchiveUrl { get; init; } = string.Empty;
+        /// <summary>GameBanana ItemType / ModelName (e.g. Mod, Sound, Tool). Not the submission category.</summary>
         public string ModType { get; init; } = string.Empty;
         public int? ModId { get; init; }
         public string RawUrl { get; init; } = string.Empty;
@@ -109,7 +110,7 @@ namespace SSF2ModManager.Services
         /// <summary>
         /// Builds a test URL for manual verification. Does not perform an install.
         /// </summary>
-        public static string BuildTestUrl(string archiveUrl, string modType = "Character", int modId = 0) =>
+        public static string BuildTestUrl(string archiveUrl, string modType = "Mod", int modId = 0) =>
             modId > 0
                 ? $"{Scheme}:{archiveUrl},{modType},{modId}"
                 : $"{Scheme}:{archiveUrl},{modType}";
