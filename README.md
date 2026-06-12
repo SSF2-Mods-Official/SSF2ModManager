@@ -83,12 +83,14 @@ ssf2mm:{downloadUrl},{ModelName},{modId}
 Example (Retro Arcade Stage | Sploder):
 
 ```text
-ssf2mm:https://gamebanana.com/dl/1708765,Mod,679407
+ssf2mm:https://gamebanana.com/mmdl/1708765,Mod,679407
 ```
+
+GameBanana may use `/mmdl/` instead of `/dl/` — both work. The file ID in the path (`1708765`) is what we match against.
 
 | Field | Value | Meaning |
 |-------|--------|---------|
-| Download URL | `https://gamebanana.com/dl/1708765` | Direct file link (`/dl/` or `/mmdl/`) |
+| Download URL | `https://gamebanana.com/mmdl/1708765` | Direct file link (`/mmdl/` or `/dl/`) |
 | ModelName | `Mod` | GameBanana ItemType / ModelName (usually `Mod`, not the submission category) |
 | Mod ID | `679407` | Submission ID — used to fetch full mod info from the API |
 

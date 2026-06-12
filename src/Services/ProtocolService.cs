@@ -1,7 +1,6 @@
 using Microsoft.Win32;
 using System;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 
 namespace SSF2ModManager.Services
 {
@@ -18,10 +17,6 @@ namespace SSF2ModManager.Services
     {
         public const string Scheme = "ssf2mm";
 
-        private static readonly Regex UrlRegex = new(
-            @"^ssf2mm:(?<archive>https?://[^,\s]+)(?:,(?<type>[^,]+))?(?:,(?<id>\d+))?$",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
         public static bool TryParse(string? url, out ProtocolInstallRequest request)
         {
             request = new ProtocolInstallRequest();
@@ -30,18 +25,27 @@ namespace SSF2ModManager.Services
             var trimmed = url.Trim();
             if (!trimmed.StartsWith(Scheme + ":", StringComparison.OrdinalIgnoreCase)) return false;
 
-            var match = UrlRegex.Match(trimmed);
-            if (!match.Success) return false;
+            // ssf2mm:https://...  or  ssf2mm://https//...  (GameBanana 1-click variants)
+            var payload = trimmed[(Scheme.Length + 1)..].TrimStart('/');
+            payload = GameBananaUrlHelper.NormalizeSchemeTypos(payload);
+
+            var parts = payload.Split(',');
+            if (parts.Length == 0) return false;
+
+            var archive = parts[0].Trim();
+            if (!archive.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                && !archive.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                return false;
 
             int? modId = null;
-            if (match.Groups["id"].Success && int.TryParse(match.Groups["id"].Value, out var id))
+            if (parts.Length >= 3 && int.TryParse(parts[2].Trim(), out var id))
                 modId = id;
 
             request = new ProtocolInstallRequest
             {
                 RawUrl = trimmed,
-                ArchiveUrl = match.Groups["archive"].Value,
-                ModType = match.Groups["type"].Success ? match.Groups["type"].Value : string.Empty,
+                ArchiveUrl = archive,
+                ModType = parts.Length >= 2 ? parts[1].Trim() : string.Empty,
                 ModId = modId
             };
             return true;

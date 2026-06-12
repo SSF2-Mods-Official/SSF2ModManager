@@ -10,6 +10,44 @@ namespace SSF2ModManager.Services
 {
     public static class NewsService
     {
+        /// <summary>Load articles from bundled News folder and AppData cache, merged by article id.</summary>
+        public static List<NewsArticle> LoadMergedArticles(bool includeDrafts = false)
+        {
+            var byId = new Dictionary<string, NewsArticle>(StringComparer.OrdinalIgnoreCase);
+
+            void MergeFolder(string folder)
+            {
+                if (!Directory.Exists(folder)) return;
+                foreach (var article in LoadLocalArticles(folder))
+                {
+                    if (string.IsNullOrWhiteSpace(article.Id))
+                        article.Id = Path.GetFileName(article.SourceFolder.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                    if (!includeDrafts && article.Draft) continue;
+                    byId[article.Id] = article;
+                }
+            }
+
+            MergeFolder(AppPaths.NewsFolder);
+            MergeFolder(AppPaths.NewsCacheFolder);
+
+            return byId.Values.OrderByDescending(a => a.Date).ToList();
+        }
+
+        public static int CountUnread(IEnumerable<NewsArticle> articles, SettingsService settings, bool releaseTaggedOnly = false)
+            => CountUnread(articles, settings.GetReadNewsArticleIds(), releaseTaggedOnly);
+
+        public static int CountUnread(IEnumerable<NewsArticle> articles, IEnumerable<string> readIds, bool releaseTaggedOnly = false)
+        {
+            var read = new HashSet<string>(readIds, StringComparer.OrdinalIgnoreCase);
+            return articles.Count(a =>
+            {
+                if (read.Contains(a.Id)) return false;
+                if (releaseTaggedOnly && !a.Tags.Any(t => t.Equals("release", StringComparison.OrdinalIgnoreCase)))
+                    return false;
+                return true;
+            });
+        }
+
         // Load local articles from a News folder (each article in its own subfolder with article.md)
         public static List<NewsArticle> LoadLocalArticles(string newsFolder)
         {
@@ -18,13 +56,11 @@ namespace SSF2ModManager.Services
             {
                 if (!Directory.Exists(newsFolder)) return outList;
 
-                // Accept both directories and direct article.md files in News root
                 var dirs = Directory.GetDirectories(newsFolder).ToList();
                 var mdFiles = Directory.GetFiles(newsFolder, "*.md", SearchOption.TopDirectoryOnly).ToList();
 
                 foreach (var d in dirs)
                 {
-                    // Prefer article.md inside each folder
                     var am = Path.Combine(d, "article.md");
                     if (File.Exists(am))
                     {
@@ -33,7 +69,6 @@ namespace SSF2ModManager.Services
                     }
                 }
 
-                // Also parse top-level markdown files if any
                 foreach (var f in mdFiles)
                 {
                     var folder = Path.GetDirectoryName(f) ?? newsFolder;
@@ -41,7 +76,6 @@ namespace SSF2ModManager.Services
                     if (art != null) outList.Add(art);
                 }
 
-                // Order by date desc
                 outList = outList.OrderByDescending(a => a.Date).ToList();
             }
             catch { }
@@ -55,10 +89,9 @@ namespace SSF2ModManager.Services
             string content = raw;
             var article = new NewsArticle();
             article.SourceFolder = sourceFolder;
-            // Store cleaned markdown (without YAML frontmatter) so renderers don't show the frontmatter
+            article.Id = Path.GetFileName(sourceFolder.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
             article.RawMarkdown = content;
 
-            // Parse YAML frontmatter (robust regex parser)
             var fmMatch = Regex.Match(raw, "^---\\s*([\\s\\S]*?)\\s*---\\s*", RegexOptions.Multiline);
             if (fmMatch.Success)
             {
@@ -91,25 +124,20 @@ namespace SSF2ModManager.Services
                                 case "excerpt": article.Excerpt = v; break;
                                 case "featured_image": article.FeaturedImage = v; break;
                                 case "draft": article.Draft = v.Equals("true", StringComparison.OrdinalIgnoreCase); break;
-                                case "tags": /* tags may follow on next lines */ break;
+                                case "tags": break;
                             }
                         }
                     }
                 }
             }
 
-            // Store cleaned markdown (without YAML frontmatter) so renderers don't show the frontmatter
             article.RawMarkdown = content;
 
-            // Fallback title/date
             if (string.IsNullOrWhiteSpace(article.Title))
-            {
-                article.Title = Path.GetFileName(sourceFolder);
-            }
+                article.Title = article.Id;
             if (article.Date == default)
                 article.Date = Directory.GetCreationTime(sourceFolder);
 
-            // Convert markdown -> HTML with base href so images resolve
             try
             {
                 var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
@@ -136,13 +164,3 @@ namespace SSF2ModManager.Services
         }
     }
 }
-
-/*
- // Future: remote fetcher (GitHub) - example placeholder
- public static List<NewsArticle> LoadRemoteArticles(string repoOwner, string repoName, string branch = "main")
- {
-     // This method will use GitHub Contents API or raw.githubusercontent to list folders under /News
-     // and fetch article.md and image files. For now the app uses local folder only.
-     throw new NotImplementedException();
- }
-*/

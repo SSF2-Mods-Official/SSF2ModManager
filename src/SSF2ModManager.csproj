@@ -10,10 +10,10 @@
     <ApplicationIcon>SSF2M.ico</ApplicationIcon>
     <AssemblyTitle>SSF2 Mod Manager</AssemblyTitle>
     <Description>GameBanana Mod Manager for Super Smash Flash 2</Description>
-    <Version>1.0.1</Version>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <FileVersion>1.0.1.0</FileVersion>
-    <InformationalVersion>1.0.1</InformationalVersion>
+    <Version>1.0.2</Version>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <FileVersion>1.0.2.0</FileVersion>
+    <InformationalVersion>1.0.2</InformationalVersion>
   </PropertyGroup>
 
   <!-- Self-contained single-file publish (used by scripts/publish.ps1) -->

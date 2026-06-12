@@ -271,6 +271,13 @@ namespace SSF2ModManager
             RefreshPlayButton();
             DebugLogger.Log("Application started");
 
+            try
+            {
+                PageNews.BindSettings(_settingsService!);
+                PageNews.ArticlesChanged += UpdateNewsBadge;
+            }
+            catch { }
+
             SingleInstanceService.StartListening(args =>
             {
                 Dispatcher.Invoke(() =>
@@ -293,6 +300,7 @@ namespace SSF2ModManager
                 {
                     DevFileLog.Write( $"[MainWindow] Loaded handler start\n");
                     await LoadBrowseModsAsync();
+                    await SyncNewsOnStartupAsync();
                     DevFileLog.Write( $"[MainWindow] Loaded handler complete\n");
                 }
                 catch (Exception ex)
@@ -305,89 +313,77 @@ namespace SSF2ModManager
             DevFileLog.Write( $"[MainWindow] ctor: End\n");
         }
 
-        private void BtnCheckModUpdates_Click(object sender, RoutedEventArgs e)
+        private async void BtnCheckModUpdates_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                if (sender is Button btn && btn.Tag is InstalledMod inst)
+                if (sender is not Button btn || btn.Tag is not InstalledMod inst)
+                    return;
+
+                if (inst.IgnoreUpdates)
                 {
-                    if (inst.IgnoreUpdates)
+                    MessageBox.Show("Update checks are ignored for this mod.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                if (inst.GameBananaId <= 0)
+                {
+                    MessageBox.Show("No GameBanana ID available for this mod.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                ShowOverlay("Checking for updates...");
+                try
+                {
+                    var files = await _apiClient.GetModFilesAsync(inst.GameBananaId);
+                    var latest = files?.OrderByDescending(f => f.DateAdded).FirstOrDefault();
+                    if (latest == null)
                     {
-                        MessageBox.Show("Update checks are ignored for this mod.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show("No files found for this mod on GameBanana.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Information);
                         return;
                     }
 
-                    if (inst.GameBananaId <= 0)
+                    DateTime latestDate;
+                    try { latestDate = DateTimeOffset.FromUnixTimeSeconds(latest.DateAdded).LocalDateTime; }
+                    catch { latestDate = DateTime.Now; }
+
+                    if (latestDate <= inst.InstalledDate)
                     {
-                        MessageBox.Show("No GameBanana ID available for this mod.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show("No updates found. This mod is up-to-date.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Information);
                         return;
                     }
 
-                    _ = System.Threading.Tasks.Task.Run(async () =>
+                    var res = MessageBox.Show(
+                        $"Update available: {latest.FileName} (added {latestDate:g}).\nDo you want to download and install it now?",
+                        "Update Available", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+                    if (res == MessageBoxResult.Yes)
+                        await UpdateInstalledModWithUiAsync(inst);
+                    else if (res == MessageBoxResult.No)
                     {
-                        try
+                        var ignore = MessageBox.Show("Ignore future update checks for this mod?", "Ignore Updates", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        if (ignore == MessageBoxResult.Yes)
                         {
-                            var files = await _apiClient.GetModFilesAsync(inst.GameBananaId);
-                            var latest = files?.OrderByDescending(f => f.DateAdded).FirstOrDefault();
-                            if (latest == null)
-                            {
-                                Dispatcher.Invoke(() => MessageBox.Show("No files found for this mod on GameBanana.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Information));
-                                return;
-                            }
-
-                            DateTime latestDate;
-                            try { latestDate = DateTimeOffset.FromUnixTimeSeconds(latest.DateAdded).LocalDateTime; } catch { latestDate = DateTime.Now; }
-
-                            if (latestDate > inst.InstalledDate)
-                            {
-                                Dispatcher.Invoke(() =>
-                                {
-                                    var res = MessageBox.Show($"Update available: {latest.FileName} (added {latestDate:g}).\nDo you want to download and install it now?", "Update Available", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                                    if (res == MessageBoxResult.Yes)
-                                    {
-                                        _ = System.Threading.Tasks.Task.Run(async () =>
-                                        {
-                                            try
-                                            {
-                                                await _modManager.UpdateInstalledModAsync(inst);
-                                                Dispatcher.Invoke(() => RefreshInstalledMods());
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                try { DevFileLog.Write( $"[UpdateInstalled] EX: {ex}\n"); } catch { }
-                                                Dispatcher.Invoke(() => MessageBox.Show($"Failed to update mod: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error));
-                                            }
-                                        });
-                                    }
-                                    else if (res == MessageBoxResult.No)
-                                    {
-                                        var ignore = MessageBox.Show("Ignore future update checks for this mod?", "Ignore Updates", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                                        if (ignore == MessageBoxResult.Yes)
-                                        {
-                                            inst.IgnoreUpdates = true;
-                                            try { _modManager.SaveDatabase(); } catch { }
-                                            MessageBox.Show("This mod will be ignored for future update checks.", "Ignore Updates", MessageBoxButton.OK, MessageBoxImage.Information);
-                                            Dispatcher.Invoke(() => RefreshInstalledMods());
-                                        }
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                Dispatcher.Invoke(() => MessageBox.Show("No updates found. This mod is up-to-date.", "Check Updates", MessageBoxButton.OK, MessageBoxImage.Information));
-                            }
+                            inst.IgnoreUpdates = true;
+                            try { _modManager.SaveDatabase(); } catch { }
+                            MessageBox.Show("This mod will be ignored for future update checks.", "Ignore Updates", MessageBoxButton.OK, MessageBoxImage.Information);
+                            RefreshInstalledMods();
                         }
-                        catch (Exception ex)
-                        {
-                            try { DevFileLog.Write( $"[CheckModUpdates] EX: {ex}\n"); } catch { }
-                            Dispatcher.Invoke(() => MessageBox.Show($"Failed to check updates: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error));
-                        }
-                    });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    try { DevFileLog.Write($"[CheckModUpdates] EX: {ex}\n"); } catch { }
+                    MessageBox.Show($"Failed to check updates: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                finally
+                {
+                    HideOverlay();
                 }
             }
             catch (Exception ex)
             {
-                try { DevFileLog.Write( $"[BtnCheckModUpdates_Click] EX: {ex}\n"); } catch { }
+                try { DevFileLog.Write($"[BtnCheckModUpdates_Click] EX: {ex}\n"); } catch { }
             }
         }
 
@@ -451,35 +447,175 @@ namespace SSF2ModManager
                     return;
                 }
 
-                // Install updates sequentially (overlay remains visible)
-                _ = System.Threading.Tasks.Task.Run(async () =>
-                {
-                    try
-                    {
-                        foreach (var u in updates)
-                        {
-                            try
-                            {
-                                await _modManager.UpdateInstalledModAsync(u.inst);
-                                Dispatcher.Invoke(() => RefreshInstalledMods());
-                            }
-                            catch (Exception ex)
-                            {
-                                try { DevFileLog.Write( $"[BulkUpdate] EX for {u.inst.Name}: {ex}\n"); } catch { }
-                            }
-                        }
-                        Dispatcher.Invoke(() => MessageBox.Show("Bulk update process completed.", "Updates", MessageBoxButton.OK, MessageBoxImage.Information));
-                    }
-                    finally
-                    {
-                        Dispatcher.Invoke(() => HideOverlay());
-                    }
-                });
+                HideOverlay();
+
+                foreach (var u in updates)
+                    await UpdateInstalledModWithUiAsync(u.inst);
+
+                MessageBox.Show("Bulk update process completed.", "Updates", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                try { DevFileLog.Write( $"[BtnCheckAllInstalledUpdates_Click] EX: {ex}\n"); } catch { }
+                try { DevFileLog.Write($"[BtnCheckAllInstalledUpdates_Click] EX: {ex}\n"); } catch { }
+                HideOverlay();
                 MessageBox.Show($"Failed to check/install updates: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async System.Threading.Tasks.Task<InstalledMod?> UpdateInstalledModWithUiAsync(InstalledMod inst)
+        {
+            DownloadOverlay.Visibility = Visibility.Visible;
+            TxtDownloadStatus.Text = $"Updating {inst.Name}...";
+            DownloadProgress.Value = 0;
+            TxtDownloadPercent.Text = "0%";
+
+            var progress = new Progress<double>(p =>
+            {
+                DownloadProgress.Value = p;
+                TxtDownloadPercent.Text = $"{p:F0}%";
+            });
+
+            try
+            {
+                TxtDownloadStatus.Text = $"Downloading update for {inst.Name}...";
+                var updated = await _modManager.UpdateInstalledModAsync(inst, progress);
+                if (updated == null)
+                {
+                    MessageBox.Show($"Failed to update \"{inst.Name}\".", "Update", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return null;
+                }
+
+                TxtDownloadStatus.Text = "Complete";
+                TxtDownloadPercent.Text = "100%";
+                RefreshInstalledMods();
+                return updated;
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Error($"Update failed: {inst.Name}", ex);
+                try { DevFileLog.Write($"[UpdateInstalled] EX: {ex}\n"); } catch { }
+                MessageBox.Show($"Failed to update \"{inst.Name}\":\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+            finally
+            {
+                DownloadOverlay.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private async System.Threading.Tasks.Task<bool> TryToggleModAsync(InstalledMod mod)
+        {
+            try
+            {
+                _modManager.ToggleMod(mod);
+                return true;
+            }
+            catch (ModFolderNotFoundException ex)
+            {
+                return await HandleModFolderMissingAsync(ex.Mod, ex.ModPath);
+            }
+        }
+
+        private async System.Threading.Tasks.Task<bool> HandleModFolderMissingAsync(InstalledMod mod, string modPath)
+        {
+            var message =
+                $"Cannot enable \"{mod.Name}\" — mod files are missing.\n\nExpected folder:\n{modPath}";
+
+            if (mod.GameBananaId > 0)
+            {
+                var result = MessageBox.Show(
+                    message + "\n\nWould you like to re-download this mod from GameBanana?",
+                    "Mod Files Missing", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+
+                if (result != MessageBoxResult.Yes)
+                    return false;
+
+                var updated = await UpdateInstalledModWithUiAsync(mod);
+                if (updated == null)
+                    return false;
+
+                try
+                {
+                    _modManager.ToggleMod(updated);
+                    return updated.Enabled;
+                }
+                catch (ModFolderNotFoundException ex2)
+                {
+                    MessageBox.Show(
+                        $"Download finished but mod files are still missing:\n{ex2.ModPath}",
+                        "Mod Files Missing", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+            }
+
+            MessageBox.Show(
+                message + "\n\nRe-install the mod manually or remove it from your library.",
+                "Mod Files Missing", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return false;
+        }
+
+        private async System.Threading.Tasks.Task SyncNewsOnStartupAsync()
+        {
+            if (_settingsService == null) return;
+            try
+            {
+                await PageNews.RefreshAsync(forceSync: false);
+                UpdateNewsBadge();
+                await PromptUnreadReleaseNewsAsync();
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Error("Startup news sync failed", ex);
+            }
+        }
+
+        private void UpdateNewsBadge()
+        {
+            if (_settingsService == null) return;
+            try
+            {
+                var articles = NewsService.LoadMergedArticles();
+                var unread = NewsService.CountUnread(articles, _settingsService);
+                BtnNews.Content = unread > 0 ? $"📰  News ({unread})" : "📰  News";
+            }
+            catch { }
+        }
+
+        private async System.Threading.Tasks.Task PromptUnreadReleaseNewsAsync()
+        {
+            if (_settingsService == null) return;
+            if (string.Equals(_settingsService.GetLastNewsPromptVersion(), AppInfo.Version, StringComparison.Ordinal))
+                return;
+
+            var articles = NewsService.LoadMergedArticles();
+            var unreadRelease = NewsService.CountUnread(articles, _settingsService, releaseTaggedOnly: true);
+            if (unreadRelease <= 0) return;
+
+            var result = MessageBox.Show(
+                $"There {(unreadRelease == 1 ? "is 1 unread release note" : $"are {unreadRelease} unread release notes")}.\n\nOpen News now?",
+                "News", MessageBoxButton.YesNo, MessageBoxImage.Information);
+
+            _settingsService.SetLastNewsPromptVersion(AppInfo.Version);
+            if (result == MessageBoxResult.Yes)
+                await OpenNewsAsync();
+        }
+
+        public async System.Threading.Tasks.Task OpenNewsAsync(string? newsPath = null)
+        {
+            SetActivePage("news");
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(newsPath))
+                    PageNews.LoadLocal(newsPath);
+                else
+                    await PageNews.RefreshAsync(forceSync: false);
+                UpdateNewsBadge();
+            }
+            catch (Exception ex)
+            {
+                DevFileLog.Write($"[OpenNews] Failed: {ex}\n");
+                MessageBox.Show($"Failed to open news:\n{ex.Message}", "News",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -971,12 +1107,11 @@ namespace SSF2ModManager
                 {
                     mod = await _apiClient.GetModAsync(gbId);
                     var files = await _apiClient.GetModFilesAsync(gbId);
-                    file = files?.FirstOrDefault(f =>
-                        (!string.IsNullOrEmpty(f.DownloadUrl) && archiveUrl.Contains(f.DownloadUrl, StringComparison.OrdinalIgnoreCase)) ||
-                        archiveUrl.Contains(f.FileName, StringComparison.OrdinalIgnoreCase))
-                        ?? files?.OrderByDescending(f => f.DateAdded).FirstOrDefault();
+                    file = GameBananaUrlHelper.MatchProtocolFile(archiveUrl, files);
                     if (file != null && !string.IsNullOrEmpty(file.DownloadUrl))
                         downloadUrl = file.DownloadUrl;
+                    else if (GameBananaUrlHelper.TryExtractFileId(archiveUrl, out _))
+                        downloadUrl = GameBananaUrlHelper.NormalizeSchemeTypos(archiveUrl);
                 }
 
                 if (mod == null)
@@ -1057,7 +1192,7 @@ namespace SSF2ModManager
 
                 _modManager.ActiveVersion = targetEntry.Nickname;
                 RefreshPlayButton();
-                RefreshInstalledMods();
+                RefreshInstalledMods(repopulateFilters: true);
                 DownloadOverlay.Visibility = Visibility.Collapsed;
 
                 if (installed.IsGameFiles)
@@ -1100,7 +1235,10 @@ namespace SSF2ModManager
 
                 if (cli.OpenNews)
                 {
-                    OpenNews(cli.NewsPath);
+                    if (string.IsNullOrWhiteSpace(cli.NewsPath))
+                        _ = OpenNewsAsync();
+                    else
+                        OpenNews(cli.NewsPath);
                     if (cli.NewsPreviewOnly)
                     {
                         System.Threading.Tasks.Task.Delay(800).ContinueWith(_ =>
@@ -1132,7 +1270,16 @@ namespace SSF2ModManager
                 foreach (var t in cli.Enable)
                 {
                     var mod = FindInstalledModByTarget(t);
-                    if (mod != null && !mod.Enabled) _modManager.ToggleMod(mod);
+                    if (mod == null || mod.Enabled) continue;
+                    try
+                    {
+                        _modManager.ToggleMod(mod);
+                    }
+                    catch (ModFolderNotFoundException ex)
+                    {
+                        DebugLogger.Error($"Enable failed: {ex.Message}");
+                        MessageBox.Show(ex.Message, "Mod Files Missing", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
                 }
 
                 foreach (var t in cli.Disable)
@@ -1166,7 +1313,7 @@ namespace SSF2ModManager
                             if (modInfo != null && file != null && entry != null)
                             {
                                 await _modManager.InstallModAsync(modInfo, file, entry.VersionName);
-                                Dispatcher.Invoke(RefreshInstalledMods);
+                                Dispatcher.Invoke(() => RefreshInstalledMods(repopulateFilters: true));
                             }
                         });
                         continue;
@@ -1184,6 +1331,40 @@ namespace SSF2ModManager
 
                 if (cli.CheckUpdates)
                     _ = CheckProgramVersionAsync();
+
+                if (cli.NewsCacheClear)
+                    NewsSyncService.ClearCache();
+
+                if (cli.RefreshNews)
+                {
+                    _ = System.Threading.Tasks.Task.Run(async () =>
+                    {
+                        try
+                        {
+                            if (_settingsService == null) return;
+                            var sync = await NewsSyncService.SyncAsync(_settingsService, force: true);
+                            Dispatcher.Invoke(() =>
+                            {
+                                if (!sync.Success)
+                                {
+                                    MessageBox.Show($"News sync failed:\n{sync.ErrorMessage}", "News Sync",
+                                        MessageBoxButton.OK, MessageBoxImage.Error);
+                                }
+                                else
+                                {
+                                    DebugLogger.Log($"News sync OK — {sync.DownloadedCount} article(s) updated");
+                                    UpdateNewsBadge();
+                                }
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            Dispatcher.Invoke(() =>
+                                MessageBox.Show($"News sync failed:\n{ex.Message}", "News Sync",
+                                    MessageBoxButton.OK, MessageBoxImage.Error));
+                        }
+                    });
+                }
 
                 if (!string.IsNullOrWhiteSpace(cli.DumpLog))
                 {
@@ -1213,7 +1394,7 @@ namespace SSF2ModManager
             var modName = Path.GetFileNameWithoutExtension(path) ?? "Local Mod";
             var fileBytes = await File.ReadAllBytesAsync(path);
             await _modManager.InstallLocalModAsync(modName, "Other", fileName, fileBytes, entry.VersionName);
-            RefreshInstalledMods();
+            RefreshInstalledMods(repopulateFilters: true);
         }
 
         // ── Title Bar ────────────────────────────────────────────
@@ -1318,12 +1499,12 @@ namespace SSF2ModManager
         private void BtnInstalled_Click(object sender, RoutedEventArgs e)
         {
             SetActivePage("installed");
-            RefreshInstalledMods();
+            RefreshInstalledMods(repopulateFilters: true);
         }
 
-        private void BtnNews_Click(object sender, RoutedEventArgs e) => OpenNews();
+        private void BtnNews_Click(object sender, RoutedEventArgs e) => _ = OpenNewsAsync();
 
-        // Public helper to open News page programmatically (used by CLI handlers)
+        // Legacy sync helper for CLI --news-path=
         public void OpenNews(string? newsPath = null)
         {
             SetActivePage("news");
@@ -1331,6 +1512,7 @@ namespace SSF2ModManager
             {
                 var path = string.IsNullOrWhiteSpace(newsPath) ? AppPaths.NewsFolder : newsPath;
                 PageNews.LoadLocal(path);
+                UpdateNewsBadge();
             }
             catch (Exception ex)
             {
@@ -2048,7 +2230,7 @@ namespace SSF2ModManager
             if (vm.InstalledVersion == null) return;
             try
             {
-                _modManager.ToggleMod(vm.InstalledVersion);
+                await TryToggleModAsync(vm.InstalledVersion);
             }
             catch (Exception ex)
             {
@@ -2213,18 +2395,41 @@ namespace SSF2ModManager
 
         // ── Installed Mods ──────────────────────────────────────
 
-        private void RefreshInstalledMods()
+        private void RefreshInstalledMods(bool repopulateFilters = false)
         {
-            PopulateInstalledFilters();
+            if (repopulateFilters)
+                PopulateInstalledFilters();
             ApplyInstalledFilters();
         }
 
-        private void BtnToggleMod_Click(object sender, RoutedEventArgs e)
+        private static string? GetFilterComboSelection(System.Windows.Controls.ComboBox cmb) =>
+            (cmb.SelectedItem as ComboBoxItem)?.Content?.ToString();
+
+        private static void RestoreFilterComboSelection(System.Windows.Controls.ComboBox cmb, string? previous)
+        {
+            if (string.IsNullOrEmpty(previous))
+            {
+                cmb.SelectedIndex = 0;
+                return;
+            }
+
+            for (var i = 0; i < cmb.Items.Count; i++)
+            {
+                if ((cmb.Items[i] as ComboBoxItem)?.Content?.ToString() == previous)
+                {
+                    cmb.SelectedIndex = i;
+                    return;
+                }
+            }
+
+            cmb.SelectedIndex = 0;
+        }
+
+        private async void BtnToggleMod_Click(object sender, RoutedEventArgs e)
         {
             var mod = (InstalledMod)((Button)sender).Tag;
             try
             {
-                // If enabling a disabled mod, check for file conflicts with other enabled mods
                 if (!mod.Enabled)
                 {
                     try
@@ -2272,7 +2477,7 @@ namespace SSF2ModManager
                     }
                 }
 
-                _modManager.ToggleMod(mod);
+                await TryToggleModAsync(mod);
             }
             catch (Exception ex)
             {
@@ -2349,7 +2554,7 @@ namespace SSF2ModManager
                 MessageBox.Show($"Error removing mod:\n{ex.Message}", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            RefreshInstalledMods();
+            RefreshInstalledMods(repopulateFilters: true);
         }
 
         private void BtnInstalledModSettings_Click(object sender, RoutedEventArgs e)
@@ -2623,29 +2828,31 @@ namespace SSF2ModManager
             // Build filter
             var builds = new List<string> { "All Builds" };
             builds.AddRange(_modManager.Versions.Select(v => v.DisplayName).OrderBy(n => n));
-            var prevBuild = CmbFilterBuild.SelectedItem as ComboBoxItem;
+            var prevBuild = GetFilterComboSelection(CmbFilterBuild);
             CmbFilterBuild.Items.Clear();
             foreach (var b in builds)
                 CmbFilterBuild.Items.Add(new ComboBoxItem { Content = b });
-            CmbFilterBuild.SelectedIndex = 0;
+            RestoreFilterComboSelection(CmbFilterBuild, prevBuild);
 
             // Version filter removed — handled via Build filter
 
             // Category filter
             var categories = new List<string> { "All Types" };
             categories.AddRange(mods.Select(m => m.Category).Where(c => !string.IsNullOrEmpty(c)).Distinct().OrderBy(c => c));
+            var prevCategory = GetFilterComboSelection(CmbFilterCategory);
             CmbFilterCategory.Items.Clear();
             foreach (var c in categories)
                 CmbFilterCategory.Items.Add(new ComboBoxItem { Content = c });
-            CmbFilterCategory.SelectedIndex = 0;
+            RestoreFilterComboSelection(CmbFilterCategory, prevCategory);
 
             // Creator filter
             var creators = new List<string> { "All Creators" };
             creators.AddRange(mods.Select(m => m.Author).Where(a => !string.IsNullOrEmpty(a)).Distinct().OrderBy(a => a));
+            var prevCreator = GetFilterComboSelection(CmbFilterCreator);
             CmbFilterCreator.Items.Clear();
             foreach (var a in creators)
                 CmbFilterCreator.Items.Add(new ComboBoxItem { Content = a });
-            CmbFilterCreator.SelectedIndex = 0;
+            RestoreFilterComboSelection(CmbFilterCreator, prevCreator);
         }
 
         private void CmbFilter_Changed(object sender, SelectionChangedEventArgs e)

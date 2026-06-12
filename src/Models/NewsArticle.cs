@@ -5,6 +5,8 @@ namespace SSF2ModManager.Models
 {
     public class NewsArticle
     {
+        /// <summary>Stable id — folder name under News/ (e.g. 2026-06-12-v1-0-2).</summary>
+        public string Id { get; set; } = "";
         public string Title { get; set; } = "";
         public DateTime Date { get; set; }
         public string Author { get; set; } = "";

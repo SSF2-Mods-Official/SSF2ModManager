@@ -195,7 +195,7 @@ namespace SSF2ModManager.Services
         /// Update an existing installed mod by fetching the latest file from GameBanana
         /// and reinstalling it. Returns the new InstalledMod if successful.
         /// </summary>
-        public async Task<InstalledMod?> UpdateInstalledModAsync(InstalledMod installedMod)
+        public async Task<InstalledMod?> UpdateInstalledModAsync(InstalledMod installedMod, IProgress<double>? progress = null)
         {
             if (installedMod == null) throw new ArgumentNullException(nameof(installedMod));
             if (installedMod.GameBananaId <= 0)
@@ -225,7 +225,7 @@ namespace SSF2ModManager.Services
                 var file = files.OrderByDescending(f => f.DateAdded).First();
 
                 // Call InstallModAsync which will remove existing install (by GameBananaId) and install the new one
-                var updated = await InstallModAsync(modInfo, file, installedMod.TargetVersion);
+                var updated = await InstallModAsync(modInfo, file, installedMod.TargetVersion, progress);
                 DebugLogger.Log($"Update completed: {installedMod.Name}");
                 return updated;
             }
@@ -797,6 +797,7 @@ namespace SSF2ModManager.Services
                     else
                     {
                         DebugLogger.Error($"Mod folder not found: {modPath}");
+                        throw new ModFolderNotFoundException(mod, modPath);
                     }
                 }
                 mod.Enabled = true;

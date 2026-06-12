@@ -5,8 +5,10 @@ $outDir = Join-Path $root "publish"
 $distDir = Join-Path $root "dist"
 $version = (Get-Content (Join-Path $root "version.txt") -Raw).Trim()
 
-Push-Location $root
+    Push-Location $root
 try {
+    & (Join-Path $root "scripts\generate-news-index.ps1")
+
     if (Test-Path $outDir) { Remove-Item $outDir -Recurse -Force }
     New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 

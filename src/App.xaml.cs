@@ -26,6 +26,7 @@ public partial class App : System.Windows.Application
     {
         var cli = ParseCliOptions(e.Args);
         var headlessCli = cli.Help || cli.Version ||
+            IsHeadlessNewsRefresh(cli) ||
             (cli.Diagnostics && !cli.OpenNews && cli.Install.Count == 0 && !cli.RegisterProtocol && !cli.UnregisterProtocol);
 
         if (!headlessCli)
@@ -92,11 +93,28 @@ public partial class App : System.Windows.Application
             Console.WriteLine($"Executable: {ProtocolService.GetExePath()}");
             Console.WriteLine($"Version: {AppInfo.DisplayVersion} ({AppInfo.GetAssemblyVersion()})");
             Console.WriteLine($"Protocol registered: {ProtocolService.IsRegistered()}");
-            if (!cli.OpenNews && cli.Install.Count == 0)
+            if (!cli.OpenNews && cli.Install.Count == 0 && !IsHeadlessNewsRefresh(cli))
             {
                 Shutdown();
                 return;
             }
+        }
+
+        if (IsHeadlessNewsRefresh(cli))
+        {
+            if (cli.NewsCacheClear)
+                NewsSyncService.ClearCache();
+            var settings = new SettingsService();
+            var sync = NewsSyncService.SyncAsync(settings, force: true).GetAwaiter().GetResult();
+            if (sync.Success)
+                Console.WriteLine($"News sync OK — {sync.DownloadedCount} article(s) updated");
+            else
+            {
+                Console.Error.WriteLine($"News sync failed: {sync.ErrorMessage}");
+                Environment.ExitCode = 1;
+            }
+            Shutdown();
+            return;
         }
 
         if (cli.RegisterProtocol)
@@ -225,6 +243,13 @@ public partial class App : System.Windows.Application
         UI:
           --open-page=<page>      Open a page (browse, installed, settings, news, ...)
           --open-news             Open the News page
+          --refresh-news          Sync news from GitHub (headless if no other UI flags)
+          --news-cache-clear      Clear cached remote news before sync
           --theme=<name>          Apply a theme on startup
         """;
+
+    private static bool IsHeadlessNewsRefresh(CliOptions cli) =>
+        cli.RefreshNews && !cli.OpenNews && cli.Install.Count == 0 &&
+        !cli.RegisterProtocol && !cli.UnregisterProtocol &&
+        string.IsNullOrWhiteSpace(cli.OpenPage) && !cli.StartHidden;
 }

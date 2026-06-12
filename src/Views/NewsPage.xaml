@@ -12,7 +12,11 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Column="0" Margin="0,0,12,0">
+            <TextBlock x:Name="TxtNewsStatus" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"
+                       TextWrapping="Wrap" Margin="0,0,0,8"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
+                <Button x:Name="BtnMarkAllRead" Content="Mark all read" Click="BtnMarkAllRead_Click"
+                        Style="{StaticResource ModernButton}" Margin="0,0,8,0"/>
                 <Button x:Name="BtnRefreshNews" Content="Refresh" Click="BtnRefreshNews_Click" Style="{StaticResource ModernButton}"/>
             </StackPanel>
             <ListBox x:Name="LstArticles" SelectionChanged="LstArticles_SelectionChanged"

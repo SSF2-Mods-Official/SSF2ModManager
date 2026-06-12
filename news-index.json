@@ -1,0 +1,50 @@
+{
+    "version":  1,
+    "updated":  "2026-06-12T03:33:28.8724872Z",
+    "articles":  [
+                     {
+                         "id":  "2026-06-07-v1-release",
+                         "path":  "src/News/2026-06-07-v1-release",
+                         "title":  "SSF2 Mod Manager v1.0.0 is here",
+                         "date":  "2026-06-07",
+                         "tags":  [
+                                      "release",
+                                      "v1"
+                                  ],
+                         "draft":  false,
+                         "assets":  [
+                                        "article.md",
+                                        "hero.svg",
+                                        "screenshot-1.svg"
+                                    ]
+                     },
+                     {
+                         "id":  "2026-06-11-v1-0-1",
+                         "path":  "src/News/2026-06-11-v1-0-1",
+                         "title":  "SSF2 Mod Manager v1.0.1",
+                         "date":  "2026-06-11",
+                         "tags":  [
+                                      "release"
+                                  ],
+                         "draft":  false,
+                         "assets":  [
+                                        "article.md",
+                                        "hero.svg"
+                                    ]
+                     },
+                     {
+                         "id":  "2026-06-12-v1-0-2",
+                         "path":  "src/News/2026-06-12-v1-0-2",
+                         "title":  "SSF2 Mod Manager v1.0.2",
+                         "date":  "2026-06-12",
+                         "tags":  [
+                                      "release"
+                                  ],
+                         "draft":  false,
+                         "assets":  [
+                                        "article.md",
+                                        "hero.svg"
+                                    ]
+                     }
+                 ]
+}

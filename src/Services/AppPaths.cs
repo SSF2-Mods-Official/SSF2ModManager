@@ -23,5 +23,16 @@ namespace SSF2ModManager.Services
 
         /// <summary>Bundled news articles copied/extracted next to the executable.</summary>
         public static string NewsFolder => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "News");
+
+        /// <summary>Remote news articles synced from GitHub and cached locally.</summary>
+        public static string NewsCacheFolder
+        {
+            get
+            {
+                var dir = Path.Combine(AppDataDir, "News");
+                Directory.CreateDirectory(dir);
+                return dir;
+            }
+        }
     }
 }

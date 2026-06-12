@@ -110,13 +110,50 @@ namespace SSF2ModManager.Dialogs
             Content = root;
         }
 
-        private void BtnToggle_Click(object sender, RoutedEventArgs e)
+        private async void BtnToggle_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 _modManager.ToggleMod(_mod);
                 Changed = true;
                 DialogResult = true;
+            }
+            catch (ModFolderNotFoundException ex)
+            {
+                var message =
+                    $"Cannot enable \"{ex.Mod.Name}\" — mod files are missing.\n\nExpected folder:\n{ex.ModPath}";
+
+                if (ex.Mod.GameBananaId > 0)
+                {
+                    var result = MessageBox.Show(
+                        message + "\n\nRe-download this mod from GameBanana now?",
+                        "Mod Files Missing", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        var updated = await _modManager.UpdateInstalledModAsync(ex.Mod);
+                        if (updated == null)
+                        {
+                            MessageBox.Show("Re-download failed.", "Mod Files Missing",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+                        try
+                        {
+                            _modManager.ToggleMod(updated);
+                            Changed = true;
+                            DialogResult = true;
+                        }
+                        catch (ModFolderNotFoundException ex2)
+                        {
+                            MessageBox.Show($"Download finished but files are still missing:\n{ex2.ModPath}",
+                                "Mod Files Missing", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(message, "Mod Files Missing", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             }
             catch (Exception ex)
             {

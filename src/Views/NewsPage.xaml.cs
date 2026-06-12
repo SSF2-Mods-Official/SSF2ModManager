@@ -3,7 +3,8 @@ using SSF2ModManager.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -12,6 +13,7 @@ using System.Windows.Media.Imaging;
 using Markdig;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
+using MessageBox = System.Windows.MessageBox;
 
 namespace SSF2ModManager.Views
 {
@@ -19,11 +21,16 @@ namespace SSF2ModManager.Views
     {
         private List<NewsArticle> _articles = new();
         private string _lastPath = "";
+        private SettingsService? _settings;
+
+        public event Action? ArticlesChanged;
 
         public NewsPage()
         {
             InitializeComponent();
         }
+
+        public void BindSettings(SettingsService settings) => _settings = settings;
 
         public void LoadLocal(string newsFolderPath)
         {
@@ -32,40 +39,105 @@ namespace SSF2ModManager.Views
                 if (string.IsNullOrWhiteSpace(newsFolderPath)) return;
                 _lastPath = newsFolderPath;
                 _articles = NewsService.LoadLocalArticles(newsFolderPath);
-                LstArticles.ItemsSource = _articles;
-                if (_articles.Count > 0)
-                {
-                    LstArticles.SelectedIndex = 0;
-                }
-                else
-                {
-                    // show empty message in FlowDocument
-                    var fdEmpty = new FlowDocument();
-                    fdEmpty.Blocks.Add(new Paragraph(new Run("No news articles found.")));
-                    DocViewer.Document = fdEmpty;
-                }
+                DisplayArticles();
             }
             catch (Exception ex)
             {
-                var fdErr = new FlowDocument();
-                fdErr.Blocks.Add(new Paragraph(new Run($"Failed to load news: {ex.Message}")));
-                DocViewer.Document = fdErr;
+                ShowError($"Failed to load news: {ex.Message}");
             }
+        }
+
+        public async Task RefreshAsync(bool forceSync = false)
+        {
+            if (_settings == null)
+            {
+                LoadLocal(string.IsNullOrWhiteSpace(_lastPath) ? AppPaths.NewsFolder : _lastPath);
+                return;
+            }
+
+            try
+            {
+                TxtNewsStatus.Text = forceSync ? "Syncing news from GitHub..." : "Checking for news updates...";
+                var sync = await NewsSyncService.SyncAsync(_settings, forceSync);
+                UpdateStatusText(sync);
+                if (!sync.Success && forceSync)
+                {
+                    MessageBox.Show(
+                        $"Could not sync news:\n{sync.ErrorMessage ?? "Unknown error"}\n\nShowing cached and bundled articles.",
+                        "News Sync", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                _articles = NewsService.LoadMergedArticles();
+                DisplayArticles();
+                ArticlesChanged?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Failed to refresh news: {ex.Message}");
+                if (forceSync)
+                    MessageBox.Show($"Failed to refresh news:\n{ex.Message}", "News Sync",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public IReadOnlyList<NewsArticle> GetArticles() => _articles;
+
+        private void UpdateStatusText(NewsSyncResult sync)
+        {
+            if (!sync.Success)
+            {
+                var err = sync.ErrorMessage ?? _settings?.GetLastNewsSyncError() ?? "offline";
+                TxtNewsStatus.Text = $"Offline — could not sync ({err}). Showing cached articles.";
+                return;
+            }
+
+            var last = _settings?.GetLastNewsSyncUtc();
+            if (sync.DownloadedCount > 0)
+                TxtNewsStatus.Text = $"Synced {sync.DownloadedCount} article(s)" + (last.HasValue ? $" · {last.Value.ToLocalTime():g}" : "");
+            else if (last.HasValue)
+                TxtNewsStatus.Text = $"Up to date · Last sync {last.Value.ToLocalTime():g}";
+            else
+                TxtNewsStatus.Text = "Up to date";
+        }
+
+        private void DisplayArticles()
+        {
+            LstArticles.ItemsSource = null;
+            LstArticles.ItemsSource = _articles;
+            if (_articles.Count > 0)
+                LstArticles.SelectedIndex = 0;
+            else
+            {
+                var fdEmpty = new FlowDocument();
+                fdEmpty.Blocks.Add(new Paragraph(new Run("No news articles found.")));
+                DocViewer.Document = fdEmpty;
+            }
+        }
+
+        private void ShowError(string message)
+        {
+            var fdErr = new FlowDocument();
+            fdErr.Blocks.Add(new Paragraph(new Run(message)));
+            DocViewer.Document = fdErr;
+            TxtNewsStatus.Text = message;
         }
 
         private void LstArticles_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (LstArticles.SelectedItem is NewsArticle a)
             {
+                if (_settings != null && !string.IsNullOrWhiteSpace(a.Id))
+                {
+                    _settings.MarkNewsArticleRead(a.Id);
+                    ArticlesChanged?.Invoke();
+                }
+
                 try
                 {
-                    // Render FlowDocument from raw markdown for native WPF viewing
                     try
                     {
                         var md = a.RawMarkdown ?? a.Html ?? "";
                         var doc = ConvertMarkdownToFlowDocument(md, a.SourceFolder);
-                        // Constrain document width to viewer width so it doesn't overlap the left pane
-                        // Prefer using the parent Border's width (accounts for padding/margins)
                         var parentBorder = DocViewer.Parent as System.Windows.Controls.Border;
                         double avail = parentBorder?.ActualWidth ?? DocViewer.ActualWidth;
                         if (avail > 0)
@@ -93,7 +165,6 @@ namespace SSF2ModManager.Views
                             }), System.Windows.Threading.DispatcherPriority.Loaded);
                         }
 
-                        // Apply theme brushes
                         var bgBrush = System.Windows.Application.Current.TryFindResource("BackgroundBrush") as System.Windows.Media.Brush;
                         var fgBrush = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as System.Windows.Media.Brush;
                         if (bgBrush != null) DocViewer.Background = bgBrush;
@@ -101,31 +172,10 @@ namespace SSF2ModManager.Views
                         DocViewer.HorizontalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Disabled;
                         DocViewer.Document = doc;
                     }
-                    catch
-                    {
-                    }
+                    catch { }
                 }
-                catch
-                {
-                }
+                catch { }
             }
-        }
-
-        private string GetBrushHex(string resourceKey, string fallback)
-        {
-            try
-            {
-                var res = System.Windows.Application.Current.TryFindResource(resourceKey);
-                if (res is SolidColorBrush scb)
-                {
-                    var c = scb.Color;
-                    return $"#{c.A:X2}{c.R:X2}{c.G:X2}{c.B:X2}";
-                }
-                if (res is System.Windows.Media.Color c2)
-                    return $"#{c2.A:X2}{c2.R:X2}{c2.G:X2}{c2.B:X2}";
-            }
-            catch { }
-            return fallback;
         }
 
         private FlowDocument ConvertMarkdownToFlowDocument(string markdown, string baseFolder)
@@ -151,7 +201,6 @@ namespace SSF2ModManager.Views
                 }
                 else if (block is ThematicBreakBlock)
                 {
-                    // horizontal rule
                     var hr = new BlockUIContainer();
                     var border = new System.Windows.Controls.Border
                     {
@@ -162,10 +211,7 @@ namespace SSF2ModManager.Views
                     hr.Child = border;
                     fd.Blocks.Add(hr);
                 }
-                else if (block is Markdig.Syntax.LinkReferenceDefinitionGroup)
-                {
-                    // ignore reference definitions
-                }
+                else if (block is Markdig.Syntax.LinkReferenceDefinitionGroup) { }
                 else if (block is ParagraphBlock pb)
                 {
                     var p = new Paragraph();
@@ -224,10 +270,6 @@ namespace SSF2ModManager.Views
                     AddInlineChildren(p.Inlines, leaf.Inline);
                     fd.Blocks.Add(p);
                 }
-                else
-                {
-                    // fallback: skip unknown block types silently
-                }
             }
 
             return fd;
@@ -239,15 +281,10 @@ namespace SSF2ModManager.Views
             foreach (var inline in container)
             {
                 if (inline is LiteralInline li)
-                {
                     inlines.Add(new Run(li.Content.ToString()));
-                }
                 else if (inline is CodeInline ci)
                 {
-                    var run = new Run(ci.Content)
-                    {
-                        FontFamily = new System.Windows.Media.FontFamily("Consolas")
-                    };
+                    var run = new Run(ci.Content) { FontFamily = new System.Windows.Media.FontFamily("Consolas") };
                     var span = new Span(run)
                     {
                         Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x20, 0x30, 0x30, 0x30))
@@ -271,10 +308,8 @@ namespace SSF2ModManager.Views
                     AddInlineChildren(span.Inlines, ei);
                     inlines.Add(span);
                 }
-                else if (inline is LineBreakInline lb)
-                {
+                else if (inline is LineBreakInline)
                     inlines.Add(new LineBreak());
-                }
                 else if (inline is LinkInline link)
                 {
                     if (link.IsImage)
@@ -298,17 +333,13 @@ namespace SSF2ModManager.Views
                     }
                 }
                 else
-                {
-                    // unknown inline, add raw text
                     inlines.Add(new Run(inline.ToString()));
-                }
             }
         }
 
         private string ResolvePath(string url, string? baseFolder)
         {
             if (string.IsNullOrWhiteSpace(url)) return url;
-            // If url is absolute, return as-is; if relative, combine with baseFolder
             if (Uri.IsWellFormedUriString(url, UriKind.Absolute)) return url;
             try
             {
@@ -320,10 +351,26 @@ namespace SSF2ModManager.Views
             catch { return url; }
         }
 
-        private void BtnRefreshNews_Click(object sender, System.Windows.RoutedEventArgs e)
+        private async void BtnRefreshNews_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            if (Directory.Exists(_lastPath))
-                LoadLocal(_lastPath);
+            BtnRefreshNews.IsEnabled = false;
+            try
+            {
+                await RefreshAsync(forceSync: true);
+            }
+            finally
+            {
+                BtnRefreshNews.IsEnabled = true;
+            }
+        }
+
+        private void BtnMarkAllRead_Click(object sender, RoutedEventArgs e)
+        {
+            if (_settings == null || _articles.Count == 0) return;
+            _settings.MarkAllNewsRead(_articles.Select(a => a.Id));
+            ArticlesChanged?.Invoke();
+            MessageBox.Show("All news articles marked as read.", "News",
+                MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }
