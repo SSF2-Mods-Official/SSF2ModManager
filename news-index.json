@@ -1,6 +1,6 @@
 {
     "version":  1,
-    "updated":  "2026-06-12T03:33:28.8724872Z",
+    "updated":  "2026-06-12T04:10:50.9004625Z",
     "articles":  [
                      {
                          "id":  "2026-06-07-v1-release",
@@ -36,7 +36,7 @@
                          "id":  "2026-06-12-v1-0-2",
                          "path":  "src/News/2026-06-12-v1-0-2",
                          "title":  "SSF2 Mod Manager v1.0.2",
-                         "date":  "2026-06-12",
+                         "date":  "2026-06-14",
                          "tags":  [
                                       "release"
                                   ],

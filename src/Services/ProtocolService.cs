@@ -32,7 +32,7 @@ namespace SSF2ModManager.Services
             var parts = payload.Split(',');
             if (parts.Length == 0) return false;
 
-            var archive = parts[0].Trim();
+            var archive = GameBananaUrlHelper.NormalizeSchemeTypos(parts[0].Trim());
             if (!archive.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
                 && !archive.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
                 return false;

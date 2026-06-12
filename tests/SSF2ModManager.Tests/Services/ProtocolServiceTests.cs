@@ -8,19 +8,6 @@ namespace SSF2ModManager.Tests.Services
     public class ProtocolServiceTests
     {
         [Fact]
-        public void TryParse_DlUrl_ShouldExtractParts()
-        {
-            var ok = ProtocolService.TryParse(
-                "ssf2mm:https://gamebanana.com/dl/1708765,Mod,679407",
-                out var req);
-
-            ok.Should().BeTrue();
-            req.ArchiveUrl.Should().Be("https://gamebanana.com/dl/1708765");
-            req.ModType.Should().Be("Mod");
-            req.ModId.Should().Be(679407);
-        }
-
-        [Fact]
         public void TryParse_MmdlUrl_ShouldExtractParts()
         {
             var ok = ProtocolService.TryParse(
@@ -29,6 +16,7 @@ namespace SSF2ModManager.Tests.Services
 
             ok.Should().BeTrue();
             req.ArchiveUrl.Should().Be("https://gamebanana.com/mmdl/1708765");
+            req.ModType.Should().Be("Mod");
             req.ModId.Should().Be(679407);
         }
 
@@ -76,25 +64,22 @@ namespace SSF2ModManager.Tests.Services
     public class GameBananaUrlHelperTests
     {
         [Theory]
-        [InlineData("https://gamebanana.com/dl/1708765", 1708765)]
         [InlineData("https://gamebanana.com/mmdl/1708765", 1708765)]
         [InlineData("https//gamebanana.com/mmdl/1708765", 1708765)]
-        public void TryExtractFileId_ShouldWorkForDlAndMmdl(string url, int expected)
+        public void TryExtractFileId_ShouldWorkForMmdl(string url, int expected)
         {
             GameBananaUrlHelper.TryExtractFileId(url, out var id).Should().BeTrue();
             id.Should().Be(expected);
         }
 
         [Fact]
-        public void ReferToSameFile_DlAndMmdl_ShouldMatch()
+        public void TryExtractFileId_DlUrl_ShouldNotMatch()
         {
-            GameBananaUrlHelper.ReferToSameFile(
-                "https://gamebanana.com/mmdl/1708765",
-                "https://gamebanana.com/dl/1708765").Should().BeTrue();
+            GameBananaUrlHelper.TryExtractFileId("https://gamebanana.com/dl/1708765", out _).Should().BeFalse();
         }
 
         [Fact]
-        public void MatchProtocolFile_ShouldMatchByFileIdAcrossDlAndMmdl()
+        public void MatchProtocolFile_ShouldMatchByFileId()
         {
             var files = new List<GameBananaFile>
             {

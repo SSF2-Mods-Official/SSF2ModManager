@@ -1207,7 +1207,7 @@ namespace SSF2ModManager
                         "1-Click Install", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
-                SetActivePage("installed");
+                await LoadBrowseModsAsync();
             }
             catch (Exception ex)
             {

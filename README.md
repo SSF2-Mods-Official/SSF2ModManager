@@ -86,11 +86,11 @@ Example (Retro Arcade Stage | Sploder):
 ssf2mm:https://gamebanana.com/mmdl/1708765,Mod,679407
 ```
 
-GameBanana may use `/mmdl/` instead of `/dl/` — both work. The file ID in the path (`1708765`) is what we match against.
+GameBanana sends `/mmdl/{fileId}` links for 1-Click install. The file ID in the path (`1708765`) is matched against the mod API.
 
 | Field | Value | Meaning |
 |-------|--------|---------|
-| Download URL | `https://gamebanana.com/mmdl/1708765` | Direct file link (`/mmdl/` or `/dl/`) |
+| Download URL | `https://gamebanana.com/mmdl/1708765` | Direct file link (`/mmdl/{fileId}`) |
 | ModelName | `Mod` | GameBanana ItemType / ModelName (usually `Mod`, not the submission category) |
 | Mod ID | `679407` | Submission ID — used to fetch full mod info from the API |
 
@@ -117,13 +117,13 @@ You should see `Registered (points to current executable)` and the command path.
 **3. Test from PowerShell** (replace with a real GameBanana download URL + mod ID)
 
 ```powershell
-.\scripts\verify-protocol.ps1 -ArchiveUrl "https://gamebanana.com/dl/1708765" -ModId 679407
+.\scripts\verify-protocol.ps1 -ArchiveUrl "https://gamebanana.com/mmdl/1708765" -ModId 679407
 ```
 
 Or manually:
 
 ```powershell
-Start-Process ".\src\bin\Release\net8.0-windows\SSF2ModManager.exe" -ArgumentList '"ssf2mm:https://gamebanana.com/dl/1708765,Mod,679407"'
+Start-Process ".\src\bin\Release\net8.0-windows\SSF2ModManager.exe" -ArgumentList '"ssf2mm:https://gamebanana.com/mmdl/1708765,Mod,679407"'
 ```
 
 **4. Test from browser**

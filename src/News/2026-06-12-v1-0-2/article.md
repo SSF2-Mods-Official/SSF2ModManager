@@ -1,6 +1,6 @@
 ---
 title: "SSF2 Mod Manager v1.0.2"
-date: "2026-06-12"
+date: "2026-06-14"
 author: "SSF2 Mods"
 excerpt: "GameBanana 1-Click fix, remote news sync, missing-mod recovery, and UI polish."
 featured_image: "hero.svg"
@@ -13,13 +13,14 @@ draft: false
 
 ## GameBanana 1-Click — please update
 
-**Sorry — v1.0.0 and v1.0.1 do not work with GameBanana 1-Click.** Those builds could not handle the URL format the site sends (`/mmdl/` links and the broken `https//` scheme). **You need v1.0.2** for 1-Click install.
+**Sorry — v1.0.0 and v1.0.1 do not work with GameBanana 1-Click.** Those builds could not handle the URL format the site sends (broken `https//` scheme and file matching). **You need v1.0.2** for 1-Click install.
 
 **v1.0.2** adds full support:
 
-- `/mmdl/` download URLs (what GameBanana actually sends)
+- **`/mmdl/{fileId}` download URLs** (what GameBanana sends for 1-Click)
 - Malformed launcher URLs like `ssf2mm://https//gamebanana.com/mmdl/...`
-- Matching files by ID so `/mmdl/` and `/dl/` are interchangeable
+- File matching by ID from the mod API
+- **Stays on Browse Mods** after a successful 1-Click install (does not jump to Installed)
 
 ```text
 ssf2mm:https://gamebanana.com/mmdl/1708765,Mod,679407
