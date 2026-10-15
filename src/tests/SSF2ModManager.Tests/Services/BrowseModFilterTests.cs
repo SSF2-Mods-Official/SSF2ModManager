@@ -50,7 +50,7 @@ namespace SSF2ModManager.Tests.Services
         public void ReceiptIntro_MentionsReplacementOnlyWhenListed()
         {
             var plain = new OneClickReceipt { Items = { new OneClickItem { Kind = OneClickKind.Stage, RelativePath = "own/s.ssf" } } };
-            Assert.Equal("Choose what to install into SSF2 Shell.", OneClickReceive.ReceiptIntro(plain));
+            Assert.Equal("Choose what to install into SSF2 Shell.\n\n" + OneClickReceive.TempNote(false), OneClickReceive.ReceiptIntro(plain));
 
             plain.Items.Add(new OneClickItem { Kind = OneClickKind.Stage, RelativePath = "Over FD/s.ssf", Selected = false, Note = "Replaces a built-in stage" });
             plain.LeftOutNineB = 2;
@@ -72,6 +72,19 @@ namespace SSF2ModManager.Tests.Services
             Assert.Contains("12 file(s) are made for SSF2 0.9b", nine);
             Assert.Contains("3 file(s) aren't", nine);
             Assert.Contains("no SSF2 game files", OneClickReceive.NothingToInstallMessage(new OneClickReceipt()));
+            Assert.Contains("ssf2mm-oneclick-", nine);
+            Assert.Contains("has been deleted", nine);
+        }
+
+        [Fact]
+        public void ReceiptIntro_SaysWhereDownloadIsAndThatItIsDeleted()
+        {
+            var intro = OneClickReceive.ReceiptIntro(new OneClickReceipt
+            {
+                Items = { new OneClickItem { Kind = OneClickKind.Stage, RelativePath = "s.ssf", Selected = true } }
+            });
+            Assert.Contains(System.IO.Path.GetTempPath(), intro);
+            Assert.Contains("is deleted when you install or cancel", intro);
         }
 
         [Fact]

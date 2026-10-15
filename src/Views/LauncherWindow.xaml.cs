@@ -386,7 +386,8 @@ namespace SSF2ModManager.Views
                 BusyProgress.Value = 0;
                 var downloadProgress = new Progress<OneClickReceive.DownloadProgress>(p =>
                 {
-                    TxtBusy.Text = OneClickReceive.FormatDownload(p.Received, p.Total);
+                    TxtBusy.Text = OneClickReceive.FormatDownload(p.Received, p.Total)
+                        + "\nSaving to a temporary folder: " + OneClickReceive.TempFolderPattern;
                     if (p.Total > 0)
                     {
                         BusyProgress.IsIndeterminate = false;
@@ -434,7 +435,7 @@ namespace SSF2ModManager.Views
             {
                 LockForWork(false, "");
                 DebugLogger.Log($"[oneclick] canceled file={fileId}");
-                SetStatus("Download canceled");
+                SetStatus("Download canceled", OneClickReceive.TempNote(true));
             }
             catch (Exception ex)
             {

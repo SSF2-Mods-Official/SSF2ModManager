@@ -253,6 +253,14 @@ namespace SSF2ModManager.Services
             return receipt;
         }
 
+        /// <summary>Where downloads wait, e.g. C:\Users\x\AppData\Local\Temp\ssf2mm-oneclick-….</summary>
+        public static string TempFolderPattern => Path.Combine(Path.GetTempPath(), "ssf2mm-oneclick-…");
+
+        /// <summary>Says where the download is held and that unused files are deleted.</summary>
+        public static string TempNote(bool alreadyDeleted) => alreadyDeleted
+            ? $"The download was held in a temporary folder ({TempFolderPattern}) and has been deleted."
+            : $"The download is held in a temporary folder ({TempFolderPattern}). Anything you leave unchecked, and the download itself, is deleted when you install or cancel.";
+
         /// <summary>The text above the confirm list.</summary>
         public static string ReceiptIntro(OneClickReceipt receipt)
         {
@@ -263,6 +271,7 @@ namespace SSF2ModManager.Services
                 lines.Add($"{receipt.LeftOutNineB} file(s) made for SSF2 0.9b were skipped because SSF2 Shell can't load them.");
             if (receipt.LeftOutOtherVersions > 0)
                 lines.Add($"{receipt.LeftOutOtherVersions} file(s) for other SSF2 versions were skipped. The Sandbox version is listed instead.");
+            lines.Add(TempNote(false));
             return string.Join("\n\n", lines);
         }
 
@@ -281,6 +290,8 @@ namespace SSF2ModManager.Services
                 lines.Add("• The download has no SSF2 game files (.ssf or .swf).");
             lines.Add("");
             lines.Add("SSF2 Shell is built on SSF2 Beta 1.4.0.1. Check the mod's GameBanana page for a Beta 1.4 version.");
+            lines.Add("");
+            lines.Add(TempNote(true));
             DebugLogger.Log($"[oneclick] nothing to install nineb={receipt.LeftOutNineB} unknown={receipt.LeftOutUnknown}");
             return string.Join("\n", lines);
         }
