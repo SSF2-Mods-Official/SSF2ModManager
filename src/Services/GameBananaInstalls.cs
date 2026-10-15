@@ -19,8 +19,11 @@ namespace SSF2ModManager.Services
             if (modId <= 0 || string.IsNullOrWhiteSpace(shellRoot))
                 return;
             var doc = Load(shellRoot);
-            var mods = doc["mods"] as JObject ?? new JObject();
-            doc["mods"] = mods;
+            if (doc["mods"] is not JObject mods)
+            {
+                mods = new JObject();
+                doc["mods"] = mods;
+            }
             var list = items.Where(i => !string.IsNullOrWhiteSpace(i.Id)).ToList();
             mods[modId.ToString(System.Globalization.CultureInfo.InvariantCulture)] = new JObject
             {

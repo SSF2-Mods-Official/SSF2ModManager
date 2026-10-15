@@ -30,6 +30,12 @@ namespace SSF2ModManager.Tests.Services
                 Assert.Contains(149685, GameBananaInstalls.InstalledModIds(shell));
                 Assert.Empty(GameBananaInstalls.InstalledModIds(other));
 
+                Directory.CreateDirectory(Path.Combine(ShellWorkspaceService.ExpansionsRoot(shell), "alts", "641874", "mario", "Mario (Kevin Z. Afghani)"));
+                GameBananaInstalls.Record(shell, 641874, 1766520, "Alternate Voices Plus",
+                    new[] { (OneClickKind.Alt, "alts/641874/mario/Mario (Kevin Z. Afghani)") });
+                Assert.Contains(149685, GameBananaInstalls.InstalledModIds(shell));
+                Assert.Contains(641874, GameBananaInstalls.InstalledModIds(shell));
+
                 Directory.Delete(stage, true);
                 Assert.DoesNotContain(149685, GameBananaInstalls.InstalledModIds(shell));
             }

@@ -472,6 +472,13 @@ namespace SSF2ModManager.Views
                 }
                 LockForWork(true, "Reading the download…");
                 receipt = OneClickReceive.ClassifyArchive(download);
+                if (!receipt.IsPack)
+                {
+                    LockForWork(true, "Looking for alts of characters you already have…");
+                    var taken = await OneClickReceive.TakenCharacterIdsAsync(shell);
+                    var classified = receipt;
+                    await System.Threading.Tasks.Task.Run(() => OneClickReceive.ClassifyAlts(classified, taken));
+                }
                 LockForWork(false, "");
                 var nothing = OneClickReceive.NothingToInstallMessage(receipt, modName);
                 if (nothing != null)

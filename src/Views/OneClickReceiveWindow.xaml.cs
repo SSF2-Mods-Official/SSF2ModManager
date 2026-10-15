@@ -44,7 +44,7 @@ namespace SSF2ModManager.Views
                 row.Box = new CheckBox { Content = item.Label, IsChecked = item.Selected, Foreground = text };
                 panel.Children.Add(row.Box);
 
-                if (item.Kind is OneClickKind.Stage or OneClickKind.Character)
+                if (item.Kind is OneClickKind.Stage or OneClickKind.Character or OneClickKind.Alt)
                 {
                     var line = new DockPanel { Margin = new Thickness(24, 6, 0, 0) };
                     line.Children.Add(new TextBlock
@@ -58,7 +58,9 @@ namespace SSF2ModManager.Views
                     {
                         panel.Children.Add(new TextBlock
                         {
-                            Text = $"The file calls it \"{item.OriginalName}\".",
+                            Text = item.Kind == OneClickKind.Alt
+                                ? $"From the folder \"{item.OriginalName}\". Leave empty to show \"<character> Alt 1\", \"Alt 2\"…"
+                                : $"The file calls it \"{item.OriginalName}\".",
                             Margin = new Thickness(134, 2, 0, 0),
                             Opacity = 0.7,
                             Foreground = text
@@ -121,7 +123,7 @@ namespace SSF2ModManager.Views
             _rows.Select(row =>
             {
                 row.Item.Selected = row.Box.IsChecked == true;
-                if (row.Name != null && !string.IsNullOrWhiteSpace(row.Name.Text))
+                if (row.Name != null && (!string.IsNullOrWhiteSpace(row.Name.Text) || row.Item.Kind == OneClickKind.Alt))
                     row.Item.DisplayName = row.Name.Text.Trim();
                 if (row.Preview != null)
                     row.Item.PreviewPath = (row.Preview.SelectedItem as PreviewChoice)?.Path;

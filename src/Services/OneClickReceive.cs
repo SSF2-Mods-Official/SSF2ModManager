@@ -12,7 +12,8 @@ namespace SSF2ModManager.Services
         Pack,
         Stage,
         Character,
-        Song
+        Song,
+        Alt
     }
 
     public sealed class OneClickItem
@@ -29,11 +30,15 @@ namespace SSF2ModManager.Services
         public string? DisplayName { get; set; }
         /// <summary>A stage preview the user picked (PNG or JPG); saved as stagepreview.png.</summary>
         public string? PreviewPath { get; set; }
+        /// <summary>An alt's files: the resource id each one registers, and its path in the download.</summary>
+        public List<(string ResourceId, string Path)> Files { get; init; } = new();
 
         public string Label
         {
             get
             {
+                if (Kind == OneClickKind.Alt)
+                    return $"Alt of {Id}: {Path.GetFileName(RelativePath)} ({Files.Count} file(s))";
                 var name = string.IsNullOrWhiteSpace(Id) ? Path.GetFileName(RelativePath) : Id;
                 var note = string.IsNullOrWhiteSpace(Note) ? "" : " — " + Note;
                 return Kind + ": " + name + note;
@@ -51,6 +56,10 @@ namespace SSF2ModManager.Services
         public int LeftOutNineB { get; set; }
         public int LeftOutOtherVersions { get; set; }
         public int LeftOutUnknown { get; set; }
+        /// <summary>Files under a <c>Vanilla</c> folder (the build already has them).</summary>
+        public int LeftOutVanilla { get; set; }
+        /// <summary>Files under an <c>Announcer</c> folder (global sounds, not a character).</summary>
+        public int LeftOutAnnouncer { get; set; }
 
         public void Cleanup()
         {
@@ -277,6 +286,12 @@ namespace SSF2ModManager.Services
                 lines.Add($"{receipt.LeftOutNineB} file(s) made for SSF2 0.9b were skipped because SSF2 Shell can't load them.");
             if (receipt.LeftOutOtherVersions > 0)
                 lines.Add($"{receipt.LeftOutOtherVersions} file(s) for other SSF2 versions were skipped. The Sandbox version is listed instead.");
+            if (receipt.Items.Any(i => i.Kind == OneClickKind.Alt))
+                lines.Add("Alts load in place of a character you already have. On Character Select, put your token on the character and press jump to switch between the original and each alt.");
+            if (receipt.LeftOutVanilla > 0)
+                lines.Add($"{receipt.LeftOutVanilla} file(s) in the mod's Vanilla folder were skipped because SSF2 Shell already has them.");
+            if (receipt.LeftOutAnnouncer > 0)
+                lines.Add($"{receipt.LeftOutAnnouncer} announcer/sound file(s) were skipped.");
             lines.Add(TempNote(false));
             return string.Join("\n\n", lines);
         }
@@ -300,6 +315,124 @@ namespace SSF2ModManager.Services
             lines.Add(TempNote(true));
             DebugLogger.Log($"[oneclick] nothing to install nineb={receipt.LeftOutNineB} unknown={receipt.LeftOutUnknown}");
             return string.Join("\n", lines);
+        }
+
+        public sealed class AltPlan
+        {
+            public List<(string Folder, string CharacterId, List<(string ResourceId, string Path)> Files)> Alts { get; } = new();
+            public int Vanilla { get; set; }
+            public int Announcer { get; set; }
+            /// <summary>Paths that belong to an alt, the Vanilla folder, or an announcer folder.</summary>
+            public HashSet<string> Claimed { get; } = new(StringComparer.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Groups game files by folder. A folder holding a character whose registered id the build already has is one alt;
+        /// every file in that folder with a registered id is part of it. Vanilla and Announcer folders are left out.
+        /// </summary>
+        public static AltPlan PlanAlts(
+            IEnumerable<(string RelativePath, string? RegisterId, bool IsCharacter)> files,
+            ISet<string> takenCharacterIds)
+        {
+            var plan = new AltPlan();
+            var rest = new List<(string RelativePath, string? RegisterId, bool IsCharacter)>();
+            foreach (var f in files)
+            {
+                var parts = f.RelativePath.Replace('\\', '/').Split('/');
+                var dirs = parts.Take(parts.Length - 1).ToList();
+                if (dirs.Any(d => d.Equals("Vanilla", StringComparison.OrdinalIgnoreCase)))
+                {
+                    plan.Vanilla++;
+                    plan.Claimed.Add(f.RelativePath);
+                    continue;
+                }
+                if (dirs.Any(d => d.Contains("Announcer", StringComparison.OrdinalIgnoreCase)))
+                {
+                    plan.Announcer++;
+                    plan.Claimed.Add(f.RelativePath);
+                    continue;
+                }
+                rest.Add(f);
+            }
+            foreach (var group in rest.GroupBy(f => Path.GetDirectoryName(f.RelativePath.Replace('/', Path.DirectorySeparatorChar)) ?? "",
+                         StringComparer.OrdinalIgnoreCase))
+            {
+                var owner = group.FirstOrDefault(f => f.IsCharacter && f.RegisterId != null && takenCharacterIds.Contains(f.RegisterId));
+                if (owner.RegisterId == null)
+                    continue;
+                var members = group.Where(f => !string.IsNullOrWhiteSpace(f.RegisterId)).ToList();
+                plan.Alts.Add((group.Key, owner.RegisterId, members.Select(f => (f.RegisterId!, f.RelativePath)).ToList()));
+                foreach (var f in group)
+                    plan.Claimed.Add(f.RelativePath);
+            }
+            return plan;
+        }
+
+        /// <summary>Character ids in the build: mappings <c>character</c> keys and <c>expansions/character</c> folders.</summary>
+        public static async Task<HashSet<string>> TakenCharacterIdsAsync(string shellRoot, CancellationToken cancellationToken = default)
+        {
+            var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                var mappings = await new MappingsEditService().LoadDocumentAsync(shellRoot, exportIfMissing: false, cancellationToken: cancellationToken);
+                if (mappings?["character"] is JObject characters)
+                    foreach (var prop in characters.Properties())
+                        ids.Add(prop.Name);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log("[oneclick] alts mappings skip " + ex.Message);
+            }
+            var expansions = ShellWorkspaceService.CharacterExpansionsDirectory(shellRoot);
+            if (Directory.Exists(expansions))
+                foreach (var dir in Directory.GetDirectories(expansions))
+                    ids.Add(Path.GetFileName(dir));
+            return ids;
+        }
+
+        /// <summary>Turns files for characters the build already has into alts (see <see cref="PlanAlts"/>).</summary>
+        public static void ClassifyAlts(OneClickReceipt receipt, ISet<string> takenCharacterIds)
+        {
+            if (receipt.IsPack || string.IsNullOrWhiteSpace(receipt.ExtractedRoot) || !Directory.Exists(receipt.ExtractedRoot))
+                return;
+            var scanned = new List<(string RelativePath, string? RegisterId, bool IsCharacter)>();
+            foreach (var path in Directory.GetFiles(receipt.ExtractedRoot, "*.*", SearchOption.AllDirectories)
+                         .Where(p => p.EndsWith(".ssf", StringComparison.OrdinalIgnoreCase) || p.EndsWith(".swf", StringComparison.OrdinalIgnoreCase)))
+            {
+                string? id = null;
+                var character = false;
+                try
+                {
+                    var swf = SwfPackage.ToSwf(File.ReadAllBytes(path));
+                    id = SwfPackage.RegisterCalls(swf).FirstOrDefault(r => r.Key == "id").Value;
+                    character = SwfPackage.IsCharacter(swf);
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log($"[oneclick] alts read skip {Path.GetFileName(path)} {ex.Message}");
+                }
+                scanned.Add((Path.GetRelativePath(receipt.ExtractedRoot, path), id, character));
+            }
+            var plan = PlanAlts(scanned, takenCharacterIds);
+            if (plan.Claimed.Count == 0)
+                return;
+            receipt.Items.RemoveAll(i => plan.Claimed.Contains(i.RelativePath));
+            foreach (var (folder, characterId, files) in plan.Alts)
+            {
+                receipt.Items.Add(new OneClickItem
+                {
+                    Kind = OneClickKind.Alt,
+                    Id = characterId,
+                    RelativePath = folder,
+                    FullPath = Path.Combine(receipt.ExtractedRoot, folder),
+                    Selected = true,
+                    OriginalName = Path.GetFileName(folder),
+                    Files = files.Select(f => (f.ResourceId, Path.Combine(receipt.ExtractedRoot, f.Path))).ToList()
+                });
+            }
+            receipt.LeftOutVanilla += plan.Vanilla;
+            receipt.LeftOutAnnouncer += plan.Announcer;
+            DebugLogger.Log($"[oneclick] alts groups={plan.Alts.Count} vanilla={plan.Vanilla} announcer={plan.Announcer}");
         }
 
         /// <summary>The error shown before download when GameBanana's file list has no SSF2 game files.</summary>
@@ -375,6 +508,17 @@ namespace SSF2ModManager.Services
             var songs = selected.Where(i => i.Kind == OneClickKind.Song).ToList();
             var stages = selected.Where(i => i.Kind == OneClickKind.Stage).ToList();
             var characters = selected.Where(i => i.Kind == OneClickKind.Character).ToList();
+            var alts = selected.Where(i => i.Kind == OneClickKind.Alt).ToList();
+
+            foreach (var alt in alts)
+            {
+                var name = alt.DisplayName == null
+                    ? CharacterAltsService.NameFromFolder(alt.OriginalName ?? "", alt.Id)
+                    : string.IsNullOrWhiteSpace(alt.DisplayName) ? null : alt.DisplayName.Trim();
+                progress?.Report($"Adding alt {name ?? alt.Id}…");
+                var folder = CharacterAltsService.Install(shellRoot, gameBananaModId, alt.Id!, name, alt.Files, alt.OriginalName);
+                installed.Add((OneClickKind.Alt, folder));
+            }
 
             var taken = TakenSongIds(shellRoot);
             var map = PlanSongIds(songs.Select(s => s.Id ?? ""), taken);
@@ -478,7 +622,7 @@ namespace SSF2ModManager.Services
                 try { Directory.Delete(Path.GetDirectoryName(copy)!, true); } catch { }
             }
             GameBananaInstalls.Record(shellRoot, gameBananaModId, gameBananaFileId, modName, installed);
-            DebugLogger.Log($"[oneclick] installed stages={stages.Count} characters={characters.Count} songs={songs.Count}");
+            DebugLogger.Log($"[oneclick] installed stages={stages.Count} characters={characters.Count} songs={songs.Count} alts={alts.Count}");
         }
 
         /// <summary>
@@ -749,6 +893,8 @@ namespace SSF2ModManager.Services
         {
             if (item.Kind == OneClickKind.Song)
                 return item.Id ?? Path.GetFileNameWithoutExtension(item.RelativePath);
+            if (item.Kind == OneClickKind.Alt)
+                return CharacterAltsService.NameFromFolder(item.OriginalName ?? "", item.Id) ?? "";
             var alone = receipt.Items.Count(i => i.Kind == item.Kind && i.Selected) == 1 && item.Selected;
             if (alone && !string.IsNullOrWhiteSpace(modName))
                 return modName.Trim();
