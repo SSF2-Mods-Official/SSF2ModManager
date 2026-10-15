@@ -657,8 +657,10 @@ namespace SSF2ModManager.Views
                 var scopeNote = costume.HasValue ? "costume " + costume : "all costumes";
                 TxtAltWork.Text = "Installed " + folder + " (" + scopeNote + ").";
                 AppendLog("Installed alt " + (name ?? character) + " → " + folder + " " + scopeNote + " sounds=" + count);
-                MessageBox.Show("Alt installed (" + scopeNote + ").", "Character Alts",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                var msg = "Alt installed (" + scopeNote + ").";
+                if (costume.HasValue)
+                    msg += "\n\nThis voice applies only when that costume is selected (typically a Color Vault / local costume).";
+                MessageBox.Show(msg, "Character Alts", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {

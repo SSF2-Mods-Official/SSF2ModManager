@@ -28,6 +28,9 @@
                             Click="BtnPick_Click"/>
                     <TextBox x:Name="TxtCostume" Text="-1"/>
                 </DockPanel>
+                <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,0,0,6"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Text="This alt applies only when that costume is selected — usually a Color Vault / local costume."/>
                 <TextBlock x:Name="TxtPickStatus" TextWrapping="Wrap" FontSize="12"
                            Foreground="{DynamicResource TextSecondaryBrush}"/>
             </StackPanel>

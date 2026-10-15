@@ -189,8 +189,8 @@
                                     Click="BtnAltPickCostume_Click"/>
                             <TextBox x:Name="TxtAltCostume" Text="-1"/>
                         </DockPanel>
-                        <TextBlock Text="Opens Character Select with this character and the costume grid. Click costumes to update the index."
-                                   TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
+                        <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
+                                   Text="Opens Character Select with this character and the costume grid. The voice alt applies only when that costume is selected — usually a Color Vault / local costume, not every palette slot."/>
                     </StackPanel>
                     <Button Content="Install alt" Style="{StaticResource AccentButton}" Padding="14,8"
                             HorizontalAlignment="Left" Click="BtnAltInstall_Click"/>

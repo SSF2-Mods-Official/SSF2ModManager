@@ -118,6 +118,17 @@ namespace SSF2ModManager.Views
             }
             try
             {
+                if (scope == "costume")
+                {
+                    var warn = MessageBox.Show(
+                        "This alt will apply only when costume " + costume
+                        + " is selected (typically a Color Vault / local costume).\n\nSave anyway?",
+                        "Local costume",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Information);
+                    if (warn != MessageBoxResult.Yes)
+                        return;
+                }
                 CharacterAltsService.Update(_shell, _entry.Folder, TxtName.Text, scope, costume);
                 _pickTimer?.Stop();
                 DialogResult = true;
