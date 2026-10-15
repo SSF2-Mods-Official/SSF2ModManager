@@ -169,12 +169,29 @@
                 </StackPanel>
 
                 <StackPanel x:Name="PanelAlts" Visibility="Collapsed">
-                    <TextBlock Text="Install extracts the character's sounds and adds a voice alt (all costumes). Edit scope, name, or costume tying later under Manage Mods."
+                    <TextBlock Text="Install extracts the character's sounds and adds a voice alt. You can still edit later under Manage Mods → Alts."
                                TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10"/>
                     <TextBlock Text="Character" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                     <ComboBox x:Name="CmbAltCharacter" Margin="0,0,0,8"/>
                     <TextBlock Text="Alt name (optional)" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
-                    <TextBox x:Name="TxtAltName" Margin="0,0,0,10"/>
+                    <TextBox x:Name="TxtAltName" Margin="0,0,0,8"/>
+                    <TextBlock Text="Apply to" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <RadioButton x:Name="RadAltAll" Content="All costumes" IsChecked="True" Margin="0,0,16,0"
+                                     Foreground="{DynamicResource TextPrimaryBrush}" Checked="RadAltScope_Changed"/>
+                        <RadioButton x:Name="RadAltCostume" Content="Specific costume"
+                                     Foreground="{DynamicResource TextPrimaryBrush}" Checked="RadAltScope_Changed"/>
+                    </StackPanel>
+                    <StackPanel x:Name="PanelAltCostumePick" Visibility="Collapsed" Margin="0,0,0,8">
+                        <TextBlock Text="Costume index (−1 = base)" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                        <DockPanel Margin="0,0,0,8">
+                            <Button DockPanel.Dock="Right" Content="Pick in game…" Padding="12,6" Margin="8,0,0,0"
+                                    Click="BtnAltPickCostume_Click"/>
+                            <TextBox x:Name="TxtAltCostume" Text="-1"/>
+                        </DockPanel>
+                        <TextBlock Text="Opens Character Select with this character and the costume grid. Click costumes to update the index."
+                                   TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
+                    </StackPanel>
                     <Button Content="Install alt" Style="{StaticResource AccentButton}" Padding="14,8"
                             HorizontalAlignment="Left" Click="BtnAltInstall_Click"/>
                     <TextBlock x:Name="TxtAltWork" TextWrapping="Wrap" Margin="0,10,0,0"
