@@ -19,7 +19,7 @@ namespace SSF2ModManager.Views
         public const int MusicCategory = 49485;
         /// <summary>Stand-in until the GameBanana category id is known. Zero reads the game feed instead.</summary>
         public const int PlaceholderCategory = 0;
-        private const int FirstLoadPages = 2;
+        private const int ShowPerLoad = 200;
 
         private readonly GameBananaApiClient _api = new();
         private readonly List<BrowseRow> _rows = new();
@@ -50,7 +50,7 @@ namespace SSF2ModManager.Views
             Loaded += async (_, _) =>
             {
                 if (_rows.Count == 0)
-                    await LoadMoreAsync(FirstLoadPages);
+                    await LoadMoreAsync();
             };
         }
 
@@ -61,10 +61,10 @@ namespace SSF2ModManager.Views
             ApplyFilter();
             BtnMore.IsEnabled = !_loading && HasMoreForFilter();
             if (LstMods.Items.Count == 0 && HasMoreForFilter())
-                await LoadMoreAsync(1);
+                await LoadMoreAsync();
         }
 
-        private async void BtnMore_Click(object sender, RoutedEventArgs e) => await LoadMoreAsync(1);
+        private async void BtnMore_Click(object sender, RoutedEventArgs e) => await LoadMoreAsync();
 
         private void BtnPage_Click(object sender, RoutedEventArgs e)
         {
@@ -88,7 +88,7 @@ namespace SSF2ModManager.Views
                         MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
-                launcher.ReceiveOneClick($"ssf2mm:https://gamebanana.com/mmdl/{file.Id},Mod,{row.Mod.Id}");
+                launcher.ReceiveOneClick($"ssf2mm:https://gamebanana.com/mmdl/{file.Id},Mod,{row.Mod.Id}", row.Name);
             }
             catch (Exception ex)
             {
@@ -98,26 +98,31 @@ namespace SSF2ModManager.Views
             }
         }
 
-        private async Task LoadMoreAsync(int pages)
+        /// <summary>Reads pages until <see cref="ShowPerLoad"/> more mods are shown or the feeds end.</summary>
+        private async Task LoadMoreAsync()
         {
             if (_loading)
                 return;
             _loading = true;
             BtnMore.IsEnabled = false;
-            TxtStatus.Text = "Loading…";
-            var added = new List<BrowseRow>();
+            var target = ShownCount() + ShowPerLoad;
+            var pages = 0;
             try
             {
-                for (var i = 0; i < pages; i++)
+                while (ShownCount() < target && HasMoreForFilter())
                 {
+                    var added = new List<BrowseRow>();
                     foreach (var feed in FeedsForFilter())
                     {
                         if (feed.More)
                             added.AddRange(await PullAsync(feed));
                     }
+                    pages++;
+                    TxtStatus.Text = $"Loading… {ShownCount()} mod(s) so far, checking {added.Count} more";
+                    await LoadDetailsAsync(added);
+                    ApplyFilter();
                 }
-                ApplyFilter();
-                BtnMore.IsEnabled = HasMoreForFilter();
+                DebugLogger.Log($"[browse] load pages={pages} shown={ShownCount()} more={(HasMoreForFilter() ? 1 : 0)}");
             }
             catch (Exception ex)
             {
@@ -126,10 +131,11 @@ namespace SSF2ModManager.Views
             finally
             {
                 _loading = false;
+                BtnMore.IsEnabled = HasMoreForFilter();
             }
-            if (added.Count > 0)
-                await LoadDetailsAsync(added);
         }
+
+        private int ShownCount() => _rows.Count(r => r.Visible(SelectedFilter(), "", ChkNineB.IsChecked == true));
 
         private async Task<List<BrowseRow>> PullAsync(CategoryFeed feed)
         {
@@ -170,7 +176,6 @@ namespace SSF2ModManager.Views
         private async Task LoadDetailsAsync(List<BrowseRow> rows)
         {
             var failed = 0;
-            var hiddenBefore = rows.Count(r => r.NineBOnly);
             await Task.WhenAll(rows.Select(async row =>
             {
                 await _detailGate.WaitAsync();
@@ -190,12 +195,11 @@ namespace SSF2ModManager.Views
                 }
                 finally
                 {
+                    row.Checked = true;
                     _detailGate.Release();
                 }
             }));
             DebugLogger.Log($"[browse] details mods={rows.Count} failed={failed}");
-            if (rows.Count(r => r.NineBOnly) != hiddenBefore)
-                ApplyFilter();
         }
 
         private void ApplyFilter()
@@ -203,13 +207,8 @@ namespace SSF2ModManager.Views
             var filter = SelectedFilter();
             var q = (TxtSearch.Text ?? "").Trim();
             var showNineB = ChkNineB.IsChecked == true;
-            var matching = _rows.Where(r =>
-                (filter == "all" || r.Kind == filter)
-                && (q.Length == 0
-                    || r.Name.Contains(q, StringComparison.OrdinalIgnoreCase)
-                    || r.Byline.Contains(q, StringComparison.OrdinalIgnoreCase))).ToList();
-            var shown = matching.Where(r => showNineB || !r.NineBOnly).ToList();
-            var hidden = matching.Count - shown.Count;
+            var shown = _rows.Where(r => r.Visible(filter, q, showNineB)).ToList();
+            var hidden = _rows.Count(r => r.Visible(filter, q, true)) - shown.Count;
             LstMods.ItemsSource = shown;
             TxtStatus.Text = shown.Count + " mod(s)"
                 + (hidden > 0 ? $", {hidden} 9B mod(s) hidden" : "")
@@ -266,7 +265,17 @@ namespace SSF2ModManager.Views
             public string Kind { get; set; } = "";
 
             public string Name => string.IsNullOrWhiteSpace(Mod.Name) ? "Mod " + Mod.Id : Mod.Name;
-            public bool NineBOnly => BrowseModFilter.IsNineBOnly(Mod);
+            /// <summary>Details loaded or failed; until then the description has not been checked for 9B.</summary>
+            public bool Checked { get; set; }
+            public bool NineB => BrowseModFilter.MentionsNineB(Mod);
+
+            public bool Visible(string filter, string query, bool showNineB) =>
+                Checked
+                && (filter == "all" || Kind == filter)
+                && (query.Length == 0
+                    || Name.Contains(query, StringComparison.OrdinalIgnoreCase)
+                    || Byline.Contains(query, StringComparison.OrdinalIgnoreCase))
+                && (showNineB || !NineB);
             public string? PreviewUrl => Mod.PreviewMedia?.Images?.FirstOrDefault()?.ThumbnailUrl;
 
             public string Byline

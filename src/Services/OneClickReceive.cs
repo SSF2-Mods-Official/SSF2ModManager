@@ -104,9 +104,10 @@ namespace SSF2ModManager.Services
             var temp = Path.Combine(Path.GetTempPath(), "ssf2mm-oneclick-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(temp);
             var partial = Path.Combine(temp, "download.bin");
-            await using (var stream = await response.Content.ReadAsStreamAsync(cancellationToken))
-            await using (var file = File.Create(partial))
+            try
             {
+                await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+                await using var file = File.Create(partial);
                 var buffer = new byte[81920];
                 long received = 0;
                 int read;
@@ -116,6 +117,11 @@ namespace SSF2ModManager.Services
                     received += read;
                     progress?.Report(new DownloadProgress { Received = received, Total = total });
                 }
+            }
+            catch
+            {
+                try { Directory.Delete(temp, true); } catch { }
+                throw;
             }
 
             var ext = ExtensionFromMagic(partial);
@@ -245,6 +251,25 @@ namespace SSF2ModManager.Services
 
             PreferOwnSlot(receipt.Items);
             return receipt;
+        }
+
+        /// <summary>The error shown instead of an empty confirm list, or null when something can be installed.</summary>
+        public static string? NothingToInstallMessage(OneClickReceipt receipt, string? modName = null)
+        {
+            if (receipt.IsPack || receipt.Items.Count > 0)
+                return null;
+            var name = string.IsNullOrWhiteSpace(modName) ? "This mod" : modName;
+            var lines = new List<string> { name + " can't be installed in SSF2 Shell. None of its files are supported.", "" };
+            if (receipt.LeftOutNineB > 0)
+                lines.Add($"• {receipt.LeftOutNineB} file(s) are made for SSF2 0.9b, which SSF2 Shell can't load.");
+            if (receipt.LeftOutUnknown > 0)
+                lines.Add($"• {receipt.LeftOutUnknown} file(s) aren't a character, stage or song the manager recognizes.");
+            if (receipt.LeftOutNineB == 0 && receipt.LeftOutUnknown == 0)
+                lines.Add("• The download has no SSF2 game files (.ssf or .swf).");
+            lines.Add("");
+            lines.Add("SSF2 Shell is built on SSF2 Beta 1.4.0.1. Check the mod's GameBanana page for a Beta 1.4 version.");
+            DebugLogger.Log($"[oneclick] nothing to install nineb={receipt.LeftOutNineB} unknown={receipt.LeftOutUnknown}");
+            return string.Join("\n", lines);
         }
 
         /// <summary>

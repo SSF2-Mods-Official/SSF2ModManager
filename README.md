@@ -7,7 +7,7 @@ A Windows launcher and mod manager for **Super Smash Flash 2**. It builds **SSF2
 ## Features
 
 - Guided setup: builds SSF2 Shell from your SSF2 Beta 1.4.0.1 and keeps it up to date
-- Download Mods: browse and install SSF2 mods from GameBanana (0.9b-only mods hidden unless you ask)
+- Download Mods: browse and install SSF2 mods from GameBanana (mods that mention 0.9b are hidden unless you ask)
 - 1-Click installs from GameBanana (`ssf2mm:` links)
 - Manage Mods: turn SSF2 Shell mods on or off and change their settings
 - Make Mods: events, costumes, music, boot intros, stages and characters, plus packaging and file tools

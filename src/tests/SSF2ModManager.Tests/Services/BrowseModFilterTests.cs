@@ -14,36 +14,50 @@ namespace SSF2ModManager.Tests.Services
         [InlineData("Hyper’s 9b Sonic Edit", "")]
         [InlineData("(V0.9B) Brawlhalla Crystal Temple Port", "")]
         [InlineData("SSF2 Mods: My Old Mods", "V0.9b")]
-        public void NineBOnly_Hidden(string name, string version)
-        {
-            Assert.True(BrowseModFilter.IsNineBOnly(new GameBananaMod { Name = name, Version = version }));
-        }
-
-        [Theory]
         [InlineData("Super Sonic God [0.9B + SANDBOX]", "")]
         [InlineData("Bowletta's Throne (M&LSS) [SSF2 V.9b/Sandbox]", "")]
         [InlineData("Fieldbattle (v0.9b) & (Beta 1.4.0.1)", "")]
+        public void AnyNineBMention_Hidden(string name, string version)
+        {
+            Assert.True(BrowseModFilter.MentionsNineB(new GameBananaMod { Name = name, Version = version }));
+        }
+
+        [Theory]
         [InlineData("Pillarmen Stage | Jojo's Bizarre Adventure", "Beta 1.4")]
         [InlineData("[Beta 1.4] Smash Ultimate Mr. Game & Watch", "")]
         [InlineData("Lionel Messi", "")]
         [InlineData("Q9B Robot", "29b")]
         public void Others_Listed(string name, string version)
         {
-            Assert.False(BrowseModFilter.IsNineBOnly(new GameBananaMod { Name = name, Version = version }));
+            Assert.False(BrowseModFilter.MentionsNineB(new GameBananaMod { Name = name, Version = version }));
         }
 
         [Fact]
-        public void NineBOnly_ReadsDescription()
+        public void NineB_ReadsDescription()
         {
             var cr7 = new GameBananaMod
             {
-                Name = "Cristiano Ronaldo (CR7)",
+                Name = "Cristiano ronaldo! (Joke mod)",
                 FullText = "This Cristiano Ronaldo mod is made as a joke, it contains various memes and references to CR7, " +
                            "Real Madrid, and other football players!<br><br>(0.9b)"
             };
-            Assert.True(BrowseModFilter.IsNineBOnly(cr7));
+            Assert.True(BrowseModFilter.MentionsNineB(cr7));
             cr7.FullText += "<br>Also works in Sandbox.";
-            Assert.False(BrowseModFilter.IsNineBOnly(cr7));
+            Assert.True(BrowseModFilter.MentionsNineB(cr7));
+        }
+
+        [Fact]
+        public void NothingToInstall_ExplainsWhy()
+        {
+            Assert.Null(OneClickReceive.NothingToInstallMessage(new OneClickReceipt
+            {
+                Items = { new OneClickItem { Kind = OneClickKind.Stage, RelativePath = "s.ssf" } }
+            }));
+            var nine = OneClickReceive.NothingToInstallMessage(new OneClickReceipt { LeftOutNineB = 12, LeftOutUnknown = 3 }, "CR7");
+            Assert.Contains("CR7 can't be installed", nine);
+            Assert.Contains("12 file(s) are made for SSF2 0.9b", nine);
+            Assert.Contains("3 file(s) aren't", nine);
+            Assert.Contains("no SSF2 game files", OneClickReceive.NothingToInstallMessage(new OneClickReceipt()));
         }
 
         [Fact]

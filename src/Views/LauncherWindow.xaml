@@ -195,6 +195,9 @@
                 <ProgressBar x:Name="BusyProgress" Width="280" Height="8" Margin="0,12,0,0"
                              Minimum="0" Maximum="1" Value="0"
                              Foreground="{DynamicResource AccentBrush}" Background="#33FFFFFF"/>
+                <Button x:Name="BtnBusyCancel" Content="Cancel" Visibility="Collapsed" HorizontalAlignment="Center"
+                        Margin="0,14,0,0" Padding="16,6" Style="{StaticResource LauncherGhost}"
+                        Click="BtnBusyCancel_Click"/>
             </StackPanel>
         </Grid>
     </Grid>

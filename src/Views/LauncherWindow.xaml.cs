@@ -346,9 +346,18 @@ namespace SSF2ModManager.Views
             return ShellWorkspaceService.FindShellFolder();
         }
 
-        public void ReceiveOneClick(string url) => _ = ReceiveOneClickAsync(url);
+        public void ReceiveOneClick(string url, string? modName = null) => _ = ReceiveOneClickAsync(url, modName);
 
-        private async System.Threading.Tasks.Task ReceiveOneClickAsync(string url)
+        private System.Threading.CancellationTokenSource? _downloadCancel;
+
+        private void BtnBusyCancel_Click(object sender, RoutedEventArgs e)
+        {
+            BtnBusyCancel.IsEnabled = false;
+            TxtBusy.Text = "Canceling…";
+            _downloadCancel?.Cancel();
+        }
+
+        private async System.Threading.Tasks.Task ReceiveOneClickAsync(string url, string? modName)
         {
             if (!ProtocolService.TryParse(url, out var req))
             {
@@ -389,10 +398,27 @@ namespace SSF2ModManager.Views
                         BusyProgress.IsIndeterminate = true;
                     }
                 });
-                download = await OneClickReceive.DownloadAsync(req.ArchiveUrl, downloadProgress);
+                _downloadCancel = new System.Threading.CancellationTokenSource();
+                BtnBusyCancel.IsEnabled = true;
+                BtnBusyCancel.Visibility = Visibility.Visible;
+                try
+                {
+                    download = await OneClickReceive.DownloadAsync(req.ArchiveUrl, downloadProgress, _downloadCancel.Token);
+                }
+                finally
+                {
+                    BtnBusyCancel.Visibility = Visibility.Collapsed;
+                }
                 LockForWork(true, "Reading the download…");
                 receipt = OneClickReceive.ClassifyArchive(download);
                 LockForWork(false, "");
+                var nothing = OneClickReceive.NothingToInstallMessage(receipt, modName);
+                if (nothing != null)
+                {
+                    SetStatus("Not installed", "No supported files in the download.");
+                    MessageBox.Show(nothing, "Can't install this mod", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
                 var dlg = new OneClickReceiveWindow(receipt) { Owner = this };
                 if (dlg.ShowDialog() != true)
                     return;
@@ -403,6 +429,12 @@ namespace SSF2ModManager.Views
                 SetStatus("1-Click", "Import finished.");
                 MessageBox.Show("Import finished.", "1-Click Install",
                     MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (OperationCanceledException) when (_downloadCancel?.IsCancellationRequested == true)
+            {
+                LockForWork(false, "");
+                DebugLogger.Log($"[oneclick] canceled file={fileId}");
+                SetStatus("Download canceled");
             }
             catch (Exception ex)
             {
