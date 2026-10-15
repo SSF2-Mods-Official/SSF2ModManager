@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Light theme -->
+  <Color x:Key="BackgroundColor">#FFFFFFFF</Color>
+  <Color x:Key="CardColor">#FFE4E4E8</Color>
+  <Color x:Key="TextPrimaryColor">#FF222222</Color>
+  <Color x:Key="TextSecondaryColor">#FF666666</Color>
+  <Color x:Key="AccentColor">#FF0066CC</Color>
+  <Color x:Key="PrimaryDarkColor">#FF004C99</Color>
+  <Color x:Key="OnAccentColor">#FFFFFFFF</Color>
+  <Color x:Key="OnPrimaryColor">#FFFFFFFF</Color>
+
+  <Color x:Key="BorderColor">#FFCCCCCC</Color>
+
+  <!-- Sidebar and surface keys so app areas update correctly -->
+  <Color x:Key="SidebarColor">#FFE4E4E8</Color>
+  <Color x:Key="SurfaceColor">#FFE4E4E8</Color>
+
+  <!-- Selection (used for highlights) -->
+  <Color x:Key="SelectionBackgroundColor">#FF0066CC</Color>
+  <Color x:Key="SelectionForegroundColor">#FFFFFFFF</Color>
+
+  <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}"/>
+  <SolidColorBrush x:Key="CardBrush" Color="{StaticResource CardColor}"/>
+  <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}"/>
+  <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}"/>
+  <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+  <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource AccentColor}"/>
+  <SolidColorBrush x:Key="SidebarBrush" Color="{StaticResource SidebarColor}"/>
+  <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}"/>
+  <SolidColorBrush x:Key="SelectionBackgroundBrush" Color="{StaticResource SelectionBackgroundColor}"/>
+  <SolidColorBrush x:Key="SelectionForegroundBrush" Color="{StaticResource SelectionForegroundColor}"/>
+  <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
+</ResourceDictionary>

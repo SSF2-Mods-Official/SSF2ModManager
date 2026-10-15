@@ -1,0 +1,61 @@
+<Window x:Class="SSF2ModManager.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Settings" Width="520" Height="760"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource BackgroundBrush}"
+        ResizeMode="NoResize">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20">
+            <TextBlock Text="Language" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+            <ComboBox x:Name="CmbLanguage" Style="{StaticResource DarkComboBox}" Margin="0,0,0,16"
+                      SelectionChanged="CmbLanguage_SelectionChanged"/>
+
+            <TextBlock Text="Theme" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+            <ComboBox x:Name="CmbTheme" Style="{StaticResource DarkComboBox}" Margin="0,0,0,16"
+                      SelectionChanged="CmbTheme_SelectionChanged"/>
+
+            <CheckBox x:Name="ChkUpdateAuto" Content="Update automatically"
+                      Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"
+                      Checked="ChkUpdateAuto_Changed" Unchecked="ChkUpdateAuto_Changed"/>
+
+            <CheckBox x:Name="ChkBlurPaths" Content="Blur file paths"
+                      Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"
+                      ToolTip="Hides the shell folder path so screenshots do not show your username."
+                      Checked="ChkBlurPaths_Changed" Unchecked="ChkBlurPaths_Changed"/>
+
+            <TextBlock Text="Data folder" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+            <CheckBox x:Name="ChkCompressData" Content="Compress data folder (.ssf)"
+                      Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"
+                      ToolTip="Compressed files are the zlib package the game uncompresses, named .ssf. Uncheck to write plain .swf files. The game opens whichever of the two is on disk. engine and ssf2mm are left alone."
+                      Checked="ChkCompressData_Changed" Unchecked="ChkCompressData_Changed"/>
+            <TextBlock x:Name="TxtCompress" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,16"
+                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+
+            <TextBlock Text="Debug editor" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+            <ComboBox x:Name="CmbIde" Style="{StaticResource DarkComboBox}" Margin="0,0,0,16"
+                      SelectionChanged="CmbIde_SelectionChanged"/>
+
+            <TextBlock Text="Next2Flash" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+            <TextBlock Text="A download is placed in the folder next to SSF2 Shell." FontSize="12"
+                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6" TextWrapping="Wrap"/>
+            <DockPanel Margin="0,0,0,16">
+                <Button Content="Change" DockPanel.Dock="Right" Margin="8,0,0,0"
+                        Style="{StaticResource ModernButton}" Padding="12,6" Click="BtnNext2Flash_Click"/>
+                <TextBox x:Name="TxtNext2Flash" IsReadOnly="True" Style="{StaticResource ModernTextBox}"/>
+            </DockPanel>
+
+            <TextBlock Text="Setup" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+            <TextBlock Text="Next2Flash, SSF2 Beta 1.4.0.1, building SSF2 Shell, and debugging." FontSize="12"
+                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6" TextWrapping="Wrap"/>
+            <Button Content="Run setup" HorizontalAlignment="Left" Margin="0,0,0,16"
+                    Style="{StaticResource ModernButton}" Padding="12,6" Click="BtnSetup_Click"/>
+
+            <TextBlock Text="Menu background" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+            <TextBlock Text="Stage used as the menu backdrop." FontSize="12"
+                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6" TextWrapping="Wrap"/>
+            <ComboBox x:Name="CmbMenuBg" Style="{StaticResource DarkComboBox}"
+                      SelectionChanged="CmbMenuBg_SelectionChanged"/>
+        </StackPanel>
+    </ScrollViewer>
+</Window>

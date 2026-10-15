@@ -1,0 +1,27 @@
+<UserControl x:Class="SSF2ModManager.Views.ShellScaffoldPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="24,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock x:Name="TxtTitle" FontSize="22" FontWeight="SemiBold"
+                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+        <Border Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20"
+                VerticalAlignment="Top">
+            <StackPanel>
+                <TextBlock x:Name="TxtDescription" FontSize="13" TextWrapping="Wrap"
+                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+                <TextBlock x:Name="TxtStatus" FontSize="12" TextWrapping="Wrap" Margin="0,14,0,0"
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                    <Button x:Name="BtnAction" Style="{StaticResource AccentButton}" Padding="16,8"
+                            Click="BtnAction_Click" Visibility="Collapsed"/>
+                    <Button x:Name="BtnSecondary" Style="{StaticResource ModernButton}" Padding="14,8"
+                            Margin="8,0,0,0" Click="BtnSecondary_Click" Visibility="Collapsed"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

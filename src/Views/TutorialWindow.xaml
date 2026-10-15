@@ -1,0 +1,28 @@
+<Window x:Class="SSF2ModManager.Views.TutorialWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Tutorial" Height="320" Width="520" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" WindowStyle="ToolWindow"
+        Background="{DynamicResource SurfaceBrush}">
+    <Grid Margin="12">
+        <Border Background="{DynamicResource CardBrush}" Padding="12" CornerRadius="6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock x:Name="TxtTitle" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,8,0,8">
+                    <TextBlock x:Name="TxtBody" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                </ScrollViewer>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="BtnBack" Content="Back" Width="80" Margin="0,0,8,0" Click="BtnBack_Click" Style="{StaticResource ModernButton}" Foreground="{DynamicResource TextPrimaryBrush}" />
+                    <Button x:Name="BtnNext" Content="Next" Width="80" Margin="0,0,8,0" Click="BtnNext_Click" Style="{StaticResource ModernButton}" Foreground="{DynamicResource TextPrimaryBrush}" />
+                    <Button x:Name="BtnSkip" Content="Skip" Width="80" Click="BtnSkip_Click" Style="{StaticResource ModernButton}" Foreground="{DynamicResource TextPrimaryBrush}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

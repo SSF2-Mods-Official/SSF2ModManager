@@ -1,0 +1,49 @@
+<Window x:Class="SSF2ModManager.Views.GameDebugConsoleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Game Debug Console"
+        Width="820" Height="520"
+        MinWidth="480" MinHeight="320"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        WindowStartupLocation="CenterOwner">
+    <DockPanel Margin="12">
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+            <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,12,0">
+                <TextBlock x:Name="TxtPatchStatus" FontSize="12" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           Text="Patch: checking…"/>
+                <TextBlock x:Name="TxtStatus" Margin="0,2,0,0" FontSize="12"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Text="Starting…"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="BtnLaunchCmd" Content="Launch game + debug CMD…" Style="{StaticResource AccentButton}"
+                        Padding="12,6" Margin="0,0,8,0" Click="BtnLaunchCmd_Click"
+                        ToolTip="Opens a separate CMD window that listens and starts SSF2.exe (recommended)"/>
+                <Button x:Name="BtnRetryListen" Content="Retry listen" Style="{StaticResource ModernButton}"
+                        Padding="12,6" Margin="0,0,8,0" Click="BtnRetryListen_Click"
+                        ToolTip="Rebind 127.0.0.1:39333 if the port was busy"/>
+                <Button Content="Clear" Style="{StaticResource ModernButton}" Padding="12,6" Margin="0,0,8,0"
+                        Click="BtnClear_Click"/>
+                <Button Content="Save…" Style="{StaticResource ModernButton}" Padding="12,6" Margin="0,0,8,0"
+                        Click="BtnSave_Click"/>
+                <Button x:Name="BtnInstallPatch" Content="Install / upgrade patch…" Style="{StaticResource ModernButton}"
+                        Padding="12,6" Margin="0,0,8,0" Click="BtnInstallPatch_Click"
+                        ToolTip="Patches SSF2.swf so SSF2API.print and uncaught errors stream here"/>
+                <Button x:Name="BtnEnableDebugFlag" Content="Enable Main.DEBUG…" Style="{StaticResource ModernButton}"
+                        Padding="12,6" Margin="0,0,8,0" Click="BtnEnableDebugFlag_Click"
+                        ToolTip="Flips Main.DEBUGCONST / FORCEDEBUGOFF so the in-game debug console can show prints"/>
+                <Button Content="Close" Style="{StaticResource ModernButton}" Padding="12,6"
+                        Click="BtnClose_Click"/>
+            </StackPanel>
+        </DockPanel>
+        <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" FontSize="11" Margin="0,0,0,8"
+                   Foreground="{DynamicResource TextSecondaryBrush}"
+                   Text="Recommended: use Launch game + debug CMD (own window + ssf2mm-debug.log in the install folder). In-app listen only shows SSF2API.print / uncaught AS3 errors — a hard projector crash may still show nothing. Install/upgrade the engine patch first if status says missing or prints-only."/>
+        <TextBox x:Name="TxtLog" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True"
+                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                 FontFamily="Consolas" FontSize="12"
+                 Background="{DynamicResource CardBrush}"
+                 Foreground="{DynamicResource TextPrimaryBrush}"/>
+    </DockPanel>
+</Window>

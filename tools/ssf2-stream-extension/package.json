@@ -1,0 +1,395 @@
+{
+  "name": "ssf2-stream",
+  "displayName": "SSF2 Stream",
+  "description": "Mirrors SSF2 AIR into Cursor via local MJPEG. F4 opens the stream tab. Set Debug Folder to launch without opening the Shell workspace.",
+  "version": "0.8.21",
+  "publisher": "ssf2-shell",
+  "private": true,
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other", "Debuggers"],
+  "activationEvents": [
+    "onStartupFinished",
+    "onDebug",
+    "onCommand:ssf2Stream.openPanel",
+    "onCommand:ssf2Stream.launchDebug",
+    "onCommand:ssf2Stream.launchExe",
+    "onCommand:ssf2Stream.stopPanel",
+    "onCommand:ssf2Stream.copyLastUncaughtError"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ssf2Stream.openPanel",
+        "title": "SSF2: Open Stream Panel"
+      },
+      {
+        "command": "ssf2Stream.stopPanel",
+        "title": "SSF2: Close Stream Panel"
+      },
+      {
+        "command": "ssf2Stream.openSettings",
+        "title": "SSF2: Open Extension Settings"
+      },
+      {
+        "command": "ssf2Stream.pickDebugFolder",
+        "title": "SSF2: Choose Debug Folder"
+      },
+      {
+        "command": "ssf2Stream.launchDebug",
+        "title": "SSF2: Launch Super Debug"
+      },
+      {
+        "command": "ssf2Stream.launchExe",
+        "title": "SSF2: Launch SSF2"
+      },
+      {
+        "command": "ssf2Stream.restartExe",
+        "title": "SSF2: Restart Game Exe"
+      },
+      {
+        "command": "ssf2Stream.restoreWindow",
+        "title": "SSF2: Restore ADL Window"
+      },
+      {
+        "command": "ssf2Stream.togglePlayFocus",
+        "title": "SSF2: Toggle Play Focus"
+      },
+      {
+        "command": "ssf2Stream.releasePlayFocus",
+        "title": "SSF2: Release Play Focus"
+      },
+      {
+        "command": "ssf2Stream.escapeHold",
+        "title": "SSF2: Escape Hold Pulse"
+      },
+      {
+        "command": "ssf2Stream.gameVk",
+        "title": "SSF2: Send Key To Game"
+      },
+      {
+        "command": "ssf2Stream.markReplFocus",
+        "title": "SSF2: Mark Debug Console Focused"
+      },
+      {
+        "command": "ssf2Stream.copyLastUncaughtError",
+        "title": "SSF2: Copy Last Uncaught Error"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "ssf2Stream.openPanel",
+        "key": "f4",
+        "when": "!ssf2Stream.playFocus"
+      },
+      {
+        "command": "ssf2Stream.togglePlayFocus",
+        "key": "ctrl+shift+f4",
+        "when": "true"
+      },
+      {
+        "command": "ssf2Stream.escapeHold",
+        "key": "escape",
+        "when": "ssf2Stream.playFocus"
+      },
+      {
+        "command": "ssf2Stream.markReplFocus",
+        "key": "ctrl+shift+y",
+        "when": "debugConsoleFocus"
+      },
+      { "command": "ssf2Stream.gameVk", "key": "f1", "when": "ssf2Stream.playFocus", "args": 112 },
+      { "command": "ssf2Stream.gameVk", "key": "f2", "when": "ssf2Stream.playFocus", "args": 113 },
+      { "command": "ssf2Stream.gameVk", "key": "f3", "when": "ssf2Stream.playFocus", "args": 114 },
+      { "command": "ssf2Stream.gameVk", "key": "f4", "when": "ssf2Stream.playFocus", "args": 115 },
+      { "command": "ssf2Stream.gameVk", "key": "f5", "when": "ssf2Stream.playFocus", "args": 116 },
+      { "command": "ssf2Stream.gameVk", "key": "f6", "when": "ssf2Stream.playFocus", "args": 117 },
+      { "command": "ssf2Stream.gameVk", "key": "f7", "when": "ssf2Stream.playFocus", "args": 118 },
+      { "command": "ssf2Stream.gameVk", "key": "f8", "when": "ssf2Stream.playFocus", "args": 119 },
+      { "command": "ssf2Stream.gameVk", "key": "f9", "when": "ssf2Stream.playFocus", "args": 120 },
+      { "command": "ssf2Stream.gameVk", "key": "f10", "when": "ssf2Stream.playFocus", "args": 121 },
+      { "command": "ssf2Stream.gameVk", "key": "f11", "when": "ssf2Stream.playFocus", "args": 122 },
+      { "command": "ssf2Stream.gameVk", "key": "f12", "when": "ssf2Stream.playFocus", "args": 123 }
+    ],
+    "configuration": {
+      "title": "SSF2 Stream",
+      "properties": {
+        "ssf2Stream.debugFolder": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path to the SSF2 Shell game folder (Super Smash Flash 2 Beta.exe) or shell-dev. Launch uses that install directly; there is no build/ subfolder."
+        },
+        "ssf2Stream.launchOnVscStartup": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-open the SSF2 Stream tab when VS Code / Cursor starts (recommended when opening from the Mod Manager launcher)."
+        },
+        "ssf2Stream.autoOpenOnDebug": {
+          "type": "boolean",
+          "default": true,
+          "description": "When an SSF2 debug session starts, open the Stream panel automatically."
+        },
+        "ssf2Stream.focusDebugConsole": {
+          "type": "boolean",
+          "default": true,
+          "description": "After F5, focus the Debug Console."
+        },
+        "ssf2Stream.autoScrollDebugConsole": {
+          "type": "boolean",
+          "default": true,
+          "description": "Every 5s while SSF2 is debugging, scroll the Debug Console to the bottom if you are not focused in it (skipped during Play Focus)."
+        },
+        "ssf2Stream.closePanelStopsDebug": {
+          "type": "boolean",
+          "default": true,
+          "description": "Closing the stream panel stops the SSF2 debug session."
+        },
+        "ssf2Stream.viewAdlWindow": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the real ADL/game window. Off parks it off-screen. Remembered across sessions (default on)."
+        },
+        "ssf2Stream.hideIdeChrome": {
+          "type": "boolean",
+          "default": false,
+          "description": "When launching, hide sidebar/other editors and keep SSF2 Stream + Debug Console until the game closes."
+        },
+        "ssf2Stream.superDebug": {
+          "type": "boolean",
+          "default": false,
+          "description": "When Launch SSF2 is pressed, attach the SWF debugger (as3mxml) instead of spawning raw ADL. Command palette “Launch Super Debug” always uses the debugger."
+        },
+        "ssf2Stream.pauseMusicOnLaunch": {
+          "type": "boolean",
+          "default": true,
+          "description": "Pause/stop Match setup music preview when Launch SSF2 starts."
+        },
+        "ssf2Stream.autoCopyUncaughtErrors": {
+          "type": "boolean",
+          "default": false,
+          "description": "When ssf2_stream logs an UNCAUGHT error, copy data/ssf2mm/state/last_error.txt to the clipboard automatically."
+        },
+        "ssf2Stream.autoContinueOnUncaught": {
+          "type": "boolean",
+          "default": true,
+          "description": "During Launch Debug, automatically Continue when game.log shows an UNCAUGHT line (SWF debugger pauses even after AIR dialog dismiss)."
+        },
+        "ssf2Stream.bootIntro": {
+          "type": "string",
+          "default": "default",
+          "description": "Which intro to play when Starting Menu is Home (default|skip|intro1|intro2|intro3|random|custom:<id>)."
+        },
+        "ssf2Stream.vaultAction": {
+          "type": "string",
+          "default": "intro",
+          "enum": ["intro", "costumes"],
+          "description": "When Starting Menu is Vault: play an intro reel first, or open Palette Maker for a character."
+        },
+        "ssf2Stream.vaultIntro": {
+          "type": "string",
+          "default": "intro3",
+          "description": "Intro to play when Vault action is Select intro (intro1|intro2|intro3|random|custom:<id>|skip)."
+        },
+        "ssf2Stream.vaultPaletteChar": {
+          "type": "string",
+          "default": "mario",
+          "description": "Character to open in Palette Maker when Vault action is Manage costumes."
+        },
+        "ssf2Stream.bootCustomIntros": {
+          "type": "array",
+          "default": [],
+          "description": "User MP4 intros: { id, label, path }.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "label": { "type": "string" },
+              "path": { "type": "string" }
+            }
+          }
+        },
+        "ssf2Stream.bootRandomPool": {
+          "type": "array",
+          "default": [],
+          "description": "Intro keys included when Boot intro is Random (default|intro1|intro2|intro3|custom:<id>). Empty = all eligible.",
+          "items": { "type": "string" }
+        },
+        "ssf2Stream.startingMenu": {
+          "type": "string",
+          "default": "home",
+            "enum": [
+            "home", "group", "online", "data", "options", "controls", "vault", "solo", "events",
+            "versus_css", "training_css", "classic", "allstar", "btt", "hrc",
+            "multiman", "crystal", "rttf", "arena"
+          ],
+          "description": "Menu to open after boot (ssf2_stream mod)."
+        },
+        "ssf2Stream.loadMatchImmediate": {
+          "type": "boolean",
+          "default": false,
+          "description": "When Starting Menu is Versus/Training CSS, load straight into a match."
+        },
+        "ssf2Stream.stayInMatchSetupOnApply": {
+          "type": "boolean",
+          "default": false,
+          "description": "When Apply is used from Match setup, keep the overlay open instead of returning to the stream view."
+        },
+        "ssf2Stream.matchStage": {
+          "type": "string",
+          "default": "battlefield"
+        },
+        "ssf2Stream.matchMusic": {
+          "type": "string",
+          "default": "",
+          "description": "Optional BGM id for preview / future override."
+        },
+        "ssf2Stream.matchCustomModeId": {
+          "type": "string",
+          "default": "",
+          "description": "Solo/arena mode id (BTT/HRC/crystal/multiman/arena)."
+        },
+        "ssf2Stream.matchDifficulty": {
+          "type": "string",
+          "default": "NORMAL",
+          "enum": ["EASY", "NORMAL", "HARD", "INSANE"]
+        },
+        "ssf2Stream.matchScoreLimit": {
+          "type": "number",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 99
+        },
+        "ssf2Stream.matchSpecialModes": {
+          "type": "number",
+          "default": 0,
+          "description": "OR of SpecialMode bitflags for Versus."
+        },
+        "ssf2Stream.matchP1": {
+          "type": "string",
+          "default": "mario"
+        },
+        "ssf2Stream.matchP2": {
+          "type": "string",
+          "default": "fox"
+        },
+        "ssf2Stream.matchP3": {
+          "type": "string",
+          "default": ""
+        },
+        "ssf2Stream.matchP4": {
+          "type": "string",
+          "default": ""
+        },
+        "ssf2Stream.matchP1Human": { "type": "boolean", "default": true },
+        "ssf2Stream.matchP2Human": { "type": "boolean", "default": true },
+        "ssf2Stream.matchP3Human": { "type": "boolean", "default": false },
+        "ssf2Stream.matchP4Human": { "type": "boolean", "default": false },
+        "ssf2Stream.matchP1Level": { "type": "number", "default": 1, "minimum": 1, "maximum": 9 },
+        "ssf2Stream.matchP2Level": { "type": "number", "default": 3, "minimum": 1, "maximum": 9 },
+        "ssf2Stream.matchP3Level": { "type": "number", "default": 3, "minimum": 1, "maximum": 9 },
+        "ssf2Stream.matchP4Level": { "type": "number", "default": 3, "minimum": 1, "maximum": 9 },
+        "ssf2Stream.matchP1Team": { "type": "number", "default": 1 },
+        "ssf2Stream.matchP2Team": { "type": "number", "default": 3 },
+        "ssf2Stream.matchP3Team": { "type": "number", "default": 1 },
+        "ssf2Stream.matchP4Team": { "type": "number", "default": 3 },
+        "ssf2Stream.matchP1Tag": { "type": "string", "default": "", "description": "CSS name tag for P1." },
+        "ssf2Stream.matchP2Tag": { "type": "string", "default": "", "description": "CSS name tag for P2." },
+        "ssf2Stream.matchP3Tag": { "type": "string", "default": "", "description": "CSS name tag for P3." },
+        "ssf2Stream.matchP4Tag": { "type": "string", "default": "", "description": "CSS name tag for P4." },
+        "ssf2Stream.playerTags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Saved CSS name tags for the Match setup dropdown."
+        },
+        "ssf2Stream.playFocus": {
+          "type": "boolean",
+          "default": false,
+          "description": "Play Focus: F-keys go to the game while streaming. Remembered; applies when a game window appears."
+        },
+        "ssf2Stream.matchHazards": {
+          "type": "boolean",
+          "default": true
+        },
+        "ssf2Stream.matchUsingTime": {
+          "type": "boolean",
+          "default": true
+        },
+        "ssf2Stream.matchUsingLives": {
+          "type": "boolean",
+          "default": true
+        },
+        "ssf2Stream.matchLives": {
+          "type": "number",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 99
+        },
+        "ssf2Stream.matchTime": {
+          "type": "number",
+          "default": 8,
+          "minimum": 1,
+          "maximum": 99,
+          "description": "Versus time limit in minutes."
+        },
+        "ssf2Stream.inputForwarding": {
+          "type": "boolean",
+          "default": false,
+          "description": "Forward clicks/keys from the stream panel into the game."
+        },
+        "ssf2Stream.fps": {
+          "type": "number",
+          "default": 30,
+          "minimum": 5,
+          "maximum": 60,
+          "description": "Target stream FPS. Quality auto-tunes to hold this rate."
+        },
+        "ssf2Stream.jpegQuality": {
+          "type": "number",
+          "default": 90,
+          "minimum": 50,
+          "maximum": 100,
+          "description": "Starting MJPEG quality (auto-adjusted toward the FPS target)."
+        },
+        "ssf2Stream.maxStreamLongEdge": {
+          "type": "number",
+          "default": 1280,
+          "minimum": 0,
+          "maximum": 3840,
+          "description": "Downscale stream so the longest side is at most this many pixels (0 = no cap). Lower = smoother; higher = sharper. Browser scales to fill the panel."
+        },
+        "ssf2Stream.windowWaitSeconds": {
+          "type": "number",
+          "default": 60
+        },
+        "ssf2Stream.processNames": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["adl", "Super Smash Flash 2 Beta"]
+        },
+        "ssf2Stream.windowTitleHints": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["Super Smash Flash", "SSF2", "adl"]
+        },
+        "ssf2Stream.pythonPath": {
+          "type": "string",
+          "default": "python"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^4.0.0",
+    "typescript": "^5.8.2"
+  }
+}

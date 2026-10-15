@@ -1,0 +1,771 @@
+{
+  "characters": [
+    {
+      "id": "bandanadee",
+      "label": "Bandanadee"
+    },
+    {
+      "id": "blackmage",
+      "label": "Blackmage"
+    },
+    {
+      "id": "bomberman",
+      "label": "Bomberman"
+    },
+    {
+      "id": "bowser",
+      "label": "Bowser"
+    },
+    {
+      "id": "captainfalcon",
+      "label": "Captainfalcon"
+    },
+    {
+      "id": "chibirobo",
+      "label": "Chibirobo"
+    },
+    {
+      "id": "dedede",
+      "label": "Dedede"
+    },
+    {
+      "id": "donkeykong",
+      "label": "Donkeykong"
+    },
+    {
+      "id": "falco",
+      "label": "Falco"
+    },
+    {
+      "id": "fox",
+      "label": "Fox"
+    },
+    {
+      "id": "gameandwatch",
+      "label": "Gameandwatch"
+    },
+    {
+      "id": "ganondorf",
+      "label": "Ganondorf"
+    },
+    {
+      "id": "goku",
+      "label": "Goku"
+    },
+    {
+      "id": "ichigo",
+      "label": "Ichigo"
+    },
+    {
+      "id": "isaac",
+      "label": "Isaac"
+    },
+    {
+      "id": "jigglypuff",
+      "label": "Jigglypuff"
+    },
+    {
+      "id": "kirby",
+      "label": "Kirby"
+    },
+    {
+      "id": "krystal",
+      "label": "Krystal"
+    },
+    {
+      "id": "link",
+      "label": "Link"
+    },
+    {
+      "id": "lloyd",
+      "label": "Lloyd"
+    },
+    {
+      "id": "lucario",
+      "label": "Lucario"
+    },
+    {
+      "id": "luffy",
+      "label": "Luffy"
+    },
+    {
+      "id": "luigi",
+      "label": "Luigi"
+    },
+    {
+      "id": "mario",
+      "label": "Mario"
+    },
+    {
+      "id": "marth",
+      "label": "Marth"
+    },
+    {
+      "id": "masterhand",
+      "label": "Masterhand"
+    },
+    {
+      "id": "megaman",
+      "label": "Megaman"
+    },
+    {
+      "id": "metaknight",
+      "label": "Metaknight"
+    },
+    {
+      "id": "naruto",
+      "label": "Naruto"
+    },
+    {
+      "id": "ness",
+      "label": "Ness"
+    },
+    {
+      "id": "obama",
+      "label": "Obama"
+    },
+    {
+      "id": "pacman",
+      "label": "Pacman"
+    },
+    {
+      "id": "peach",
+      "label": "Peach"
+    },
+    {
+      "id": "pichu",
+      "label": "Pichu"
+    },
+    {
+      "id": "pikachu",
+      "label": "Pikachu"
+    },
+    {
+      "id": "pit",
+      "label": "Pit"
+    },
+    {
+      "id": "rayman",
+      "label": "Rayman"
+    },
+    {
+      "id": "ryu",
+      "label": "Ryu"
+    },
+    {
+      "id": "samus",
+      "label": "Samus"
+    },
+    {
+      "id": "sandbag",
+      "label": "Sandbag"
+    },
+    {
+      "id": "sheik",
+      "label": "Sheik"
+    },
+    {
+      "id": "simon",
+      "label": "Simon"
+    },
+    {
+      "id": "sonic",
+      "label": "Sonic"
+    },
+    {
+      "id": "sora",
+      "label": "Sora"
+    },
+    {
+      "id": "tails",
+      "label": "Tails"
+    },
+    {
+      "id": "waluigi",
+      "label": "Waluigi"
+    },
+    {
+      "id": "wario",
+      "label": "Wario"
+    },
+    {
+      "id": "yoshi",
+      "label": "Yoshi"
+    },
+    {
+      "id": "zamus",
+      "label": "Zamus"
+    },
+    {
+      "id": "zelda",
+      "label": "Zelda"
+    }
+  ],
+  "stages": [
+    {
+      "id": "battlefield",
+      "label": "Battlefield"
+    },
+    {
+      "id": "battlefield2",
+      "label": "Battlefield 2"
+    },
+    {
+      "id": "bombfactory",
+      "label": "Bombfactory"
+    },
+    {
+      "id": "bowserscastle",
+      "label": "Bowserscastle"
+    },
+    {
+      "id": "butterbuilding",
+      "label": "Butterbuilding"
+    },
+    {
+      "id": "casinonightzone",
+      "label": "Casinonightzone"
+    },
+    {
+      "id": "castlesiege",
+      "label": "Castlesiege"
+    },
+    {
+      "id": "centralhighway",
+      "label": "Centralhighway"
+    },
+    {
+      "id": "chaosshrine",
+      "label": "Chaosshrine"
+    },
+    {
+      "id": "clocktown",
+      "label": "Clocktown"
+    },
+    {
+      "id": "crateria",
+      "label": "Crateria"
+    },
+    {
+      "id": "crystalsmash",
+      "label": "Crystalsmash"
+    },
+    {
+      "id": "crystalsmash2",
+      "label": "Crystalsmash 2"
+    },
+    {
+      "id": "dededearena",
+      "label": "Dededearena"
+    },
+    {
+      "id": "desk",
+      "label": "Desk"
+    },
+    {
+      "id": "devilsmachine",
+      "label": "Devilsmachine"
+    },
+    {
+      "id": "draculascastle",
+      "label": "Draculascastle"
+    },
+    {
+      "id": "dreamland",
+      "label": "Dreamland"
+    },
+    {
+      "id": "emeraldcave",
+      "label": "Emeraldcave"
+    },
+    {
+      "id": "fairyglade",
+      "label": "Fairyglade"
+    },
+    {
+      "id": "finaldestination",
+      "label": "Finaldestination"
+    },
+    {
+      "id": "finalvalley",
+      "label": "Finalvalley"
+    },
+    {
+      "id": "flatzoneplus",
+      "label": "Flatzoneplus"
+    },
+    {
+      "id": "fourside",
+      "label": "Fourside"
+    },
+    {
+      "id": "galaxytours",
+      "label": "Galaxytours"
+    },
+    {
+      "id": "gangplankgalleon",
+      "label": "Gangplankgalleon"
+    },
+    {
+      "id": "greenhillzone",
+      "label": "Greenhillzone"
+    },
+    {
+      "id": "homeruncontest",
+      "label": "Homeruncontest"
+    },
+    {
+      "id": "homeruncontest2",
+      "label": "Homeruncontest 2"
+    },
+    {
+      "id": "huecomundo",
+      "label": "Huecomundo"
+    },
+    {
+      "id": "hylianskies",
+      "label": "Hylianskies"
+    },
+    {
+      "id": "hyrulecastle64",
+      "label": "Hyrulecastle 64"
+    },
+    {
+      "id": "hyruletemple",
+      "label": "Hyruletemple"
+    },
+    {
+      "id": "junglehijinx",
+      "label": "Junglehijinx"
+    },
+    {
+      "id": "jungleisland",
+      "label": "Jungleisland"
+    },
+    {
+      "id": "kingdom1",
+      "label": "Kingdom 1"
+    },
+    {
+      "id": "kingdom2",
+      "label": "Kingdom 2"
+    },
+    {
+      "id": "konohavillage",
+      "label": "Konohavillage"
+    },
+    {
+      "id": "krazoapalace",
+      "label": "Krazoapalace"
+    },
+    {
+      "id": "lakeofrage",
+      "label": "Lakeofrage"
+    },
+    {
+      "id": "locked1",
+      "label": "Locked 1"
+    },
+    {
+      "id": "locked2",
+      "label": "Locked 2"
+    },
+    {
+      "id": "locked3",
+      "label": "Locked 3"
+    },
+    {
+      "id": "lunarcore",
+      "label": "Lunarcore"
+    },
+    {
+      "id": "metalcavern",
+      "label": "Metalcavern"
+    },
+    {
+      "id": "meteovoyage",
+      "label": "Meteovoyage"
+    },
+    {
+      "id": "mushroomkingdom3",
+      "label": "Mushroomkingdom 3"
+    },
+    {
+      "id": "nintendo3ds",
+      "label": "Nintendo 3 Ds"
+    },
+    {
+      "id": "pacmaze",
+      "label": "Pacmaze"
+    },
+    {
+      "id": "palaceoftwilight",
+      "label": "Palaceoftwilight"
+    },
+    {
+      "id": "palutenasshrine",
+      "label": "Palutenasshrine"
+    },
+    {
+      "id": "peachscastle",
+      "label": "Peachscastle"
+    },
+    {
+      "id": "phase8",
+      "label": "Phase 8"
+    },
+    {
+      "id": "planetnamek",
+      "label": "Planetnamek"
+    },
+    {
+      "id": "pokemoncolosseum",
+      "label": "Pokemoncolosseum"
+    },
+    {
+      "id": "racetothefinish",
+      "label": "Racetothefinish"
+    },
+    {
+      "id": "rainbowroute",
+      "label": "Rainbowroute"
+    },
+    {
+      "id": "restarea",
+      "label": "Restarea"
+    },
+    {
+      "id": "saffroncity",
+      "label": "Saffroncity"
+    },
+    {
+      "id": "sandbagbasketball",
+      "label": "Sandbagbasketball"
+    },
+    {
+      "id": "sandbagsoccer",
+      "label": "Sandbagsoccer"
+    },
+    {
+      "id": "sandocean",
+      "label": "Sandocean"
+    },
+    {
+      "id": "saturnvalley",
+      "label": "Saturnvalley"
+    },
+    {
+      "id": "sectorz",
+      "label": "Sectorz"
+    },
+    {
+      "id": "skullfortress",
+      "label": "Skullfortress"
+    },
+    {
+      "id": "skypillar",
+      "label": "Skypillar"
+    },
+    {
+      "id": "skysanctuary",
+      "label": "Skysanctuary"
+    },
+    {
+      "id": "smashville",
+      "label": "Smashville"
+    },
+    {
+      "id": "snowpointtemple",
+      "label": "Snowpointtemple"
+    },
+    {
+      "id": "steeldiver",
+      "label": "Steeldiver"
+    },
+    {
+      "id": "suzakucastle",
+      "label": "Suzakucastle"
+    },
+    {
+      "id": "targettest",
+      "label": "Targettest"
+    },
+    {
+      "id": "targettest2",
+      "label": "Targettest 2"
+    },
+    {
+      "id": "targettest3",
+      "label": "Targettest 3"
+    },
+    {
+      "id": "targettest4",
+      "label": "Targettest 4"
+    },
+    {
+      "id": "theworldthatneverwas",
+      "label": "Theworldthatneverwas"
+    },
+    {
+      "id": "thousandsunny",
+      "label": "Thousandsunny"
+    },
+    {
+      "id": "tinystage",
+      "label": "Tinystage"
+    },
+    {
+      "id": "tourian",
+      "label": "Tourian"
+    },
+    {
+      "id": "towerofsalvation",
+      "label": "Towerofsalvation"
+    },
+    {
+      "id": "traininggrid",
+      "label": "Traininggrid"
+    },
+    {
+      "id": "twilighttown",
+      "label": "Twilighttown"
+    },
+    {
+      "id": "urbanchampion",
+      "label": "Urbanchampion"
+    },
+    {
+      "id": "venuslighthouse",
+      "label": "Venuslighthouse"
+    },
+    {
+      "id": "waitingroom",
+      "label": "Waitingroom"
+    },
+    {
+      "id": "warioware",
+      "label": "Warioware"
+    },
+    {
+      "id": "worldtournament",
+      "label": "Worldtournament"
+    },
+    {
+      "id": "yoshisisland",
+      "label": "Yoshisisland"
+    },
+    {
+      "id": "yoshisisland64",
+      "label": "Yoshisisland 64"
+    },
+    {
+      "id": "yoshisstory",
+      "label": "Yoshisstory"
+    }
+  ],
+  "menus": [
+    {
+      "id": "home",
+      "label": "(default / home)"
+    },
+    {
+      "id": "group",
+      "label": "Group"
+    },
+    {
+      "id": "online",
+      "label": "Online"
+    },
+    {
+      "id": "data",
+      "label": "Data"
+    },
+    {
+      "id": "options",
+      "label": "Options"
+    },
+    {
+      "id": "vault",
+      "label": "Vault"
+    },
+    {
+      "id": "solo",
+      "label": "Solo"
+    },
+    {
+      "id": "versus_css",
+      "label": "Versus CSS"
+    },
+    {
+      "id": "training_css",
+      "label": "Training CSS"
+    },
+    {
+      "id": "classic",
+      "label": "Classic"
+    },
+    {
+      "id": "allstar",
+      "label": "All-Star"
+    },
+    {
+      "id": "btt",
+      "label": "Break the Targets"
+    },
+    {
+      "id": "hrc",
+      "label": "Home-Run Contest"
+    },
+    {
+      "id": "multiman",
+      "label": "Multi-Man"
+    },
+    {
+      "id": "crystal",
+      "label": "Crystal Smash"
+    },
+    {
+      "id": "rttf",
+      "label": "Race to the Finish"
+    },
+    {
+      "id": "arena",
+      "label": "Arena"
+    }
+  ],
+  "music": [],
+  "multimanModes": [
+    {
+      "id": "man10",
+      "label": "10-Man"
+    },
+    {
+      "id": "man100",
+      "label": "100-Man"
+    },
+    {
+      "id": "min3",
+      "label": "3-Minute"
+    },
+    {
+      "id": "endless",
+      "label": "Endless"
+    },
+    {
+      "id": "cruel",
+      "label": "Cruel"
+    }
+  ],
+  "arenaModes": [
+    {
+      "id": "soccer",
+      "label": "Soccer"
+    },
+    {
+      "id": "basketball",
+      "label": "Basketball"
+    }
+  ],
+  "difficulties": [
+    {
+      "id": "EASY",
+      "label": "Easy",
+      "value": 1
+    },
+    {
+      "id": "NORMAL",
+      "label": "Normal",
+      "value": 2
+    },
+    {
+      "id": "HARD",
+      "label": "Hard",
+      "value": 3
+    },
+    {
+      "id": "INSANE",
+      "label": "Insane",
+      "value": 5
+    }
+  ],
+  "specialModes": [
+    {
+      "id": "MINI",
+      "label": "Mini",
+      "bit": 1
+    },
+    {
+      "id": "MEGA",
+      "label": "Mega",
+      "bit": 2
+    },
+    {
+      "id": "SLOW",
+      "label": "Slow",
+      "bit": 4
+    },
+    {
+      "id": "LIGHTNING",
+      "label": "Lightning",
+      "bit": 8
+    },
+    {
+      "id": "VAMPIRE",
+      "label": "Vampire",
+      "bit": 16
+    },
+    {
+      "id": "VENGEANCE",
+      "label": "Vengeance",
+      "bit": 32
+    },
+    {
+      "id": "FREEZE",
+      "label": "Freeze",
+      "bit": 64
+    },
+    {
+      "id": "EGG",
+      "label": "Egg",
+      "bit": 128
+    },
+    {
+      "id": "DRAMATIC",
+      "label": "Dramatic",
+      "bit": 256
+    },
+    {
+      "id": "TURBO",
+      "label": "Turbo",
+      "bit": 512
+    },
+    {
+      "id": "INVISIBLE",
+      "label": "Invisible",
+      "bit": 1024
+    },
+    {
+      "id": "METAL",
+      "label": "Metal",
+      "bit": 2048
+    },
+    {
+      "id": "LIGHT",
+      "label": "Light",
+      "bit": 4096
+    },
+    {
+      "id": "HEAVY",
+      "label": "Heavy",
+      "bit": 8192
+    },
+    {
+      "id": "SSF1",
+      "label": "SSF1",
+      "bit": 16384
+    }
+  ],
+  "targetStages": [],
+  "hrcStages": [],
+  "crystalStages": []
+}

@@ -1,0 +1,280 @@
+<Window x:Class="SSF2ModManager.Views.MakeModsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Make Mods" Width="640" Height="640"
+        MinWidth="520" MinHeight="480"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource BackgroundBrush}">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <DockPanel Grid.Row="0" Margin="0,0,0,12">
+            <Button x:Name="BtnBack" DockPanel.Dock="Left" Content="Back" Style="{StaticResource ModernButton}"
+                    Padding="12,6" Margin="0,0,8,0" Click="BtnBack_Click" Visibility="Collapsed"/>
+            <TextBlock x:Name="TxtTitle" Text="Make Mods" FontSize="20" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+        </DockPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <StackPanel x:Name="PanelHome">
+                    <Button Content="Events" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnEvents_Click"/>
+                    <Button Content="Costume" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnCostumeSection_Click"/>
+                    <Button Content="Music" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnMusic_Click"/>
+                    <Button Content="Intros" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnIntros_Click"/>
+                    <Button Content="Stage" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnStage_Click"/>
+                    <Button Content="Character" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnCharacter_Click"/>
+                    <Button Content="Package mods" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnPackage_Click"/>
+                    <Button Content="Modding Tools" Style="{StaticResource AccentButton}" Padding="16,12"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnN2f_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelEvents" Visibility="Collapsed">
+                    <Button Content="Make a new event" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnNewEvent_Click"/>
+                    <Button Content="Compile an event" Style="{StaticResource ModernButton}" Padding="16,12"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnCompileEvent_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelNewEvent" Visibility="Collapsed">
+                    <TextBlock Text="Clone from" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="CmbEventSource" DisplayMemberPath="Label" Margin="0,0,0,8"/>
+                    <TextBlock Text="Pack folder" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtEventPack" Margin="0,0,0,8"/>
+                    <TextBlock Text="Event id" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtEventId" Margin="0,0,0,8" TextChanged="TxtEventId_TextChanged"/>
+                    <TextBlock Text="Class name" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtEventClass" Margin="0,0,0,8"/>
+                    <TextBlock Text="Name" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtEventName" Margin="0,0,0,8"/>
+                    <TextBlock Text="Description" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtEventDesc" Margin="0,0,0,8" AcceptsReturn="True" Height="60" TextWrapping="Wrap"/>
+                    <TextBlock Text="Creator" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtEventCreator" Margin="0,0,0,8"/>
+                    <CheckBox x:Name="ChkEventChoose" Content="Player chooses a character" Margin="0,0,0,10"
+                              Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <Button Content="Create event" Style="{StaticResource AccentButton}" Padding="14,8"
+                            HorizontalAlignment="Left" Click="BtnCreateEvent_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelCompile" Visibility="Collapsed">
+                    <TextBlock Text="Event pack" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="CmbCompilePack" DisplayMemberPath="Label" Margin="0,0,0,10"/>
+                    <Button Content="Compile" Style="{StaticResource AccentButton}" Padding="14,8"
+                            HorizontalAlignment="Left" Click="BtnRunCompile_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelStage" Visibility="Collapsed">
+                    <Button Content="Clone a stage" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnMakeStage_Click"/>
+                    <Button Content="Import a stage" Style="{StaticResource ModernButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnImportStage_Click"/>
+                    <Button Content="Open stage select editor" Style="{StaticResource ModernButton}" Padding="16,12"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnOpenStageEditor_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelMakeStage" Visibility="Collapsed">
+                    <TextBlock Text="Stage to clone" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="CmbStageSource" DisplayMemberPath="Label" Margin="0,0,0,8"/>
+                    <TextBlock Text="Display name" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtStageDisplay" Margin="0,0,0,8" TextChanged="TxtStageDisplay_TextChanged"/>
+                    <TextBlock Text="Stage name (linkages)" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtStageLinkage" Margin="0,0,0,8" TextChanged="TxtStageLinkage_TextChanged"/>
+                    <TextBlock x:Name="TxtStageNameError" TextWrapping="Wrap" Margin="0,0,0,10"
+                               Foreground="#E07070" Visibility="Collapsed"/>
+                    <CheckBox x:Name="ChkStageKeepOldAssets" Content="Keep using clone's assets" Margin="0,0,0,10"
+                              Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <Button x:Name="BtnMakeStageGo" Content="Clone stage" Style="{StaticResource AccentButton}" Padding="14,8"
+                            HorizontalAlignment="Left" Click="BtnRunMakeStage_Click"/>
+                    <CheckBox x:Name="ChkStageSkipFla" Content="Do not convert to FLA" Margin="0,8,0,0"
+                              Foreground="{DynamicResource TextPrimaryBrush}"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelImportStage" Visibility="Collapsed">
+                    <TextBlock Text="Stage files" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <DockPanel Margin="0,0,0,8" LastChildFill="True">
+                        <Button DockPanel.Dock="Right" Content="Browse" Margin="8,0,0,0" Padding="12,6"
+                                Click="BtnBrowseStageFile_Click"/>
+                        <TextBox x:Name="TxtImportStageFile" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
+                                 MinHeight="72" VerticalScrollBarVisibility="Auto"/>
+                    </DockPanel>
+                    <Button x:Name="BtnImportStageGo" Content="Import" Style="{StaticResource AccentButton}" Padding="14,8"
+                            HorizontalAlignment="Left" Click="BtnRunImportStage_Click"/>
+                    <CheckBox x:Name="ChkImportStageSkipFla" Content="Do not convert to FLA" Margin="0,8,0,0"
+                              Foreground="{DynamicResource TextPrimaryBrush}"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelCharacter" Visibility="Collapsed">
+                    <Button Content="Clone a character" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnMakeCharacter_Click"/>
+                    <Button Content="Import a character" Style="{StaticResource ModernButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnImportCharacter_Click"/>
+                    <Button Content="Manage character select" Style="{StaticResource ModernButton}" Padding="16,12"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnManageCss_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelMakeCharacter" Visibility="Collapsed">
+                    <TextBlock Text="Character to clone" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="CmbCharSource" DisplayMemberPath="Label" Margin="0,0,0,8"/>
+                    <TextBlock Text="Display name" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtCharDisplay" Margin="0,0,0,8" TextChanged="TxtCharDisplay_TextChanged"/>
+                    <TextBlock Text="Character name (linkages)" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtCharLinkage" Margin="0,0,0,8" TextChanged="TxtCharLinkage_TextChanged"/>
+                    <TextBlock x:Name="TxtCharNameError" TextWrapping="Wrap" Margin="0,0,0,10"
+                               Foreground="#E07070" Visibility="Collapsed"/>
+                    <CheckBox x:Name="ChkCharKeepOldAssets" Content="Keep using clone's assets" Margin="0,0,0,10"
+                              Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <Button x:Name="BtnMakeCharacterGo" Content="Clone character" Style="{StaticResource AccentButton}" Padding="14,8"
+                            HorizontalAlignment="Left" Click="BtnRunMakeCharacter_Click"/>
+                    <CheckBox x:Name="ChkCharSkipFla" Content="Do not convert to FLA" Margin="0,8,0,0"
+                              Foreground="{DynamicResource TextPrimaryBrush}"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelImportCharacter" Visibility="Collapsed">
+                    <TextBlock Text="Character files" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <DockPanel Margin="0,0,0,8" LastChildFill="True">
+                        <Button DockPanel.Dock="Right" Content="Browse" Margin="8,0,0,0" Padding="12,6"
+                                Click="BtnBrowseCharacterFile_Click"/>
+                        <TextBox x:Name="TxtImportCharFile" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
+                                 MinHeight="72" VerticalScrollBarVisibility="Auto"/>
+                    </DockPanel>
+                    <TextBlock x:Name="TxtImportCharError" TextWrapping="Wrap" Margin="0,0,0,10"
+                               Foreground="#E07070" Visibility="Collapsed"/>
+                    <Button x:Name="BtnImportCharGo" Content="Import" Style="{StaticResource AccentButton}" Padding="14,8"
+                            HorizontalAlignment="Left" Click="BtnRunImportCharacter_Click"/>
+                    <CheckBox x:Name="ChkImportCharSkipFla" Content="Do not convert to FLA" Margin="0,8,0,0"
+                              IsChecked="True" Foreground="{DynamicResource TextPrimaryBrush}"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelCostume" Visibility="Collapsed">
+                    <TextBlock Text="Character" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="CmbCostumeCharacter" Margin="0,0,0,10"/>
+                    <Button Content="Open palette maker" Style="{StaticResource AccentButton}" Padding="14,8"
+                            HorizontalAlignment="Left" Click="BtnCostume_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelIntros" Visibility="Collapsed">
+                    <TextBlock Text="Custom boot intros live in expansions/intros. Add converts a video to the same FLV the game already plays."
+                               TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                    <ListBox x:Name="LstIntros" Height="180" Margin="0,0,0,8" DisplayMemberPath="Label"/>
+                    <WrapPanel>
+                        <Button Content="Add intro…" Style="{StaticResource AccentButton}" Padding="14,8" Margin="0,0,8,0"
+                                Click="BtnAddMakeIntro_Click"/>
+                        <Button Content="Remove intro" Style="{StaticResource ModernButton}" Padding="14,8"
+                                Click="BtnRemoveMakeIntro_Click"/>
+                    </WrapPanel>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelPackageHome" Visibility="Collapsed">
+                    <Button Content="Edit info on a mod" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnPackageEdit_Click"/>
+                    <Button Content="Package mods" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnPackageZipSection_Click"/>
+                    <Button Content="Install archive" Style="{StaticResource ModernButton}" Padding="16,12"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnPackageInstall_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelPackageZip" Visibility="Collapsed">
+                    <TextBlock Text="Check the mods to put in the zip. One mod keeps its own info.json type. More than one writes type multiple."
+                               TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                    <ListBox x:Name="LstPackageZip" Height="220" Margin="0,0,0,8">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding Label}" IsChecked="{Binding Include, Mode=TwoWay}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TextBlock x:Name="TxtPackageZipEmpty" Text="No local mods to package."
+                               Foreground="{DynamicResource TextSecondaryBrush}" Visibility="Collapsed" Margin="0,0,0,8"/>
+                    <Button Content="Package zip" Style="{StaticResource AccentButton}" Padding="14,8"
+                            HorizontalAlignment="Left" Click="BtnPackageZip_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelPackageEdit" Visibility="Collapsed">
+                    <TextBlock Text="The highlighted row is the info.json these fields write. Downloaded mods stay off this list."
+                               TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                    <ComboBox x:Name="LstPackageMods" Margin="0,0,0,8"
+                              DisplayMemberPath="Label"
+                              SelectionChanged="LstPackageMods_SelectionChanged"/>
+                    <TextBlock x:Name="TxtPackageEmpty" Text="No local mods to package."
+                               Foreground="{DynamicResource TextSecondaryBrush}" Visibility="Collapsed" Margin="0,0,0,8"/>
+                    <TextBlock Text="Name" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtPackageName" Margin="0,0,0,8"/>
+                    <TextBlock Text="Creator" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtPackageCreator" Margin="0,0,0,8"/>
+                    <TextBlock Text="Type" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="CmbPackageType" Margin="0,0,0,8"/>
+                    <TextBlock Text="Version" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtPackageVersion" Margin="0,0,0,8"/>
+                    <TextBlock Text="Description" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtPackageDesc" Margin="0,0,0,10" AcceptsReturn="True" Height="72" TextWrapping="Wrap"/>
+                    <Button Content="Save info.json" Style="{StaticResource AccentButton}" Padding="14,8"
+                            HorizontalAlignment="Left" Click="BtnPackageSave_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelN2f" Visibility="Collapsed">
+                    <Button Content="Convert to FLA" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnDecompileSection_Click"/>
+                    <Button Content="Compile folder" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnCompileFolder_Click"/>
+                    <Button Content="Pressor" Style="{StaticResource AccentButton}" Padding="16,12"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnPressor_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelPressor" Visibility="Collapsed">
+                    <TextBlock Text="Uncompress turns .ssf into .swf. Compress turns .swf into .ssf. A name that already has a dash is written back to the parent folder. Create moddable build copies the game folder into Documents and sorts data."
+                               TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                    <CheckBox x:Name="ChkPressorGarbage" Content="Take care of garbage header" IsChecked="True"
+                              Margin="0,0,0,10" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <Button Content="Uncompress files" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnPressorUncompressFiles_Click"/>
+                    <Button Content="Uncompress folder" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnPressorUncompressFolder_Click"/>
+                    <Button Content="Compress files" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnPressorCompressFiles_Click"/>
+                    <Button Content="Compress folder" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnPressorCompressFolder_Click"/>
+                    <Button Content="Create moddable build" Style="{StaticResource AccentButton}" Padding="16,12"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnPressorModdable_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelDecompile" Visibility="Collapsed">
+                    <TextBlock Text="Pick a data folder, then one file. A .ssf is opened as a SWF. Output goes to expansions/decompiled. The engine folder is decompiled there instead of into data/engine."
+                               TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                    <TextBlock Text="Folder" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="CmbDecompileFolder" Margin="0,0,0,8" SelectionChanged="CmbDecompileFolder_SelectionChanged"/>
+                    <TextBlock Text="File" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="CmbDecompileSwf" DisplayMemberPath="Label" Margin="0,0,0,10"/>
+                    <Button Content="Convert to FLA" Style="{StaticResource AccentButton}" Padding="14,8"
+                            HorizontalAlignment="Left" Click="BtnRunDecompile_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelCompileFolder" Visibility="Collapsed">
+                    <TextBlock Text="engine2 is the decompiled engine. The other rows are mod src folders under expansions/mods. template is left out."
+                               TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                    <ComboBox x:Name="CmbCompileFolder" DisplayMemberPath="Label" Margin="0,0,0,10"/>
+                    <Button Content="Compile" Style="{StaticResource AccentButton}" Padding="14,8"
+                            HorizontalAlignment="Left" Click="BtnRunCompileFolder_Click"/>
+                </StackPanel>
+
+                <TextBox x:Name="TxtLog" Margin="0,14,0,0" IsReadOnly="True" TextWrapping="Wrap"
+                         AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MinHeight="140"
+                         FontFamily="Consolas" FontSize="12" Visibility="Collapsed"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

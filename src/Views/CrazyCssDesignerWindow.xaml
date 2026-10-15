@@ -1,0 +1,103 @@
+<Window x:Class="SSF2ModManager.Views.CrazyCssDesignerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Crazy CSS Designer"
+        Width="980" Height="720"
+        MinWidth="720" MinHeight="520"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        WindowStartupLocation="CenterOwner">
+    <DockPanel Margin="12">
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,10,0,0" LastChildFill="False">
+            <TextBlock x:Name="TxtSummary" DockPanel.Dock="Left" VerticalAlignment="Center"
+                       FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"
+                       Text=""/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="BtnApply" Content="Apply to CSS" Style="{StaticResource AccentButton}"
+                        Padding="14,7" Margin="0,0,8,0" IsDefault="True" Click="BtnApply_Click"/>
+                <Button Content="Cancel" Style="{StaticResource ModernButton}"
+                        Padding="14,7" IsCancel="True" Click="BtnCancel_Click"/>
+            </StackPanel>
+        </DockPanel>
+
+        <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,10"
+                   Foreground="{DynamicResource TextSecondaryBrush}"
+                   Text="Build any CSS you want: set grid size, pick chip art / playable fighter / label, then Fill or paint individual cells. Art can differ from the fighter (looks like X, plays as Y)."/>
+
+        <Border DockPanel.Dock="Top" Background="{DynamicResource CardBrush}" Padding="10" Margin="0,0,0,10"
+                CornerRadius="6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Grid size" FontWeight="SemiBold" Margin="0,0,0,6"
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Rows" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBox x:Name="TxtRows" Text="3"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Cols" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBox x:Name="TxtCols" Text="8"/>
+                        </StackPanel>
+                    </Grid>
+                    <Button Content="Resize grid" Style="{StaticResource ModernButton}"
+                            Margin="0,8,0,0" Padding="10,5" Click="BtnResize_Click"
+                            ToolTip="Keep existing cells when growing; trim when shrinking"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Paint brush" FontWeight="SemiBold" Margin="0,0,0,6"
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Chip art" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <ComboBox x:Name="CmbArt" IsEditable="True" IsTextSearchEnabled="True"
+                              StaysOpenOnEdit="True" Margin="0,0,0,4"
+                              Style="{DynamicResource DarkComboBox}"
+                              SelectionChanged="BrushChanged"/>
+                    <TextBlock Text="Plays as" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <ComboBox x:Name="CmbPlayable" IsEditable="True" IsTextSearchEnabled="True"
+                              StaysOpenOnEdit="True" Margin="0,0,0,4"
+                              Style="{DynamicResource DarkComboBox}"
+                              SelectionChanged="BrushChanged"/>
+                    <CheckBox x:Name="ChkLinkPlayable" Content="Plays as = chip art"
+                              Margin="0,0,0,4" Checked="ChkLinkPlayable_Changed" Unchecked="ChkLinkPlayable_Changed"/>
+                    <TextBlock Text="Chip label" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBox x:Name="TxtLabel" Margin="0,0,0,0" TextChanged="TxtLabel_TextChanged"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4" VerticalAlignment="Top" MinWidth="160">
+                    <TextBlock Text="Quick actions" FontWeight="SemiBold" Margin="0,0,0,6"
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <Button Content="Fill all cells" Style="{StaticResource AccentButton}"
+                            Padding="10,5" Margin="0,0,0,6" Click="BtnFillAll_Click"
+                            ToolTip="Paint every cell with the current brush"/>
+                    <Button Content="Paint center cell" Style="{StaticResource ModernButton}"
+                            Padding="10,5" Margin="0,0,0,6" Click="BtnPaintCenter_Click"
+                            ToolTip="Paint only the middle cell (e.g. Damsel in a sea of Predators)"/>
+                    <Button Content="Clear empty" Style="{StaticResource ModernButton}"
+                            Padding="10,5" Margin="0,0,0,6" Click="BtnClearEmpty_Click"
+                            ToolTip="Wipe cells that have no art/playable yet"/>
+                    <TextBlock x:Name="TxtHint" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               Text="Click a cell to paint it."/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Background="{DynamicResource CardBrush}" CornerRadius="6" Padding="8">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <UniformGrid x:Name="GridPreview" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            </ScrollViewer>
+        </Border>
+    </DockPanel>
+</Window>

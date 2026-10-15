@@ -1,0 +1,99 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+!scripts/release/
+artifacts/
+
+# MSBuild / WPF temp
+*.wpftmp*
+*.baml
+*_wpftmp.*
+
+# User/runtime files (also written beside the exe during dev)
+*.log
+user-settings.json
+ssf2mm-debug.log
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+*.sln.docstates
+*.DotSettings.user
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Publish / distribution (generated locally)
+publish/
+dist/
+
+# Large portable toolchains. FFDec, JRE, and aflex_lite live in Next2Flash\app\toolchain.
+# ffmpeg is still fetched locally.
+src/ffmpeg/
+src/jre/
+.tools-cache/
+SSF2 Mod Manager/runtime/aflex_lite/
+SSF2 Mod Manager/runtime/extensions/*.vsix
+SSF2 Mod Manager/aflex_lite/
+SSF2 Mod Manager/extensions/*.vsix
+SSF2 Mod Manager/SSF2 Shell/shell-dev/tools/FixJpexsExport.exe
+SSF2 Mod Manager/SSF2 Shell/shell-dev/tools/FixJpexsExport.*
+SSF2 Mod Manager/SSF2 Shell/shell-dev/.debug/
+SSF2 Mod Manager/SSF2 Shell/shell-dev/.ssf2-air-out/
+SSF2 Mod Manager/SSF2 Shell/tools/FixJpexsExport.exe
+SSF2 Mod Manager/SSF2 Shell/tools/FixJpexsExport.*
+!SSF2 Mod Manager/SSF2 Shell/shell-dev/tools/decompile_engine2.ps1
+.as3mxml-unpackaged-anes/
+
+
+# Local release checklist and agent notes (personal workflow — not tracked)
+RELEASE.md
+HANDOFF.md
+TODO.md
+
+# Local install and run.bat output. The playable shell lives in its own repo.
+SSF2 Mod Manager/
+SSF2 Mod Manager Release/
+
+# Dev Wiki stays on the maintainer's machine
+**/docs/Dev Wiki/
+**/docs/_history/
+**/docs/_static/content.js
+
+# Test / coverage
+TestResults/
+coverage/
+*.opencover.xml
+
+# Local scratch / probe sandboxes
+.tmp-*/
+_tmp*/
+test-output/
+review-clonededede/
+tmp_*.as
+tmp_*.csx
+src/ffdec-worker/out/
+continue.md
+clone-*-results.txt
+GokuSoundReview/
+.cursor/
+
+# ActionScript & MXML unpacks ANEs here for F5 / ADL
+.as3mxml-unpackaged-anes/
+src/tools/**/bin/
+src/tools/**/obj/
+
+# Machine-specific editor settings and Python caches
+.vscode/settings.json
+__pycache__/
+*.pyc
+
+# Debug symbols and regenerable decompile output
+SSF2 Mod Manager/**/*.pdb
+SSF2 Mod Manager/SSF2 Shell/build/data/engine/decompiled/

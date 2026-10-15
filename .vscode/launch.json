@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "swf",
+            "request": "launch",
+            "name": "SSF2 Shell",
+            "extdir": "${workspaceFolder}/SSF2 Mod Manager/runtime/shell-dev/.debug/anes",
+            "program": "${workspaceFolder}/SSF2 Mod Manager/SSF2 Shell/SSF2-app.xml",
+            "runtimeExecutable": "${config:as3mxml.sdk.framework}\\bin\\adl.exe",
+            "asconfigPath": "${workspaceFolder}/SSF2 Mod Manager/runtime/shell-dev/asconfig.json",
+            "preLaunchTask": "Prepare AIR debug",
+            "postDebugTask": "Restore AIR debug"
+        }
+    ]
+}

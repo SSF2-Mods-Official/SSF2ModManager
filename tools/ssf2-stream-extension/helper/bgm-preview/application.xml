@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<application xmlns="http://ns.adobe.com/air/application/32.0">
+  <id>com.ssf2shell.bgmpreview</id>
+  <versionNumber>1.0.0</versionNumber>
+  <filename>BgmPreview</filename>
+  <name>SSF2 BGM Preview</name>
+  <initialWindow>
+    <content>bgm-preview.swf</content>
+    <title>SSF2 BGM Preview</title>
+    <visible>true</visible>
+    <width>480</width>
+    <height>160</height>
+    <maximizable>false</maximizable>
+    <resizable>false</resizable>
+  </initialWindow>
+</application>
