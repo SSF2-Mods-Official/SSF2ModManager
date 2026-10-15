@@ -253,6 +253,19 @@ namespace SSF2ModManager.Services
             return receipt;
         }
 
+        /// <summary>The text above the confirm list.</summary>
+        public static string ReceiptIntro(OneClickReceipt receipt)
+        {
+            var lines = new List<string> { "Choose what to install into SSF2 Shell." };
+            if (receipt.Items.Any(i => !i.Selected && i.Note == "Replaces a built-in stage"))
+                lines.Add("This mod also includes a version that replaces a built-in stage. It starts unchecked so your stage list stays as it is.");
+            if (receipt.LeftOutNineB > 0)
+                lines.Add($"{receipt.LeftOutNineB} file(s) made for SSF2 0.9b were skipped because SSF2 Shell can't load them.");
+            if (receipt.LeftOutOtherVersions > 0)
+                lines.Add($"{receipt.LeftOutOtherVersions} file(s) for other SSF2 versions were skipped. The Sandbox version is listed instead.");
+            return string.Join("\n\n", lines);
+        }
+
         /// <summary>The error shown instead of an empty confirm list, or null when something can be installed.</summary>
         public static string? NothingToInstallMessage(OneClickReceipt receipt, string? modName = null)
         {
@@ -464,10 +477,10 @@ namespace SSF2ModManager.Services
             foreach (var item in over)
             {
                 item.Selected = false;
-                item.Note = "Replaces a stock stage";
+                item.Note = "Replaces a built-in stage";
             }
             foreach (var item in own)
-                item.Note = string.IsNullOrWhiteSpace(item.Note) ? "Own slot" : item.Note;
+                item.Note = string.IsNullOrWhiteSpace(item.Note) ? "Adds a new stage" : item.Note;
         }
 
         private static OneClickItem? ClassifyFile(string path, string relative)

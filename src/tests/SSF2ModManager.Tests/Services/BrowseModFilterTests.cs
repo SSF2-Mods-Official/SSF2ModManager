@@ -47,6 +47,20 @@ namespace SSF2ModManager.Tests.Services
         }
 
         [Fact]
+        public void ReceiptIntro_MentionsReplacementOnlyWhenListed()
+        {
+            var plain = new OneClickReceipt { Items = { new OneClickItem { Kind = OneClickKind.Stage, RelativePath = "own/s.ssf" } } };
+            Assert.Equal("Choose what to install into SSF2 Shell.", OneClickReceive.ReceiptIntro(plain));
+
+            plain.Items.Add(new OneClickItem { Kind = OneClickKind.Stage, RelativePath = "Over FD/s.ssf", Selected = false, Note = "Replaces a built-in stage" });
+            plain.LeftOutNineB = 2;
+            var intro = OneClickReceive.ReceiptIntro(plain);
+            Assert.Contains("replaces a built-in stage", intro);
+            Assert.Contains("2 file(s) made for SSF2 0.9b were skipped", intro);
+            Assert.DoesNotContain("folder named Over", intro);
+        }
+
+        [Fact]
         public void NothingToInstall_ExplainsWhy()
         {
             Assert.Null(OneClickReceive.NothingToInstallMessage(new OneClickReceipt

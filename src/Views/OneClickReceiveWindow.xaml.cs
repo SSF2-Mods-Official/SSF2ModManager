@@ -13,17 +13,7 @@ namespace SSF2ModManager.Views
         public OneClickReceiveWindow(OneClickReceipt receipt)
         {
             InitializeComponent();
-            var notes = new List<string>
-            {
-                "These files can be imported into this shell. A folder named Over replaces a stock stage, so it starts unchecked."
-            };
-            if (receipt.LeftOutNineB > 0)
-                notes.Add(receipt.LeftOutNineB + " file(s) for 0.9b were left out. Those are not compatible.");
-            if (receipt.LeftOutOtherVersions > 0)
-                notes.Add(receipt.LeftOutOtherVersions + " file(s) from another version were left out. The Sandbox copy is listed.");
-            if (receipt.Items.Count == 0)
-                notes.Add("Nothing in this download can be imported.");
-            IntroText.Text = string.Join(" ", notes);
+            IntroText.Text = OneClickReceive.ReceiptIntro(receipt);
 
             foreach (var item in receipt.Items)
             {
