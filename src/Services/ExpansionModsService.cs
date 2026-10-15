@@ -100,8 +100,7 @@ namespace SSF2ModManager.Services
 
             if (toggleMods.Count > 0)
                 sections.Add(("Mods", toggleMods.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList()));
-            if (characters.Count > 0)
-                sections.Add(("Characters", characters.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList()));
+            sections.Add(("Characters", characters.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList()));
             var alts = CollectAlts(shellRoot);
             if (alts.Count > 0)
                 sections.Add(("Alts", alts));
@@ -126,6 +125,9 @@ namespace SSF2ModManager.Services
                 foreach (var alt in group)
                 {
                     n++;
+                    var scopeNote = string.Equals(alt.Scope, "costume", StringComparison.OrdinalIgnoreCase)
+                        ? " Tied to costume " + (alt.Costume ?? -1) + " (auto when that costume is selected)."
+                        : " Press jump on Character Select to switch to this alt.";
                     list.Add(new ExpansionModEntry
                     {
                         Section = "alts",
@@ -133,9 +135,8 @@ namespace SSF2ModManager.Services
                         FolderName = Path.GetFileName(alt.Folder),
                         Name = string.IsNullOrWhiteSpace(alt.Name) ? $"{alt.CharacterId} Alt {n}" : alt.Name!,
                         Type = "Alt of " + alt.CharacterId,
-                        Description = "On Character Select, put your token on " + alt.CharacterId
-                            + " and press jump to switch to this alt."
-                            + (alt.GameBananaId > 0 ? " GameBanana mod " + alt.GameBananaId + "." : ""),
+                        Description = "Voice alt for " + alt.CharacterId + "." + scopeNote
+                            + (alt.GameBananaId > 0 ? " GameBanana " + alt.GameBananaId + "." : ""),
                         CanToggleEnabled = false,
                         Enabled = true
                     });

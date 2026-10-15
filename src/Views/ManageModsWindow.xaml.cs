@@ -290,17 +290,23 @@ namespace SSF2ModManager.Views
                 {
                     Text = mod.Description,
                     TextWrapping = TextWrapping.Wrap,
-                    FontSize = 13,
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                    FontSize = 11,
+                    MaxHeight = 36,
                     Margin = new Thickness(0, 4, 0, 0)
                 };
-                description.SetResourceReference(TextBlock.ForegroundProperty, "TextPrimaryBrush");
+                description.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondaryBrush");
                 body.Children.Add(description);
             }
             foreach (var setting in mod.Settings)
                 body.Children.Add(BuildSetting(mod, setting));
             grid.Children.Add(body);
 
-            var buttons = new StackPanel { VerticalAlignment = VerticalAlignment.Top };
+            var buttons = new StackPanel
+            {
+                VerticalAlignment = VerticalAlignment.Top,
+                MinWidth = 88
+            };
             Grid.SetColumn(buttons, 2);
             if (mod.CanToggleEnabled)
             {
@@ -314,7 +320,7 @@ namespace SSF2ModManager.Views
                 enabled.Unchecked += (_, _) => SetEnabled(mod, false);
                 buttons.Children.Add(enabled);
             }
-            if (mod.Section.Equals("intros", StringComparison.OrdinalIgnoreCase))
+            if (CanRemove(mod))
             {
                 var remove = new Button
                 {
@@ -322,12 +328,7 @@ namespace SSF2ModManager.Views
                     Padding = new Thickness(10, 4, 10, 4),
                     Style = (Style)FindResource("ModernButton")
                 };
-                var introId = mod.FolderName;
-                remove.Click += (_, _) =>
-                {
-                    ShellConfigureLaunchService.RemoveIntroFile(_shellRoot, introId);
-                    Reload();
-                };
+                remove.Click += (_, _) => RemoveMod(mod);
                 buttons.Children.Add(remove);
             }
             if (buttons.Children.Count > 0)
@@ -511,6 +512,42 @@ namespace SSF2ModManager.Views
             mod.Enabled = enabled;
             ExpansionModsService.Save(mod);
             TxtStatus.Text = (enabled ? "Enabled " : "Disabled ") + mod.Name + ". Restart SSF2 to apply.";
+        }
+
+        private static bool CanRemove(ExpansionModEntry mod) =>
+            !mod.Section.Equals("essentials", StringComparison.OrdinalIgnoreCase)
+            && (mod.Section.Equals("intros", StringComparison.OrdinalIgnoreCase)
+                || mod.Section.Equals("alts", StringComparison.OrdinalIgnoreCase)
+                || mod.Section.Equals("character", StringComparison.OrdinalIgnoreCase)
+                || mod.Section.Equals("stages", StringComparison.OrdinalIgnoreCase)
+                || mod.Section.Equals("events", StringComparison.OrdinalIgnoreCase)
+                || mod.Section.Equals("mods", StringComparison.OrdinalIgnoreCase)
+                || mod.Section.Equals("songs", StringComparison.OrdinalIgnoreCase)
+                || mod.Section.Equals("music", StringComparison.OrdinalIgnoreCase)
+                || mod.Section.Equals("sounds", StringComparison.OrdinalIgnoreCase));
+
+        private void RemoveMod(ExpansionModEntry mod)
+        {
+            var ask = MessageBox.Show(
+                "Remove \"" + mod.Name + "\" from this build?",
+                "Manage Mods",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+            if (ask != MessageBoxResult.Yes)
+                return;
+            try
+            {
+                if (mod.Section.Equals("intros", StringComparison.OrdinalIgnoreCase))
+                    ShellConfigureLaunchService.RemoveIntroFile(_shellRoot, mod.FolderName);
+                else
+                    ExpansionModsService.Delete(mod);
+                TxtStatus.Text = "Removed " + mod.Name + ".";
+                Reload();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Remove", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         /// <summary>

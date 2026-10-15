@@ -32,6 +32,8 @@
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnStage_Click"/>
                     <Button Content="Character" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnCharacter_Click"/>
+                    <Button Content="Character Alts" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnAltsSection_Click"/>
                     <Button Content="Package mods" Style="{StaticResource AccentButton}" Padding="16,12" Margin="0,0,0,8"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="BtnPackage_Click"/>
                     <Button Content="Modding Tools" Style="{StaticResource AccentButton}" Padding="16,12"
@@ -164,6 +166,36 @@
                     <ComboBox x:Name="CmbCostumeCharacter" Margin="0,0,0,10"/>
                     <Button Content="Open palette maker" Style="{StaticResource AccentButton}" Padding="14,8"
                             HorizontalAlignment="Left" Click="BtnCostume_Click"/>
+                </StackPanel>
+
+                <StackPanel x:Name="PanelAlts" Visibility="Collapsed">
+                    <TextBlock Text="Character" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <ComboBox x:Name="CmbAltCharacter" Margin="0,0,0,8"/>
+                    <TextBlock Text="Alt name" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtAltName" Margin="0,0,0,8"/>
+                    <Button Content="Extract sounds" Style="{StaticResource ModernButton}" Padding="14,8" Margin="0,0,0,8"
+                            HorizontalAlignment="Left" Click="BtnAltExtract_Click"/>
+                    <TextBlock x:Name="TxtAltWork" TextWrapping="Wrap" Margin="0,0,0,8"
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="Apply to" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <RadioButton x:Name="RadAltAll" Content="All costumes" IsChecked="True" Margin="0,0,16,0"
+                                     Foreground="{DynamicResource TextPrimaryBrush}" Checked="RadAltScope_Changed"/>
+                        <RadioButton x:Name="RadAltCostume" Content="Specific costume"
+                                     Foreground="{DynamicResource TextPrimaryBrush}" Checked="RadAltScope_Changed"/>
+                    </StackPanel>
+                    <StackPanel x:Name="PanelAltCostumePick" Visibility="Collapsed" Margin="0,0,0,8">
+                        <TextBlock Text="Costume index (−1 = base)" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                        <DockPanel Margin="0,0,0,8">
+                            <Button DockPanel.Dock="Right" Content="Pick in game…" Padding="12,6" Margin="8,0,0,0"
+                                    Click="BtnAltPickCostume_Click"/>
+                            <TextBox x:Name="TxtAltCostume" Text="-1"/>
+                        </DockPanel>
+                        <TextBlock Text="Opens Character Select. Put a token on the character, open the costume grid, pick a slot."
+                                   TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
+                    </StackPanel>
+                    <Button Content="Install alt" Style="{StaticResource AccentButton}" Padding="14,8"
+                            HorizontalAlignment="Left" Click="BtnAltInstall_Click"/>
                 </StackPanel>
 
                 <StackPanel x:Name="PanelIntros" Visibility="Collapsed">

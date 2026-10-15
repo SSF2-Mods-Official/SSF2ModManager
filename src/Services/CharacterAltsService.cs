@@ -20,8 +20,13 @@ namespace SSF2ModManager.Services
         /// Copies the alt's files to <c>expansions/alts/&lt;gb id&gt;/&lt;character&gt;/&lt;name&gt;/</c> and lists it in alts.json.
         /// Returns the folder relative to <c>expansions</c>.
         /// </summary>
+        /// <param name="costume">
+        /// When set, the alt applies only when that <c>PlayerSetting.costume</c> is selected (−1 = base).
+        /// When null, scope is all costumes (jump cycles it).
+        /// </param>
         public static string Install(string shellRoot, int gameBananaId, string characterId, string? name,
-            IReadOnlyList<(string ResourceId, string Path)> files, string? sourceFolderName = null)
+            IReadOnlyList<(string ResourceId, string Path)> files, string? sourceFolderName = null,
+            int? costume = null)
         {
             if (string.IsNullOrWhiteSpace(characterId))
                 throw new ArgumentException("An alt needs a character id.", nameof(characterId));
@@ -56,18 +61,22 @@ namespace SSF2ModManager.Services
                          .Where(e => (string?)e["folder"] == RelativeToExpansions(shellRoot, dest))
                          .ToList())
                 list.Remove(old);
+            var scope = costume.HasValue ? "costume" : "all";
             var entry = new JObject
             {
                 ["folder"] = RelativeToExpansions(shellRoot, dest),
                 ["gamebanana"] = gameBananaId,
-                ["files"] = map
+                ["files"] = map,
+                ["scope"] = scope
             };
+            if (costume.HasValue)
+                entry["costume"] = costume.Value;
             if (!string.IsNullOrWhiteSpace(name))
                 entry["name"] = name;
             list.Add(entry);
             Directory.CreateDirectory(AltsRoot(shellRoot));
             File.WriteAllText(IndexPath(shellRoot), doc.ToString(Formatting.Indented));
-            DebugLogger.Log($"[alts] install character={characterId} alt={name} files={files.Count}");
+            DebugLogger.Log($"[alts] install character={characterId} alt={name} files={files.Count} scope={scope}");
             return RelativeToExpansions(shellRoot, dest);
         }
 
@@ -99,6 +108,10 @@ namespace SSF2ModManager.Services
             public string? Name { get; init; }
             public string Folder { get; init; } = "";
             public int GameBananaId { get; init; }
+            /// <summary><c>all</c> or <c>costume</c>.</summary>
+            public string Scope { get; init; } = "all";
+            /// <summary>When <see cref="Scope"/> is costume: <c>PlayerSetting.costume</c> (−1 = base).</summary>
+            public int? Costume { get; init; }
         }
 
         /// <summary>Every alt in alts.json whose folder still exists.</summary>
@@ -114,12 +127,19 @@ namespace SSF2ModManager.Services
                     var folder = Path.Combine(ShellWorkspaceService.ExpansionsRoot(shellRoot), ((string?)e["folder"] ?? "").Replace('/', Path.DirectorySeparatorChar));
                     if (!Directory.Exists(folder))
                         continue;
+                    var scope = ((string?)e["scope"] ?? "all").Trim();
+                    if (scope.Length == 0) scope = "all";
+                    int? costume = e["costume"]?.Type == JTokenType.Integer ? (int)e["costume"]! : null;
+                    if (string.Equals(scope, "costume", StringComparison.OrdinalIgnoreCase) && costume == null)
+                        costume = -1;
                     list.Add(new AltEntry
                     {
                         CharacterId = prop.Name,
                         Name = (string?)e["name"],
                         Folder = folder,
-                        GameBananaId = (int?)e["gamebanana"] ?? 0
+                        GameBananaId = (int?)e["gamebanana"] ?? 0,
+                        Scope = string.Equals(scope, "costume", StringComparison.OrdinalIgnoreCase) ? "costume" : "all",
+                        Costume = costume
                     });
                 }
             }

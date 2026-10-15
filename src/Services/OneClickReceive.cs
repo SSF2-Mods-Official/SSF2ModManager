@@ -517,7 +517,15 @@ namespace SSF2ModManager.Services
                     ? CharacterAltsService.NameFromFolder(alt.OriginalName ?? "", alt.Id)
                     : string.IsNullOrWhiteSpace(alt.DisplayName) ? null : alt.DisplayName.Trim();
                 progress?.Report($"Adding alt {name ?? alt.Id}…");
-                var folder = CharacterAltsService.Install(shellRoot, gameBananaModId, alt.Id!, name, alt.Files, alt.OriginalName);
+                var packed = new List<(string ResourceId, string Path)>();
+                foreach (var (rid, path) in alt.Files)
+                {
+                    var work = Path.Combine(Path.GetTempPath(), "ssf2mm-altsound-" + Guid.NewGuid().ToString("N"));
+                    Directory.CreateDirectory(work);
+                    var dest = Path.Combine(work, Path.GetFileNameWithoutExtension(path) + ".swf");
+                    packed.Add((rid, AltSoundPackService.ShrinkToSounds(path, dest, rid)));
+                }
+                var folder = CharacterAltsService.Install(shellRoot, gameBananaModId, alt.Id!, name, packed, alt.OriginalName);
                 installed.Add((OneClickKind.Alt, folder));
             }
 
