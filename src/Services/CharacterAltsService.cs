@@ -172,6 +172,42 @@ namespace SSF2ModManager.Services
         public static int Count(string shellRoot, string characterId) =>
             (Load(shellRoot)["characters"]?[characterId] as JArray)?.Count ?? 0;
 
+        /// <summary>Updates name / scope / costume on an existing alt.json entry (folder unchanged).</summary>
+        public static void Update(string shellRoot, string folder, string? name, string scope, int? costume)
+        {
+            var rel = RelativeToExpansions(shellRoot, folder);
+            var doc = Load(shellRoot);
+            if (doc["characters"] is not JObject characters)
+                throw new InvalidOperationException("No alts.json characters list.");
+            JObject? entry = null;
+            foreach (var prop in characters.Properties())
+            {
+                foreach (var e in (prop.Value as JArray)?.OfType<JObject>() ?? Enumerable.Empty<JObject>())
+                {
+                    if (string.Equals((string?)e["folder"], rel, StringComparison.OrdinalIgnoreCase))
+                    {
+                        entry = e;
+                        break;
+                    }
+                }
+                if (entry != null) break;
+            }
+            if (entry == null)
+                throw new InvalidOperationException("Alt not found in alts.json: " + rel);
+            var useCostume = string.Equals(scope, "costume", StringComparison.OrdinalIgnoreCase);
+            entry["scope"] = useCostume ? "costume" : "all";
+            if (useCostume)
+                entry["costume"] = costume ?? -1;
+            else
+                entry.Remove("costume");
+            if (string.IsNullOrWhiteSpace(name))
+                entry.Remove("name");
+            else
+                entry["name"] = name.Trim();
+            File.WriteAllText(IndexPath(shellRoot), doc.ToString(Formatting.Indented));
+            DebugLogger.Log($"[alts] update folder={rel} scope={entry["scope"]} costume={entry["costume"]}");
+        }
+
         private static string RelativeToExpansions(string shellRoot, string folder) =>
             Path.GetRelativePath(ShellWorkspaceService.ExpansionsRoot(shellRoot), folder).Replace('\\', '/');
 

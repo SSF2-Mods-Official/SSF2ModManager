@@ -320,6 +320,18 @@ namespace SSF2ModManager.Views
                 enabled.Unchecked += (_, _) => SetEnabled(mod, false);
                 buttons.Children.Add(enabled);
             }
+            if (mod.Section.Equals("alts", StringComparison.OrdinalIgnoreCase))
+            {
+                var edit = new Button
+                {
+                    Content = "Edit",
+                    Padding = new Thickness(10, 4, 10, 4),
+                    Margin = new Thickness(0, 0, 0, 8),
+                    Style = (Style)FindResource("ModernButton")
+                };
+                edit.Click += (_, _) => EditAlt(mod);
+                buttons.Children.Add(edit);
+            }
             if (CanRemove(mod))
             {
                 var remove = new Button
@@ -525,6 +537,24 @@ namespace SSF2ModManager.Views
                 || mod.Section.Equals("songs", StringComparison.OrdinalIgnoreCase)
                 || mod.Section.Equals("music", StringComparison.OrdinalIgnoreCase)
                 || mod.Section.Equals("sounds", StringComparison.OrdinalIgnoreCase));
+
+        private void EditAlt(ExpansionModEntry mod)
+        {
+            var entry = CharacterAltsService.List(_shellRoot)
+                .FirstOrDefault(a => string.Equals(a.Folder, mod.FolderPath, StringComparison.OrdinalIgnoreCase));
+            if (entry == null)
+            {
+                MessageBox.Show("Could not find that alt in alts.json.", "Edit alt",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            var dlg = new AltEditWindow(_shellRoot, entry) { Owner = Window.GetWindow(this) };
+            if (dlg.ShowDialog() == true)
+            {
+                TxtStatus.Text = "Updated " + mod.Name + ".";
+                Reload();
+            }
+        }
 
         private void RemoveMod(ExpansionModEntry mod)
         {

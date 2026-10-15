@@ -12,7 +12,6 @@ using Brushes = System.Windows.Media.Brushes;
 using Point = System.Windows.Point;
 using FlowDirection = System.Windows.FlowDirection;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 using Newtonsoft.Json.Linq;
 using SSF2ModManager.Services;
 
@@ -514,10 +513,6 @@ namespace SSF2ModManager.Views
 
         private void BtnIntros_Click(object sender, RoutedEventArgs e) => Show("intros", "Intros");
 
-        private string? _altWorkFolder;
-        private string? _altSourceSwf;
-        private DispatcherTimer? _altPickTimer;
-
         private void EnsureCostumeCharacters()
         {
             if (CmbCostumeCharacter.Items.Count > 0)
@@ -536,18 +531,9 @@ namespace SSF2ModManager.Views
                 CmbAltCharacter.Items.Add(id);
             if (CmbAltCharacter.Items.Count > 0)
                 CmbAltCharacter.SelectedIndex = 0;
-            RadAltScope_Changed(this, new RoutedEventArgs());
         }
 
-        private void RadAltScope_Changed(object sender, RoutedEventArgs e)
-        {
-            if (PanelAltCostumePick == null) return;
-            PanelAltCostumePick.Visibility = RadAltCostume?.IsChecked == true
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-        }
-
-        private async void BtnAltExtract_Click(object sender, RoutedEventArgs e)
+        private async void BtnAltInstall_Click(object sender, RoutedEventArgs e)
         {
             var character = CmbAltCharacter.SelectedItem as string;
             if (string.IsNullOrWhiteSpace(character))
@@ -557,135 +543,36 @@ namespace SSF2ModManager.Views
             }
             try
             {
+                TxtAltWork.Text = "Extracting sounds…";
                 await LoadRosterAsync();
                 var swf = MusicEditService.ResolveCharacterSwfPath(_shell, _doc ?? new JObject(), character);
                 if (string.IsNullOrWhiteSpace(swf) || !File.Exists(swf))
                     throw new FileNotFoundException("Character SWF not found for " + character + ".");
+                var name = string.IsNullOrWhiteSpace(TxtAltName.Text) ? null : TxtAltName.Text.Trim();
                 var work = Path.Combine(CharacterAltsService.AltsRoot(_shell), "_work", character,
-                    SafeAltFolder(TxtAltName.Text, character));
+                    SafeAltFolder(name, character));
                 Directory.CreateDirectory(work);
                 var sounds = Path.Combine(work, "sounds");
                 Directory.CreateDirectory(sounds);
                 var plain = SwfPackage.EnsurePlainSwf(swf, work);
                 var copy = Path.Combine(work, character + ".swf");
                 File.Copy(plain, copy, overwrite: true);
-                _altSourceSwf = copy;
-                _altWorkFolder = work;
                 var jpexs = new JpexsCliService();
                 await jpexs.ExportAsync("", copy, sounds, "sound", default);
                 var count = Directory.Exists(sounds) ? Directory.GetFiles(sounds, "*", SearchOption.AllDirectories).Length : 0;
-                TxtAltWork.Text = "Sounds (" + count + ") in " + sounds + ". Edit files there, then Install.";
-                AppendLog("Extracted sounds for " + character + " → " + sounds);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Extract sounds", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
-
-        private void BtnAltPickCostume_Click(object sender, RoutedEventArgs e)
-        {
-            var character = CmbAltCharacter.SelectedItem as string;
-            if (string.IsNullOrWhiteSpace(character))
-            {
-                MessageBox.Show("Pick a character.", "Character Alts", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            try
-            {
-                var pickPaths = new[]
-                {
-                    Path.Combine(ShellWorkspaceService.StateDirectory(_shell), "alt-costume-pick.json"),
-                    Path.Combine(ShellWorkspaceService.UserStateDirectory(_shell), "alt-costume-pick.json")
-                };
-                foreach (var p in pickPaths)
-                    try { if (File.Exists(p)) File.Delete(p); } catch { }
-                ShellDirectLaunchService.Launch(_shell, ShellDirectLaunchService.ScreenCss,
-                    new Dictionary<string, object?>
-                    {
-                        ["altCostumePick"] = true,
-                        ["altCostumePickChar"] = character,
-                        // Pre-select P1 as this character and open the costume grid (manager_bridge).
-                        ["match"] = new Dictionary<string, object?>
-                        {
-                            ["players"] = new object[]
-                            {
-                                new Dictionary<string, object?> { ["character"] = character }
-                            }
-                        }
-                    });
-                TxtAltWork.Text = "Opened Character Select with " + character
-                    + " — click a costume on the grid to confirm…";
-                _altPickTimer?.Stop();
-                _altPickTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-                var started = DateTime.UtcNow;
-                _altPickTimer.Tick += (_, _) =>
-                {
-                    if (DateTime.UtcNow - started > TimeSpan.FromMinutes(10))
-                    {
-                        _altPickTimer.Stop();
-                        TxtAltWork.Text = "Costume pick timed out. Type the costume index (−1 = base) yourself.";
-                        return;
-                    }
-                    var pickPath = pickPaths.FirstOrDefault(File.Exists);
-                    if (pickPath == null) return;
-                    try
-                    {
-                        var jo = JObject.Parse(File.ReadAllText(pickPath));
-                        if (jo["costume"] == null) return;
-                        TxtAltCostume.Text = jo["costume"]!.ToString();
-                        TxtAltWork.Text = "Picked costume " + TxtAltCostume.Text + " for " + (jo["character"] ?? character) + ".";
-                        _altPickTimer.Stop();
-                        try { File.Delete(pickPath); } catch { }
-                    }
-                    catch { }
-                };
-                _altPickTimer.Start();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Pick costume", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
-
-        private void BtnAltInstall_Click(object sender, RoutedEventArgs e)
-        {
-            var character = CmbAltCharacter.SelectedItem as string;
-            if (string.IsNullOrWhiteSpace(character))
-            {
-                MessageBox.Show("Pick a character.", "Character Alts", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            if (string.IsNullOrWhiteSpace(_altSourceSwf) || !File.Exists(_altSourceSwf))
-            {
-                MessageBox.Show("Extract sounds first so there is a character file to install.", "Character Alts",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            var name = string.IsNullOrWhiteSpace(TxtAltName.Text) ? null : TxtAltName.Text.Trim();
-            int? costume = null;
-            if (RadAltCostume?.IsChecked == true)
-            {
-                if (!int.TryParse(TxtAltCostume.Text.Trim(), out var c))
-                {
-                    MessageBox.Show("Costume index must be an integer (−1 = base).", "Character Alts",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                    return;
-                }
-                costume = c;
-            }
-            try
-            {
+                TxtAltWork.Text = "Extracted " + count + " sound file(s). Installing…";
                 var folder = CharacterAltsService.Install(_shell, 0, character, name,
-                    new[] { (character, _altSourceSwf) }, name ?? character + " alt", costume);
-                TxtAltWork.Text = "Installed " + folder + (costume.HasValue ? " (costume " + costume + ")" : " (all costumes)");
-                AppendLog("Installed alt " + (name ?? character) + " → " + folder);
-                MessageBox.Show("Alt installed. Restart or reopen Character Select to load it.", "Character Alts",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                    new[] { (character, copy) }, name ?? character + " alt", costume: null);
+                TxtAltWork.Text = "Installed " + folder + " (all costumes). Edit under Manage Mods → Alts to tie to one costume or rename.";
+                AppendLog("Installed alt " + (name ?? character) + " → " + folder + " sounds=" + count);
+                MessageBox.Show(
+                    "Alt installed for all costumes.\n\nManage Mods → Alts → Edit to change the name or tie it to one costume.",
+                    "Character Alts", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Install alt", MessageBoxButton.OK, MessageBoxImage.Warning);
+                TxtAltWork.Text = ex.Message;
             }
         }
 

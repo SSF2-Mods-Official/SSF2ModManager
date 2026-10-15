@@ -138,5 +138,30 @@ namespace SSF2ModManager.Tests.Services
                 Directory.Delete(shell, true);
             }
         }
+
+        [Fact]
+        public void Update_ChangesNameAndScope()
+        {
+            var shell = Path.Combine(Path.GetTempPath(), "ssf2mm-altupd-" + Guid.NewGuid().ToString("N"));
+            var src = Path.Combine(shell, "_src");
+            Directory.CreateDirectory(src);
+            try
+            {
+                var a = Path.Combine(src, "DAT7.ssf");
+                File.WriteAllText(a, "x");
+                CharacterAltsService.Install(shell, 0, "wario", "Old", new[] { ("wario", a) }, "folder");
+                var entry = Assert.Single(CharacterAltsService.List(shell));
+                Assert.Equal("all", entry.Scope);
+                CharacterAltsService.Update(shell, entry.Folder, "New Name", "costume", 3);
+                entry = Assert.Single(CharacterAltsService.List(shell));
+                Assert.Equal("New Name", entry.Name);
+                Assert.Equal("costume", entry.Scope);
+                Assert.Equal(3, entry.Costume);
+            }
+            finally
+            {
+                Directory.Delete(shell, true);
+            }
+        }
     }
 }
