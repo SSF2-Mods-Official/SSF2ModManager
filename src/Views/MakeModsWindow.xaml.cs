@@ -604,9 +604,18 @@ namespace SSF2ModManager.Views
                     new Dictionary<string, object?>
                     {
                         ["altCostumePick"] = true,
-                        ["altCostumePickChar"] = character
+                        ["altCostumePickChar"] = character,
+                        // Pre-select P1 as this character and open the costume grid (manager_bridge).
+                        ["match"] = new Dictionary<string, object?>
+                        {
+                            ["players"] = new object[]
+                            {
+                                new Dictionary<string, object?> { ["character"] = character }
+                            }
+                        }
                     });
-                TxtAltWork.Text = "Waiting for costume pick in game…";
+                TxtAltWork.Text = "Opened Character Select with " + character
+                    + " — click a costume on the grid to confirm…";
                 _altPickTimer?.Stop();
                 _altPickTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
                 var started = DateTime.UtcNow;
