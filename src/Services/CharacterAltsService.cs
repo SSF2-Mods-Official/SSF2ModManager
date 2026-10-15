@@ -75,11 +75,78 @@ namespace SSF2ModManager.Services
         public static string? NameFromFolder(string folderName, string? characterName)
         {
             var name = (folderName ?? "").Trim();
-            if (name.Length == 0 || Regex.IsMatch(name, @"^DAT\d+$", RegexOptions.IgnoreCase))
+            if (name.Length == 0 || Regex.IsMatch(name, @"^DAT\d+$", RegexOptions.IgnoreCase) || IsGenericFolderName(name))
                 return null;
             if (!string.IsNullOrWhiteSpace(characterName) && name.Equals(characterName.Trim(), StringComparison.OrdinalIgnoreCase))
                 return null;
             return name;
+        }
+
+        /// <summary>True for folder names that say nothing about the alt ("SSF2 Beta", "Sandbox", "v1.2").</summary>
+        public static bool IsGenericFolderName(string? folderName)
+        {
+            var name = (folderName ?? "").Trim();
+            if (name.Length == 0)
+                return true;
+            return Regex.IsMatch(name, @"^(?:ssf2|super smash flash 2|sandbox|beta|v?\d+(?:\.\d+)*)$", RegexOptions.IgnoreCase)
+                || Regex.IsMatch(name, @"\b(?:beta|sandbox|ver\.?|version|1\.4(?:\.0\.1)?)\b", RegexOptions.IgnoreCase)
+                    && !name.Contains('(');
+        }
+
+        public sealed class AltEntry
+        {
+            public string CharacterId { get; init; } = "";
+            public string? Name { get; init; }
+            public string Folder { get; init; } = "";
+            public int GameBananaId { get; init; }
+        }
+
+        /// <summary>Every alt in alts.json whose folder still exists.</summary>
+        public static List<AltEntry> List(string shellRoot)
+        {
+            var list = new List<AltEntry>();
+            if (Load(shellRoot)["characters"] is not JObject characters)
+                return list;
+            foreach (var prop in characters.Properties())
+            {
+                foreach (var e in (prop.Value as JArray)?.OfType<JObject>() ?? Enumerable.Empty<JObject>())
+                {
+                    var folder = Path.Combine(ShellWorkspaceService.ExpansionsRoot(shellRoot), ((string?)e["folder"] ?? "").Replace('/', Path.DirectorySeparatorChar));
+                    if (!Directory.Exists(folder))
+                        continue;
+                    list.Add(new AltEntry
+                    {
+                        CharacterId = prop.Name,
+                        Name = (string?)e["name"],
+                        Folder = folder,
+                        GameBananaId = (int?)e["gamebanana"] ?? 0
+                    });
+                }
+            }
+            return list;
+        }
+
+        /// <summary>Deletes the alt folder and its alts.json entry.</summary>
+        public static void Remove(string shellRoot, string folder)
+        {
+            var rel = RelativeToExpansions(shellRoot, folder);
+            var doc = Load(shellRoot);
+            if (doc["characters"] is JObject characters)
+            {
+                foreach (var prop in characters.Properties().ToList())
+                {
+                    if (prop.Value is not JArray list)
+                        continue;
+                    foreach (var old in list.OfType<JObject>().Where(e => string.Equals((string?)e["folder"], rel, StringComparison.OrdinalIgnoreCase)).ToList())
+                        list.Remove(old);
+                    if (list.Count == 0)
+                        prop.Remove();
+                }
+                File.WriteAllText(IndexPath(shellRoot), doc.ToString(Formatting.Indented));
+            }
+            if (Directory.Exists(folder))
+                Directory.Delete(folder, recursive: true);
+            DebugLogger.Log($"[alts] remove folder={rel}");
         }
 
         public static int Count(string shellRoot, string characterId) =>

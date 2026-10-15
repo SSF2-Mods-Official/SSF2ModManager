@@ -328,7 +328,8 @@ namespace SSF2ModManager.Services
 
         /// <summary>
         /// Groups game files by folder. A folder holding a character whose registered id the build already has is one alt;
-        /// every file in that folder with a registered id is part of it. Vanilla and Announcer folders are left out.
+        /// every character file in that folder is part of it. Other files in the folder (a mod's own <c>misc</c>) are not
+        /// swapped, because the game loads them once for every menu. Vanilla and Announcer folders are left out.
         /// </summary>
         public static AltPlan PlanAlts(
             IEnumerable<(string RelativePath, string? RegisterId, bool IsCharacter)> files,
@@ -360,7 +361,7 @@ namespace SSF2ModManager.Services
                 var owner = group.FirstOrDefault(f => f.IsCharacter && f.RegisterId != null && takenCharacterIds.Contains(f.RegisterId));
                 if (owner.RegisterId == null)
                     continue;
-                var members = group.Where(f => !string.IsNullOrWhiteSpace(f.RegisterId)).ToList();
+                var members = group.Where(f => f.IsCharacter && !string.IsNullOrWhiteSpace(f.RegisterId)).ToList();
                 plan.Alts.Add((group.Key, owner.RegisterId, members.Select(f => (f.RegisterId!, f.RelativePath)).ToList()));
                 foreach (var f in group)
                     plan.Claimed.Add(f.RelativePath);
@@ -894,7 +895,13 @@ namespace SSF2ModManager.Services
             if (item.Kind == OneClickKind.Song)
                 return item.Id ?? Path.GetFileNameWithoutExtension(item.RelativePath);
             if (item.Kind == OneClickKind.Alt)
-                return CharacterAltsService.NameFromFolder(item.OriginalName ?? "", item.Id) ?? "";
+            {
+                var fromFolder = CharacterAltsService.NameFromFolder(item.OriginalName ?? "", item.Id);
+                if (fromFolder != null)
+                    return fromFolder;
+                var onlyAltOfCharacter = receipt.Items.Count(i => i.Kind == OneClickKind.Alt && i.Id == item.Id) == 1;
+                return onlyAltOfCharacter && !string.IsNullOrWhiteSpace(modName) ? modName.Trim() : "";
+            }
             var alone = receipt.Items.Count(i => i.Kind == item.Kind && i.Selected) == 1 && item.Selected;
             if (alone && !string.IsNullOrWhiteSpace(modName))
                 return modName.Trim();

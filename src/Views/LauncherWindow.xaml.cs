@@ -501,6 +501,7 @@ namespace SSF2ModManager.Views
                 await OneClickReceive.InstallAsync(shell, receipt, dlg.Chosen, progress,
                     gameBananaModId: req.ModId ?? 0, gameBananaFileId: fileId, modName: modName);
                 LockForWork(false, "");
+                (PageContent.Content as DownloadModsPage)?.RefreshInstalled();
                 SetStatus("1-Click", "Import finished.");
                 MessageBox.Show("Import finished.", "1-Click Install",
                     MessageBoxButton.OK, MessageBoxImage.Information);

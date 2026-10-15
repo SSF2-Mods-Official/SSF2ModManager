@@ -102,6 +102,9 @@ namespace SSF2ModManager.Services
                 sections.Add(("Mods", toggleMods.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList()));
             if (characters.Count > 0)
                 sections.Add(("Characters", characters.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList()));
+            var alts = CollectAlts(shellRoot);
+            if (alts.Count > 0)
+                sections.Add(("Alts", alts));
             sections.Add(("Sounds", sounds.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList()));
             sections.Add(("Stages", stages.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList()));
             sections.Add(("Events", events.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList()));
@@ -111,6 +114,34 @@ namespace SSF2ModManager.Services
 
             try { CreditsService.Update(shellRoot); } catch { }
             return sections;
+        }
+
+        /// <summary>Alts from expansions/alts/alts.json, numbered per character the way Character Select names them.</summary>
+        private static List<ExpansionModEntry> CollectAlts(string shellRoot)
+        {
+            var list = new List<ExpansionModEntry>();
+            foreach (var group in CharacterAltsService.List(shellRoot).GroupBy(a => a.CharacterId, StringComparer.OrdinalIgnoreCase))
+            {
+                var n = 0;
+                foreach (var alt in group)
+                {
+                    n++;
+                    list.Add(new ExpansionModEntry
+                    {
+                        Section = "alts",
+                        FolderPath = alt.Folder,
+                        FolderName = Path.GetFileName(alt.Folder),
+                        Name = string.IsNullOrWhiteSpace(alt.Name) ? $"{alt.CharacterId} Alt {n}" : alt.Name!,
+                        Type = "Alt of " + alt.CharacterId,
+                        Description = "On Character Select, put your token on " + alt.CharacterId
+                            + " and press jump to switch to this alt."
+                            + (alt.GameBananaId > 0 ? " GameBanana mod " + alt.GameBananaId + "." : ""),
+                        CanToggleEnabled = false,
+                        Enabled = true
+                    });
+                }
+            }
+            return list.OrderBy(m => m.Type, StringComparer.OrdinalIgnoreCase).ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
         }
 
         private static List<ExpansionModEntry> CollectIntros(string shellRoot)
@@ -264,6 +295,16 @@ namespace SSF2ModManager.Services
 
         public static void Delete(ExpansionModEntry entry)
         {
+            if (entry.Section.Equals("alts", StringComparison.OrdinalIgnoreCase))
+            {
+                var expansions = entry.FolderPath;
+                while (!string.IsNullOrEmpty(expansions) && !Path.GetFileName(expansions).Equals("expansions", StringComparison.OrdinalIgnoreCase))
+                    expansions = Path.GetDirectoryName(expansions);
+                if (string.IsNullOrEmpty(expansions))
+                    throw new InvalidOperationException("Could not find the Shell folder for this alt.");
+                CharacterAltsService.Remove(Path.GetDirectoryName(expansions)!, entry.FolderPath);
+                return;
+            }
             var root = ShellRootFromPack(entry.FolderPath);
             if (!string.IsNullOrWhiteSpace(root))
             {

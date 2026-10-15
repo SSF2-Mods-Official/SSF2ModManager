@@ -62,6 +62,12 @@ namespace SSF2ModManager.Views
             };
         }
 
+        public void RefreshInstalled()
+        {
+            if (_rows.Count > 0)
+                ApplyFilter();
+        }
+
         private async void Filter_Changed(object sender, RoutedEventArgs e)
         {
             if (!_ready)
@@ -286,9 +292,11 @@ namespace SSF2ModManager.Views
                     if (_installed == value) return;
                     _installed = value;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(InstalledVisibility)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DownloadVisibility)));
                 }
             }
             public Visibility InstalledVisibility => Installed ? Visibility.Visible : Visibility.Collapsed;
+            public Visibility DownloadVisibility => Installed ? Visibility.Collapsed : Visibility.Visible;
             /// <summary>Details loaded or failed; until then the description has not been checked for 9B.</summary>
             public bool Checked { get; set; }
             public bool NineB => BrowseModFilter.MentionsNineB(Mod);

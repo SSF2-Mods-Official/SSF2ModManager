@@ -38,7 +38,7 @@
                         </Border>
                         <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center" Margin="12,0,0,0">
                             <Button Content="Download" Style="{StaticResource AccentButton}" Padding="12,6"
-                                    Click="BtnDownload_Click" Tag="{Binding}"/>
+                                    Click="BtnDownload_Click" Tag="{Binding}" Visibility="{Binding DownloadVisibility}"/>
                             <Button Content="Page" Style="{StaticResource ModernButton}" Padding="12,4" Margin="0,6,0,0"
                                     Click="BtnPage_Click" Tag="{Binding}"/>
                         </StackPanel>

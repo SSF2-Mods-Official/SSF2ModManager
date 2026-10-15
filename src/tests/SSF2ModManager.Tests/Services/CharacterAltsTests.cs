@@ -25,7 +25,8 @@ namespace SSF2ModManager.Tests.Services
                 (Root + "Modded/Mario/Mario (Kevin Z. Afghani)/DAT222.ssf", "mario", true),
                 (Root + "Modded/Mario/Mario (Charles Martinet)/DAT222.ssf", "mario", true),
                 (Root + "Modded/Luigi/Luigi (SSBM)/DAT118.ssf", "luigi", true),
-                (Root + "Modded/Luigi/Luigi (SSBM)/DAT170.ssf", "luigi_fx", false),
+                (Root + "Modded/Luigi/Luigi (SSBM)/DAT170.ssf", "luigi_fx", true),
+                (Root + "Modded/Luigi/Luigi (SSBM)/DAT67.ssf", "misc", false),
                 (Root + "Modded/Captain Falcon (SSBM)/DAT96.ssf", "captainfalcon", true),
                 (Root + "Modded/Announcer + SFX/Announcer (SSBB)/DAT141.ssf", "announcer", false),
                 (Root + "Vanilla/Mario/DAT222.ssf", "mario", true),
@@ -101,6 +102,41 @@ namespace SSF2ModManager.Tests.Services
             Assert.Equal("Mario (Kevin Z. Afghani)", CharacterAltsService.NameFromFolder("Mario (Kevin Z. Afghani)", "mario"));
             Assert.Null(CharacterAltsService.NameFromFolder("Mario", "mario"));
             Assert.Null(CharacterAltsService.NameFromFolder("DAT222", "mario"));
+            Assert.Null(CharacterAltsService.NameFromFolder("SSF2 Beta", "wario"));
+            Assert.Null(CharacterAltsService.NameFromFolder("Sandbox", "wario"));
+            Assert.Equal("Captain Falcon (SSBM)", CharacterAltsService.NameFromFolder("Captain Falcon (SSBM)", "captainfalcon"));
+        }
+
+        [Fact]
+        public void DefaultName_GenericFolder_OnlyAlt_TakesModName()
+        {
+            var alt = new OneClickItem { Kind = OneClickKind.Alt, Id = "wario", OriginalName = "SSF2 Beta", Selected = true };
+            var receipt = new OneClickReceipt { Items = { alt } };
+            Assert.Equal("Wario Man", OneClickReceive.DefaultDisplayName(receipt, alt, "Wario Man"));
+        }
+
+        [Fact]
+        public void List_And_Remove()
+        {
+            var shell = Path.Combine(Path.GetTempPath(), "ssf2mm-alts-" + Guid.NewGuid().ToString("N"));
+            var src = Path.Combine(shell, "_src");
+            Directory.CreateDirectory(src);
+            try
+            {
+                var a = Path.Combine(src, "DAT7.ssf");
+                File.WriteAllText(a, "x");
+                CharacterAltsService.Install(shell, 700684, "wario", "Wario Man", new[] { ("wario", a) }, "SSF2 Beta");
+                var entry = Assert.Single(CharacterAltsService.List(shell));
+                Assert.Equal("Wario Man", entry.Name);
+                CharacterAltsService.Remove(shell, entry.Folder);
+                Assert.Empty(CharacterAltsService.List(shell));
+                Assert.False(Directory.Exists(entry.Folder));
+                Assert.Equal(0, CharacterAltsService.Count(shell, "wario"));
+            }
+            finally
+            {
+                Directory.Delete(shell, true);
+            }
         }
     }
 }
