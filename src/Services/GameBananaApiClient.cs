@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -94,10 +95,24 @@ namespace SSF2ModManager.Services
         /// <summary>Description (<c>_sText</c>), download count and files for one mod.</summary>
         public async Task<GameBananaMod?> GetModDetailsAsync(int modId)
         {
-            var url = $"{API_BASE}/Mod/{modId}?_csvProperties=_sText,_nDownloadCount,_aFiles";
+            var url = $"{API_BASE}/Mod/{modId}?_csvProperties=_sName,_sText,_nDownloadCount,_aFiles,_aPreviewMedia";
             var response = await _httpClient.GetStringAsync(url);
             return JsonConvert.DeserializeObject<GameBananaMod>(response);
         }
+
+        /// <summary>The paths inside a GameBanana file, from <c>apiv13/File/&lt;id&gt;/RawFileList</c> (plain text, one per line).</summary>
+        public async Task<List<string>> GetRawFileListAsync(int fileId, CancellationToken cancellationToken = default)
+        {
+            var url = $"https://gamebanana.com/apiv13/File/{fileId}/RawFileList";
+            var text = await _httpClient.GetStringAsync(url, cancellationToken);
+            return text.Split('\n')
+                .Select(l => l.Trim())
+                .Where(l => l.Length > 0 && !l.StartsWith("{") && !l.StartsWith("<"))
+                .ToList();
+        }
+
+        public async Task<byte[]> GetBytesAsync(string url, CancellationToken cancellationToken = default) =>
+            await _httpClient.GetByteArrayAsync(url, cancellationToken);
 
         private static (List<GameBananaMod> Mods, bool HasMore, int TotalCount) ParseRecordPage(string response, bool requireModModel)
         {

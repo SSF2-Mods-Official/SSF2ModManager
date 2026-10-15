@@ -30,6 +30,10 @@ namespace SSF2ModManager.Tests.Services
                 }
                 Assert.Equal(new[] { "Song bgm_bloodytears", "Stage draculascastle" },
                     receipt.Items.Select(i => i.Kind + " " + i.Id).OrderBy(s => s).ToArray());
+                var stage = receipt.Items.Single(i => i.Kind == OneClickKind.Stage);
+                _out.WriteLine("stage name=" + stage.OriginalName);
+                Assert.False(string.IsNullOrWhiteSpace(stage.OriginalName));
+                Assert.Equal("Fountain of Dreams", OneClickReceive.DefaultDisplayName(receipt, stage, "Fountain of Dreams"));
             }
             finally
             {

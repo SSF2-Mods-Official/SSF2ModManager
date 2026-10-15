@@ -43,8 +43,15 @@
                                     Click="BtnPage_Click" Tag="{Binding}"/>
                         </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="15" TextTrimming="CharacterEllipsis"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <DockPanel>
+                                <Border DockPanel.Dock="Right" CornerRadius="4" Padding="6,1" Margin="8,0,0,0"
+                                        Background="{DynamicResource AccentBrush}" VerticalAlignment="Center"
+                                        Visibility="{Binding InstalledVisibility}">
+                                    <TextBlock Text="Installed" FontSize="11" Foreground="White"/>
+                                </Border>
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="15" TextTrimming="CharacterEllipsis"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </DockPanel>
                             <TextBlock Text="{Binding Byline}" FontSize="12" TextTrimming="CharacterEllipsis"
                                        Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBlock Text="{Binding Stats}" FontSize="12" Margin="0,2,0,0"

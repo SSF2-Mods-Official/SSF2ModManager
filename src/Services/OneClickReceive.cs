@@ -23,6 +23,12 @@ namespace SSF2ModManager.Services
         public string? Id { get; init; }
         public string Note { get; set; } = "";
         public bool Selected { get; set; } = true;
+        /// <summary>The name stored in the file (stage or character); null for songs.</summary>
+        public string? OriginalName { get; set; }
+        /// <summary>The name the user confirmed. A stage or character file is rewritten when it differs from <see cref="OriginalName"/>.</summary>
+        public string? DisplayName { get; set; }
+        /// <summary>A stage preview the user picked (PNG or JPG); saved as stagepreview.png.</summary>
+        public string? PreviewPath { get; set; }
 
         public string Label
         {
@@ -296,6 +302,18 @@ namespace SSF2ModManager.Services
             return string.Join("\n", lines);
         }
 
+        /// <summary>The error shown before download when GameBanana's file list has no SSF2 game files.</summary>
+        public static string NothingInFileListMessage(IReadOnlyList<string> paths, string? modName = null)
+        {
+            var name = string.IsNullOrWhiteSpace(modName) ? "This mod" : modName;
+            var shown = paths.Take(8).Select(p => "• " + p).ToList();
+            if (paths.Count > shown.Count)
+                shown.Add($"• … and {paths.Count - shown.Count} more");
+            return name + " can't be installed in SSF2 Shell. GameBanana lists no SSF2 game files (.ssf or .swf) in it:\n\n"
+                + string.Join("\n", shown)
+                + "\n\nNothing was downloaded.";
+        }
+
         /// <summary>
         /// A taken song id becomes that id plus the next free number, starting at 2.
         /// Ids that are free are omitted from the map.
@@ -327,19 +345,29 @@ namespace SSF2ModManager.Services
             OneClickReceipt receipt,
             IReadOnlyList<OneClickItem> chosen,
             IProgress<string>? progress = null,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            int gameBananaModId = 0,
+            int gameBananaFileId = 0,
+            string? modName = null)
         {
             if (string.IsNullOrWhiteSpace(shellRoot) || !Directory.Exists(shellRoot))
                 throw new DirectoryNotFoundException("SSF2 Shell build folder was not found.");
             var selected = (chosen ?? Array.Empty<OneClickItem>()).Where(i => i.Selected).ToList();
             if (selected.Count == 0)
                 throw new InvalidOperationException("Nothing was selected.");
+            var installed = new List<(OneClickKind Kind, string Id)>();
 
             if (selected.Any(i => i.Kind == OneClickKind.Pack))
             {
                 var root = receipt.PackRoot ?? receipt.ExtractedRoot;
                 progress?.Report("Installing pack…");
                 var placed = ModPackageService.DeployExtracted(shellRoot, root, includeSingleGenericMod: true);
+                foreach (var pack in placed)
+                {
+                    StampGameBananaId(pack.Dest, gameBananaModId);
+                    installed.Add((OneClickKind.Pack, Path.GetRelativePath(ShellWorkspaceService.ExpansionsRoot(shellRoot), pack.Dest)));
+                }
+                GameBananaInstalls.Record(shellRoot, gameBananaModId, gameBananaFileId, modName, installed);
                 DebugLogger.Log($"[oneclick] installed stages=0 characters=0 songs=0 packs={placed.Count}");
                 return;
             }
@@ -350,26 +378,30 @@ namespace SSF2ModManager.Services
 
             var taken = TakenSongIds(shellRoot);
             var map = PlanSongIds(songs.Select(s => s.Id ?? ""), taken);
-            var stagePaths = new Dictionary<OneClickItem, string>();
-            if (map.Count > 0)
+            var rewritten = new Dictionary<OneClickItem, string>();
+            var clone = new CharacterCloneService();
+            foreach (var item in stages.Concat(characters))
             {
-                var clone = new CharacterCloneService();
-                foreach (var stage in stages)
+                var pairs = new List<(string From, string To)>();
+                if (item.Kind == OneClickKind.Stage && map.Count > 0)
                 {
-                    var bytes = SwfPackage.ToSwf(await File.ReadAllBytesAsync(stage.FullPath, cancellationToken));
-                    var pairs = map
-                        .Where(kv => IndexOfAscii(bytes, kv.Key) >= 0)
-                        .Select(kv => (kv.Key, kv.Value))
-                        .ToList();
-                    if (pairs.Count == 0)
-                    {
-                        stagePaths[stage] = stage.FullPath;
-                        continue;
-                    }
-                    progress?.Report("Pointing the stage at the imported songs…");
-                    var work = Path.Combine(Path.GetTempPath(), "ssf2mm-oneclick-music-" + Guid.NewGuid().ToString("N"));
-                    stagePaths[stage] = await clone.RewritePairsAsync(stage.FullPath, work, pairs, cancellationToken);
+                    var bytes = SwfPackage.ToSwf(await File.ReadAllBytesAsync(item.FullPath, cancellationToken));
+                    pairs.AddRange(map.Where(kv => IndexOfAscii(bytes, kv.Key) >= 0).Select(kv => (kv.Key, kv.Value)));
                 }
+                var rename = NamePair(item);
+                if (rename != null)
+                    pairs.Add(rename.Value);
+                else if (item.Kind == OneClickKind.Character && !string.IsNullOrWhiteSpace(item.DisplayName)
+                    && !item.DisplayName.Equals(item.OriginalName, StringComparison.Ordinal))
+                    DebugLogger.Log($"[oneclick] rename skip {item.Kind} id={item.Id} reason=no-display-name-in-file stored={item.OriginalName}");
+                if (pairs.Count == 0)
+                    continue;
+                progress?.Report(rename != null
+                    ? $"Naming {item.Id} \"{rename.Value.To}\"…"
+                    : "Pointing the stage at the imported songs…");
+                var work = Path.Combine(Path.GetTempPath(), "ssf2mm-oneclick-rewrite-" + Guid.NewGuid().ToString("N"));
+                rewritten[item] = await clone.RewritePairsAsync(item.FullPath, work, pairs, cancellationToken);
+                DebugLogger.Log($"[oneclick] rewrite {item.Kind} id={item.Id} pairs={pairs.Count} rename={(rename != null ? 1 : 0)}");
             }
 
             var mappingsEdit = new MappingsEditService();
@@ -390,8 +422,34 @@ namespace SSF2ModManager.Services
                     id = assigned;
                 progress?.Report("Importing song " + id + "…");
                 await PlaceSongAsync(shellRoot, song.FullPath, id, mappings, cancellationToken);
+                installed.Add((OneClickKind.Song, id));
             }
-            if (mappings != null && songs.Count > 0)
+
+            var stageImport = new ShellStageCloneService();
+            var named = 0;
+            foreach (var stage in stages)
+            {
+                progress?.Report("Importing stage " + (stage.Id ?? stage.RelativePath) + "…");
+                var path = rewritten.TryGetValue(stage, out var swapped) ? swapped : stage.FullPath;
+                var dest = await stageImport.ImportIntoShellAsync(
+                    shellRoot, path, ShellStageCloneService.PreviewBesideSwf(stage.FullPath),
+                    progress, cancellationToken, skipFla: true);
+                SavePreview(stage, dest);
+                StampGameBananaId(dest, gameBananaModId);
+                var stageId = Path.GetFileName(dest);
+                if (!string.IsNullOrWhiteSpace(stage.DisplayName))
+                {
+                    SetInfoName(dest, stage.DisplayName!);
+                    if (mappings != null)
+                    {
+                        NameStage(mappings, stageId, stage.DisplayName!, stage.FullPath);
+                        named++;
+                    }
+                }
+                installed.Add((OneClickKind.Stage, stageId));
+            }
+
+            if (mappings != null && (songs.Count > 0 || named > 0))
             {
                 try
                 {
@@ -404,25 +462,120 @@ namespace SSF2ModManager.Services
                 }
             }
 
-            var stageImport = new ShellStageCloneService();
-            foreach (var stage in stages)
-            {
-                progress?.Report("Importing stage " + (stage.Id ?? stage.RelativePath) + "…");
-                var path = stagePaths.TryGetValue(stage, out var rewritten) ? rewritten : stage.FullPath;
-                await stageImport.ImportIntoShellAsync(
-                    shellRoot, path, ShellStageCloneService.PreviewBesideSwf(path),
-                    progress, cancellationToken, skipFla: true);
-            }
-
             var characterImport = new ShellCharacterCloneService();
             foreach (var character in characters)
             {
                 progress?.Report("Importing character " + (character.Id ?? character.RelativePath) + "…");
-                await characterImport.ImportIntoShellAsync(
-                    shellRoot, character.FullPath, progress, cancellationToken, skipFla: true);
+                var path = rewritten.TryGetValue(character, out var swapped) ? swapped : character.FullPath;
+                var result = await characterImport.ImportIntoShellAsync(
+                    shellRoot, path, progress, cancellationToken, skipFla: true);
+                StampGameBananaId(result.ExpansionFolder, gameBananaModId);
+                installed.Add((OneClickKind.Character, Path.GetFileName(result.ExpansionFolder)));
             }
 
+            foreach (var copy in rewritten.Values)
+            {
+                try { Directory.Delete(Path.GetDirectoryName(copy)!, true); } catch { }
+            }
+            GameBananaInstalls.Record(shellRoot, gameBananaModId, gameBananaFileId, modName, installed);
             DebugLogger.Log($"[oneclick] installed stages={stages.Count} characters={characters.Count} songs={songs.Count}");
+        }
+
+        /// <summary>
+        /// (stored name, confirmed name) for a character whose file stores a display name the user changed.
+        /// Stages are named through mappings (<see cref="NameStage"/>). A stored name equal to the id is the
+        /// linkage, and rewriting it would rename the id.
+        /// </summary>
+        public static (string From, string To)? NamePair(OneClickItem item)
+        {
+            if (item.Kind != OneClickKind.Character)
+                return null;
+            var from = item.OriginalName?.Trim();
+            var to = item.DisplayName?.Trim();
+            if (string.IsNullOrEmpty(from) || string.IsNullOrEmpty(to) || from.Equals(to, StringComparison.Ordinal))
+                return null;
+            if (!string.IsNullOrEmpty(item.Id) && from.Equals(item.Id, StringComparison.Ordinal))
+                return null;
+            return (from, to);
+        }
+
+        /// <summary>
+        /// Sets <c>stage[id].name</c>, which <c>StageSelectMenu.displayName</c> reads before it falls back to the id.
+        /// A new entry points at <c>expansions/stages/&lt;id&gt;/&lt;id&gt;.swf</c> with the guid the stage file registers.
+        /// </summary>
+        public static void NameStage(JObject mappings, string stageId, string name, string? sourceFile = null)
+        {
+            var existing = (mappings["stage"] as JObject)?[stageId] as JObject;
+            if (existing != null)
+            {
+                existing["name"] = name;
+                DebugLogger.Log($"[oneclick] stage name id={stageId} entry=existing");
+                return;
+            }
+            string? guid = null;
+            if (!string.IsNullOrWhiteSpace(sourceFile) && File.Exists(sourceFile))
+            {
+                try { guid = SwfPackage.RegisterCalls(File.ReadAllBytes(sourceFile)).FirstOrDefault(r => r.Key == "guid").Value; }
+                catch { }
+            }
+            MappingsEditService.UpsertEntry(mappings, "stage", stageId, $"expansions/stages/{stageId}/{stageId}.swf", name: name, guid: guid);
+            DebugLogger.Log($"[oneclick] stage name id={stageId} entry=new guid={(guid != null ? 1 : 0)}");
+        }
+
+        private static void SetInfoName(string folder, string name)
+        {
+            var path = Path.Combine(folder, "info.json");
+            try
+            {
+                var info = File.Exists(path) ? JObject.Parse(File.ReadAllText(path)) : new JObject();
+                info["name"] = name;
+                File.WriteAllText(path, info.ToString(Newtonsoft.Json.Formatting.Indented));
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log("[oneclick] info name skip " + ex.Message);
+            }
+        }
+
+        /// <summary>Adds <c>"gamebanana": modId</c> to the folder's info.json.</summary>
+        public static void StampGameBananaId(string? folder, int modId)
+        {
+            if (modId <= 0 || string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder))
+                return;
+            var path = Path.Combine(folder, "info.json");
+            try
+            {
+                var info = File.Exists(path) ? JObject.Parse(File.ReadAllText(path)) : new JObject();
+                info["gamebanana"] = modId;
+                File.WriteAllText(path, info.ToString(Newtonsoft.Json.Formatting.Indented));
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log("[oneclick] info stamp skip " + ex.Message);
+            }
+        }
+
+        private static void SavePreview(OneClickItem stage, string dest)
+        {
+            var from = stage.PreviewPath;
+            var kind = string.IsNullOrWhiteSpace(from) ? "none"
+                : from.Contains(Path.DirectorySeparatorChar + GameBananaShotsFolder + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) ? "gamebanana" : "archive";
+            DebugLogger.Log($"[oneclick] preview stage={stage.Id} from={kind}");
+            if (string.IsNullOrWhiteSpace(from) || !File.Exists(from))
+                return;
+            var target = Path.Combine(dest, "stagepreview.png");
+            if (from.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
+            {
+                File.Copy(from, target, overwrite: true);
+                return;
+            }
+            using var input = File.OpenRead(from);
+            var decoder = System.Windows.Media.Imaging.BitmapDecoder.Create(
+                input, System.Windows.Media.Imaging.BitmapCreateOptions.None, System.Windows.Media.Imaging.BitmapCacheOption.OnLoad);
+            var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+            encoder.Frames.Add(decoder.Frames[0]);
+            using var output = File.Create(target);
+            encoder.Save(output);
         }
 
         private static async Task PlaceSongAsync(
@@ -516,10 +669,14 @@ namespace SSF2ModManager.Services
                     : (OneClickKind?)null;
                 if (kind == null || string.IsNullOrWhiteSpace(id))
                     return null;
-                return new OneClickItem { Kind = kind.Value, RelativePath = relative, FullPath = path, Id = id, Selected = true };
+                return new OneClickItem
+                {
+                    Kind = kind.Value, RelativePath = relative, FullPath = path, Id = id, Selected = true,
+                    OriginalName = StoredName(kind.Value, swf)
+                };
             }
 
-            var (stageId, _) = ShellStageCloneService.ReadStageImportIdentity(swf);
+            var (stageId, stageName) = ShellStageCloneService.ReadStageImportIdentity(swf);
             var stageClip = HasStageClip(swf);
             if (SwfPackage.IsStage(swf) || stageClip)
             {
@@ -529,20 +686,22 @@ namespace SSF2ModManager.Services
                     RelativePath = relative,
                     FullPath = path,
                     Id = stageId,
-                    Selected = true
+                    Selected = true,
+                    OriginalName = stageName
                 };
             }
 
             if (SwfPackage.IsCharacter(swf) && (SwfPackage.IsBetaDocument(document) || document == null || SwfPackage.IsTimelineDocument(document)))
             {
-                var (linkage, _) = CharacterCloneService.ReadImportIdentity(swf);
+                var (linkage, shown) = CharacterCloneService.ReadImportIdentity(swf);
                 return new OneClickItem
                 {
                     Kind = OneClickKind.Character,
                     RelativePath = relative,
                     FullPath = path,
                     Id = linkage,
-                    Selected = true
+                    Selected = true,
+                    OriginalName = shown
                 };
             }
 
@@ -563,6 +722,78 @@ namespace SSF2ModManager.Services
             }
 
             return null;
+        }
+
+        private static string? StoredName(OneClickKind kind, byte[] swf)
+        {
+            try
+            {
+                return kind switch
+                {
+                    OneClickKind.Stage => ShellStageCloneService.ReadStageImportIdentity(swf).DisplayName,
+                    OneClickKind.Character => CharacterCloneService.ReadImportIdentity(swf).Item2,
+                    _ => null
+                };
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// The name box's start value. One stage or one character in the download takes the GameBanana mod name;
+        /// otherwise the name the file stores; a song keeps its id.
+        /// </summary>
+        public static string DefaultDisplayName(OneClickReceipt receipt, OneClickItem item, string? modName)
+        {
+            if (item.Kind == OneClickKind.Song)
+                return item.Id ?? Path.GetFileNameWithoutExtension(item.RelativePath);
+            var alone = receipt.Items.Count(i => i.Kind == item.Kind && i.Selected) == 1 && item.Selected;
+            if (alone && !string.IsNullOrWhiteSpace(modName))
+                return modName.Trim();
+            if (!string.IsNullOrWhiteSpace(item.OriginalName))
+                return item.OriginalName!;
+            return item.Id ?? Path.GetFileNameWithoutExtension(item.RelativePath);
+        }
+
+        /// <summary>PNGs in the download, archive ones first, then the GameBanana screenshots saved under <c>_gamebanana</c>.</summary>
+        public static List<string> PreviewCandidates(OneClickReceipt receipt)
+        {
+            if (string.IsNullOrWhiteSpace(receipt.ExtractedRoot) || !Directory.Exists(receipt.ExtractedRoot))
+                return new List<string>();
+            return Directory.GetFiles(receipt.ExtractedRoot, "*.*", SearchOption.AllDirectories)
+                .Where(f => f.EndsWith(".png", StringComparison.OrdinalIgnoreCase)
+                         || f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)
+                         || f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(f => IsGameBananaShot(receipt, f) ? 1 : 0)
+                .ThenBy(f => f, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        public const string GameBananaShotsFolder = "_gamebanana";
+
+        public static bool IsGameBananaShot(OneClickReceipt receipt, string path) =>
+            Path.GetRelativePath(receipt.ExtractedRoot, path)
+                .StartsWith(GameBananaShotsFolder + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// False when GameBanana's file list is non-empty and names nothing the manager can install.
+        /// </summary>
+        public static bool RawListHasGameFiles(IReadOnlyList<string> paths)
+        {
+            if (paths.Count == 0)
+                return true;
+            return paths.Any(p =>
+            {
+                var ext = Path.GetExtension(p);
+                return ext.Equals(".ssf", StringComparison.OrdinalIgnoreCase)
+                    || ext.Equals(".swf", StringComparison.OrdinalIgnoreCase)
+                    || ext.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                    || ext.Equals(".rar", StringComparison.OrdinalIgnoreCase)
+                    || ext.Equals(".7z", StringComparison.OrdinalIgnoreCase)
+                    || Path.GetFileName(p).Equals("ssf2mm-pack.json", StringComparison.OrdinalIgnoreCase);
+            });
         }
 
         private static bool HasStageClip(byte[] swf)

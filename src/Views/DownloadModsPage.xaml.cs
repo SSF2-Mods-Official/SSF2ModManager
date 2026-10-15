@@ -39,8 +39,11 @@ namespace SSF2ModManager.Views
         private bool _loading;
         private bool _ready;
 
+        private readonly string _shell;
+
         public DownloadModsPage(string shell)
         {
+            _shell = shell;
             InitializeComponent();
             CmbCategory.Items.Add("All");
             foreach (var feed in _feeds)
@@ -51,6 +54,11 @@ namespace SSF2ModManager.Views
             {
                 if (_rows.Count == 0)
                     await LoadMoreAsync();
+            };
+            IsVisibleChanged += (_, _) =>
+            {
+                if (IsVisible && _rows.Count > 0)
+                    ApplyFilter();
             };
         }
 
@@ -209,6 +217,9 @@ namespace SSF2ModManager.Views
             var showNineB = ChkNineB.IsChecked == true;
             var shown = _rows.Where(r => r.Visible(filter, q, showNineB)).ToList();
             var hidden = _rows.Count(r => r.Visible(filter, q, true)) - shown.Count;
+            var installed = GameBananaInstalls.InstalledModIds(_shell);
+            foreach (var row in _rows)
+                row.Installed = installed.Contains(row.Mod.Id);
             LstMods.ItemsSource = shown;
             TxtStatus.Text = shown.Count + " mod(s)"
                 + (hidden > 0 ? $", {hidden} 9B mod(s) hidden" : "")
@@ -265,6 +276,19 @@ namespace SSF2ModManager.Views
             public string Kind { get; set; } = "";
 
             public string Name => string.IsNullOrWhiteSpace(Mod.Name) ? "Mod " + Mod.Id : Mod.Name;
+            private bool _installed;
+            /// <summary>Recorded in the loaded build's gamebanana-installs.json and its items still exist.</summary>
+            public bool Installed
+            {
+                get => _installed;
+                set
+                {
+                    if (_installed == value) return;
+                    _installed = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(InstalledVisibility)));
+                }
+            }
+            public Visibility InstalledVisibility => Installed ? Visibility.Visible : Visibility.Collapsed;
             /// <summary>Details loaded or failed; until then the description has not been checked for 9B.</summary>
             public bool Checked { get; set; }
             public bool NineB => BrowseModFilter.MentionsNineB(Mod);

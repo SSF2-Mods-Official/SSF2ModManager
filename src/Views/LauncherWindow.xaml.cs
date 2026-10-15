@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Threading;
 using Newtonsoft.Json.Linq;
+using SSF2ModManager.Models;
 using SSF2ModManager.Services;
 using Forms = System.Windows.Forms;
 using MessageBox = System.Windows.MessageBox;
@@ -357,6 +358,31 @@ namespace SSF2ModManager.Views
             _downloadCancel?.Cancel();
         }
 
+        private static async System.Threading.Tasks.Task SaveGameBananaShotsAsync(GameBananaMod? details, OneClickReceipt receipt)
+        {
+            var images = details?.PreviewMedia?.Images;
+            if (images == null || images.Count == 0)
+                return;
+            var folder = Path.Combine(receipt.ExtractedRoot, OneClickReceive.GameBananaShotsFolder);
+            Directory.CreateDirectory(folder);
+            using var api = new GameBananaApiClient();
+            var n = 0;
+            foreach (var image in images.Take(8))
+            {
+                try
+                {
+                    var bytes = await api.GetBytesAsync(image.FullUrl);
+                    var ext = Path.GetExtension(image.File);
+                    if (string.IsNullOrWhiteSpace(ext)) ext = ".jpg";
+                    await File.WriteAllBytesAsync(Path.Combine(folder, $"screenshot {++n}{ext}"), bytes);
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log("[oneclick] screenshot skip " + ex.Message);
+                }
+            }
+        }
+
         private async System.Threading.Tasks.Task ReceiveOneClickAsync(string url, string? modName)
         {
             if (!ProtocolService.TryParse(url, out var req))
@@ -378,9 +404,43 @@ namespace SSF2ModManager.Views
 
             OneClickReceipt? receipt = null;
             string? download = null;
+            GameBananaMod? details = null;
             try
             {
                 Activate();
+                LockForWork(true, "Checking the download on GameBanana…");
+                using (var api = new GameBananaApiClient())
+                {
+                    if (fileId > 0)
+                    {
+                        try
+                        {
+                            var list = await api.GetRawFileListAsync(fileId);
+                            var game = list.Count(p => OneClickReceive.RawListHasGameFiles(new[] { p }));
+                            DebugLogger.Log($"[oneclick] rawlist file={fileId} files={list.Count} game={game}");
+                            if (!OneClickReceive.RawListHasGameFiles(list))
+                            {
+                                LockForWork(false, "");
+                                SetStatus("Not installed", "No SSF2 game files in the download.");
+                                MessageBox.Show(OneClickReceive.NothingInFileListMessage(list, modName),
+                                    "Can't install this mod", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                return;
+                            }
+                        }
+                        catch (Exception ex) when (ex is not OperationCanceledException)
+                        {
+                            DebugLogger.Log("[oneclick] rawlist skip " + ex.Message);
+                        }
+                    }
+                    if (req.ModId is int modId && modId > 0)
+                    {
+                        try { details = await api.GetModDetailsAsync(modId); }
+                        catch (Exception ex) { DebugLogger.Log("[oneclick] details skip " + ex.Message); }
+                    }
+                }
+                if (string.IsNullOrWhiteSpace(modName))
+                    modName = details?.Name;
+
                 LockForWork(true, "Downloading…");
                 BusyProgress.IsIndeterminate = false;
                 BusyProgress.Value = 0;
@@ -420,12 +480,19 @@ namespace SSF2ModManager.Views
                     MessageBox.Show(nothing, "Can't install this mod", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-                var dlg = new OneClickReceiveWindow(receipt) { Owner = this };
+                if (receipt.Items.Any(i => i.Kind == OneClickKind.Stage) && receipt.DeleteExtractOnCleanup)
+                {
+                    LockForWork(true, "Getting GameBanana screenshots…");
+                    await SaveGameBananaShotsAsync(details, receipt);
+                }
+                LockForWork(false, "");
+                var dlg = new OneClickReceiveWindow(receipt, modName) { Owner = this };
                 if (dlg.ShowDialog() != true)
                     return;
                 LockForWork(true, "Importing…");
                 var progress = new Progress<string>(message => TxtBusy.Text = message);
-                await OneClickReceive.InstallAsync(shell, receipt, dlg.Chosen, progress);
+                await OneClickReceive.InstallAsync(shell, receipt, dlg.Chosen, progress,
+                    gameBananaModId: req.ModId ?? 0, gameBananaFileId: fileId, modName: modName);
                 LockForWork(false, "");
                 SetStatus("1-Click", "Import finished.");
                 MessageBox.Show("Import finished.", "1-Click Install",
