@@ -32,6 +32,30 @@ namespace SSF2ModManager.Tests.Services
             Assert.False(BrowseModFilter.IsNineBOnly(new GameBananaMod { Name = name, Version = version }));
         }
 
+        [Fact]
+        public void NineBOnly_ReadsDescription()
+        {
+            var cr7 = new GameBananaMod
+            {
+                Name = "Cristiano Ronaldo (CR7)",
+                FullText = "This Cristiano Ronaldo mod is made as a joke, it contains various memes and references to CR7, " +
+                           "Real Madrid, and other football players!<br><br>(0.9b)"
+            };
+            Assert.True(BrowseModFilter.IsNineBOnly(cr7));
+            cr7.FullText += "<br>Also works in Sandbox.";
+            Assert.False(BrowseModFilter.IsNineBOnly(cr7));
+        }
+
+        [Fact]
+        public void ExtractGuard_AllowsSsfAndNamesBlockedType()
+        {
+            long bytes = 0;
+            var count = 0;
+            Assert.Null(ArchiveExtractGuard.Reject(@"SSF2 CR7\dat36.ssf", 1000, ref bytes, ref count));
+            var blocked = ArchiveExtractGuard.Reject(@"SSF2 CR7\setup.exe", 1000, ref bytes, ref count);
+            Assert.Contains(".exe", blocked);
+        }
+
         [Theory]
         [InlineData("Characters", "character")]
         [InlineData("Maps", "stage")]

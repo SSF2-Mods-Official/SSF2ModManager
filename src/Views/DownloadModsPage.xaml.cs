@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using SSF2ModManager.Models;
@@ -15,13 +17,13 @@ namespace SSF2ModManager.Views
     {
         public const int EventsCategory = 49482;
         public const int MusicCategory = 49485;
-        /// <summary>Stand-in until the GameBanana category id is known. Zero skips the request.</summary>
+        /// <summary>Stand-in until the GameBanana category id is known. Zero reads the game feed instead.</summary>
         public const int PlaceholderCategory = 0;
+        private const int FirstLoadPages = 2;
 
-        private readonly string _shell;
         private readonly GameBananaApiClient _api = new();
-        private readonly ModManagerService _mods;
         private readonly List<BrowseRow> _rows = new();
+        private readonly SemaphoreSlim _detailGate = new(8);
         private readonly CategoryFeed[] _feeds =
         [
             new("event", "Events", "Events", EventsCategory),
@@ -32,15 +34,13 @@ namespace SSF2ModManager.Views
             new("intro", "Intros", "Intro", PlaceholderCategory),
             new("mod", "General Mods", "Mod", PlaceholderCategory)
         ];
-        /// <summary>Every SSF2 mod, newest first. Categories without their own id filter this feed by root category.</summary>
+        /// <summary>Every SSF2 mod. Categories without their own id filter this feed by root category.</summary>
         private readonly CategoryFeed _gameFeed = new("all", "All", "Mod", 0);
         private bool _loading;
         private bool _ready;
 
         public DownloadModsPage(string shell)
         {
-            _shell = shell;
-            _mods = new ModManagerService(_api);
             InitializeComponent();
             CmbCategory.Items.Add("All");
             foreach (var feed in _feeds)
@@ -50,7 +50,7 @@ namespace SSF2ModManager.Views
             Loaded += async (_, _) =>
             {
                 if (_rows.Count == 0)
-                    await LoadMoreAsync();
+                    await LoadMoreAsync(FirstLoadPages);
             };
         }
 
@@ -60,105 +60,142 @@ namespace SSF2ModManager.Views
                 return;
             ApplyFilter();
             BtnMore.IsEnabled = !_loading && HasMoreForFilter();
-            if (VisibleCount() == 0 && HasMoreForFilter())
-                await LoadMoreAsync();
+            if (LstMods.Items.Count == 0 && HasMoreForFilter())
+                await LoadMoreAsync(1);
         }
 
-        private async void BtnMore_Click(object sender, RoutedEventArgs e) => await LoadMoreAsync();
+        private async void BtnMore_Click(object sender, RoutedEventArgs e) => await LoadMoreAsync(1);
+
+        private void BtnPage_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button { Tag: BrowseRow row } && !string.IsNullOrWhiteSpace(row.Mod.ProfileUrl))
+                Process.Start(new ProcessStartInfo(row.Mod.ProfileUrl) { UseShellExecute = true });
+        }
 
         private async void BtnDownload_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is not Button btn || btn.Tag is not BrowseRow row || _loading)
+            if (sender is not Button { Tag: BrowseRow row })
                 return;
-            btn.IsEnabled = false;
-            TxtStatus.Text = "Downloading " + row.Name + "…";
+            if (Window.GetWindow(this) is not LauncherWindow launcher)
+                return;
             try
             {
-                var files = await _api.GetModFilesAsync(row.Mod.Id);
+                var files = row.Mod.Files ?? await _api.GetModFilesAsync(row.Mod.Id);
                 var file = files.OrderByDescending(f => f.DateAdded).FirstOrDefault();
-                if (file == null || string.IsNullOrWhiteSpace(file.DownloadUrl))
+                if (file == null)
                 {
-                    TxtStatus.Text = "No downloadable file for " + row.Name + ".";
+                    MessageBox.Show(row.Name + " has no file to download on GameBanana.", "Download Mods",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
-
-                row.Mod.RootCategory ??= new GameBananaCategory();
-                row.Mod.RootCategory.Name = row.CategoryName;
-                var version = EnsureShellVersion();
-                await _mods.InstallModAsync(row.Mod, file, version);
-                TxtStatus.Text = "Installed " + row.Name + ".";
+                launcher.ReceiveOneClick($"ssf2mm:https://gamebanana.com/mmdl/{file.Id},Mod,{row.Mod.Id}");
             }
             catch (Exception ex)
             {
-                TxtStatus.Text = ex.Message;
-                MessageBox.Show(ex.Message, "Download Mods", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            finally
-            {
-                btn.IsEnabled = true;
+                DebugLogger.Error("Download Mods file lookup failed", ex);
+                MessageBox.Show("Could not reach GameBanana for " + row.Name + ".\n\n" + ex.Message, "Download Mods",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
-        private async Task LoadMoreAsync()
+        private async Task LoadMoreAsync(int pages)
         {
             if (_loading)
                 return;
             _loading = true;
             BtnMore.IsEnabled = false;
             TxtStatus.Text = "Loading…";
+            var added = new List<BrowseRow>();
             try
             {
-                foreach (var feed in FeedsForFilter())
+                for (var i = 0; i < pages; i++)
                 {
-                    if (feed.More)
-                        await PullAsync(feed);
+                    foreach (var feed in FeedsForFilter())
+                    {
+                        if (feed.More)
+                            added.AddRange(await PullAsync(feed));
+                    }
                 }
                 ApplyFilter();
                 BtnMore.IsEnabled = HasMoreForFilter();
             }
             catch (Exception ex)
             {
-                TxtStatus.Text = ex.Message;
+                TxtStatus.Text = "Could not load mods from GameBanana: " + ex.Message;
             }
             finally
             {
                 _loading = false;
             }
+            if (added.Count > 0)
+                await LoadDetailsAsync(added);
         }
 
-        private async Task PullAsync(CategoryFeed feed)
+        private async Task<List<BrowseRow>> PullAsync(CategoryFeed feed)
         {
             feed.Page++;
             var fromGame = feed == _gameFeed;
             var (mods, more, _) = fromGame
-                ? await _api.SearchModsAsync("", feed.Page, 50, "new")
-                : await _api.SearchCategoryAsync(feed.CategoryId, feed.Page, 40);
+                ? await _api.BrowseIndexAsync(feed.Page)
+                : await _api.SearchCategoryAsync(feed.CategoryId, feed.Page, 50);
             feed.More = more;
+            var added = new List<BrowseRow>();
             foreach (var mod in mods)
             {
                 var owner = fromGame ? FeedFor(BrowseModFilter.KindFor(mod.RootCategory?.Name)) ?? FeedFor("mod")! : feed;
-                var label = fromGame && !string.IsNullOrWhiteSpace(mod.RootCategory?.Name) ? mod.RootCategory!.Name : owner.Label;
                 var existing = _rows.FirstOrDefault(r => r.Mod.Id == mod.Id);
                 if (existing != null)
                 {
                     if (!fromGame)
                     {
                         existing.Kind = owner.Kind;
-                        existing.CategoryLabel = owner.Label;
                         existing.CategoryName = owner.CategoryName;
                     }
                     continue;
                 }
-                _rows.Add(new BrowseRow
+                var row = new BrowseRow
                 {
                     Mod = mod,
-                    Name = string.IsNullOrWhiteSpace(mod.Name) ? "Mod " + mod.Id : mod.Name,
-                    CategoryLabel = label,
                     CategoryName = owner.CategoryName,
                     Kind = owner.Kind,
-                    NineBOnly = BrowseModFilter.IsNineBOnly(mod)
-                });
+                    CategoryLabel = string.IsNullOrWhiteSpace(mod.RootCategory?.Name) ? owner.Label : mod.RootCategory!.Name
+                };
+                _rows.Add(row);
+                added.Add(row);
             }
+            return added;
+        }
+
+        /// <summary>The list feed has no description; the 9B check and the card text need it.</summary>
+        private async Task LoadDetailsAsync(List<BrowseRow> rows)
+        {
+            var failed = 0;
+            var hiddenBefore = rows.Count(r => r.NineBOnly);
+            await Task.WhenAll(rows.Select(async row =>
+            {
+                await _detailGate.WaitAsync();
+                try
+                {
+                    var details = await _api.GetModDetailsAsync(row.Mod.Id);
+                    if (details == null)
+                        return;
+                    row.Mod.FullText = details.FullText;
+                    row.Mod.Downloads = details.Downloads;
+                    row.Mod.Files = details.Files;
+                    row.Refresh();
+                }
+                catch
+                {
+                    Interlocked.Increment(ref failed);
+                }
+                finally
+                {
+                    _detailGate.Release();
+                }
+            }));
+            DebugLogger.Log($"[browse] details mods={rows.Count} failed={failed}");
+            if (rows.Count(r => r.NineBOnly) != hiddenBefore)
+                ApplyFilter();
         }
 
         private void ApplyFilter()
@@ -168,7 +205,9 @@ namespace SSF2ModManager.Views
             var showNineB = ChkNineB.IsChecked == true;
             var matching = _rows.Where(r =>
                 (filter == "all" || r.Kind == filter)
-                && (q.Length == 0 || r.Name.Contains(q, StringComparison.OrdinalIgnoreCase))).ToList();
+                && (q.Length == 0
+                    || r.Name.Contains(q, StringComparison.OrdinalIgnoreCase)
+                    || r.Byline.Contains(q, StringComparison.OrdinalIgnoreCase))).ToList();
             var shown = matching.Where(r => showNineB || !r.NineBOnly).ToList();
             var hidden = matching.Count - shown.Count;
             LstMods.ItemsSource = shown;
@@ -197,33 +236,7 @@ namespace SSF2ModManager.Views
 
         private CategoryFeed? FeedFor(string kind) => _feeds.FirstOrDefault(f => f.Kind == kind);
 
-        private int VisibleCount() => LstMods.Items.Count;
-
         private bool HasMoreForFilter() => FeedsForFilter().Any(f => f.More);
-
-        private string EnsureShellVersion()
-        {
-            var full = Path.GetFullPath(_shell);
-            var match = _mods.Versions.FirstOrDefault(v =>
-                !string.IsNullOrWhiteSpace(v.FolderPath)
-                && string.Equals(Path.GetFullPath(v.FolderPath), full, StringComparison.OrdinalIgnoreCase));
-            if (match == null)
-            {
-                var nick = "Launcher";
-                var taken = _mods.GetVersionEntry(nick);
-                if (taken != null
-                    && !string.IsNullOrWhiteSpace(taken.FolderPath)
-                    && !string.Equals(Path.GetFullPath(taken.FolderPath), full, StringComparison.OrdinalIgnoreCase))
-                    nick = "Launcher-" + Guid.NewGuid().ToString("N")[..6];
-                _mods.AddVersion(ShellWorkspaceService.VersionName, full, nick);
-                match = _mods.Versions.LastOrDefault();
-            }
-            var id = match == null
-                ? "Launcher"
-                : (string.IsNullOrWhiteSpace(match.Nickname) ? match.VersionName : match.Nickname);
-            _mods.ActiveVersion = id;
-            return id;
-        }
 
         private sealed class CategoryFeed
         {
@@ -243,14 +256,70 @@ namespace SSF2ModManager.Views
             public bool More { get; set; } = true;
         }
 
-        private sealed class BrowseRow
+        private sealed class BrowseRow : INotifyPropertyChanged
         {
+            public event PropertyChangedEventHandler? PropertyChanged;
+
             public GameBananaMod Mod { get; set; } = new();
-            public string Name { get; set; } = "";
             public string CategoryLabel { get; set; } = "";
             public string CategoryName { get; set; } = "";
             public string Kind { get; set; } = "";
-            public bool NineBOnly { get; set; }
+
+            public string Name => string.IsNullOrWhiteSpace(Mod.Name) ? "Mod " + Mod.Id : Mod.Name;
+            public bool NineBOnly => BrowseModFilter.IsNineBOnly(Mod);
+            public string? PreviewUrl => Mod.PreviewMedia?.Images?.FirstOrDefault()?.ThumbnailUrl;
+
+            public string Byline
+            {
+                get
+                {
+                    var parts = new List<string> { CategoryLabel };
+                    if (!string.IsNullOrWhiteSpace(Mod.Submitter?.Name))
+                        parts.Add("by " + Mod.Submitter!.Name);
+                    if (!string.IsNullOrWhiteSpace(Mod.Version))
+                        parts.Add("version " + Mod.Version);
+                    return string.Join(" · ", parts);
+                }
+            }
+
+            public string Stats
+            {
+                get
+                {
+                    var parts = new List<string> { Count(Mod.Likes) + " likes", Count(Mod.Views) + " views" };
+                    if (Mod.Downloads > 0)
+                        parts.Add(Count(Mod.Downloads) + " downloads");
+                    var ts = Mod.DateModifiedTimestamp > 0 ? Mod.DateModifiedTimestamp : Mod.DateAddedTimestamp;
+                    if (ts > 0)
+                        parts.Add("updated " + DateTimeOffset.FromUnixTimeSeconds(ts).LocalDateTime.ToString("MMM d, yyyy"));
+                    return string.Join(" · ", parts);
+                }
+            }
+
+            public string Snippet
+            {
+                get
+                {
+                    var text = BrowseModFilter.PlainText(Mod.FullText);
+                    return text.Length > 220 ? text[..220] + "…" : text;
+                }
+            }
+
+            public string FileSummary
+            {
+                get
+                {
+                    var file = Mod.Files?.OrderByDescending(f => f.DateAdded).FirstOrDefault();
+                    return file == null ? "" : file.FileName + " · " + file.FileSizeFormatted;
+                }
+            }
+
+            public void Refresh() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
+
+            private static string Count(int n) =>
+                n >= 1_000_000 ? (n / 1_000_000.0).ToString("0.#") + "M"
+                : n >= 1_000 ? (n / 1_000.0).ToString("0.#") + "k"
+                : n.ToString();
         }
     }
 }

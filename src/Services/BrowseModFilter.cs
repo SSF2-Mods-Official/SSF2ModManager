@@ -9,8 +9,14 @@ namespace SSF2ModManager.Services
         private static readonly Regex NineB = new(@"(?<![a-z0-9])9\s?b(?![a-z0-9])", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex BetaOrSandbox = new(@"\b(beta|sandbox)\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        /// <summary>The feed has no description, so name and version are all there is to read.</summary>
-        public static bool IsNineBOnly(GameBananaMod mod) => IsNineBOnly(mod.Name + " " + mod.Version);
+        /// <summary>Name, version and description (<c>_sText</c>, once details have loaded).</summary>
+        public static bool IsNineBOnly(GameBananaMod mod) =>
+            IsNineBOnly(mod.Name + " " + mod.Version + " " + PlainText(mod.FullText) + " " + mod.Description);
+
+        public static string PlainText(string? html) =>
+            string.IsNullOrEmpty(html)
+                ? ""
+                : System.Net.WebUtility.HtmlDecode(Regex.Replace(Regex.Replace(html, "<[^>]+>", " "), @"\s+", " ")).Trim();
 
         public static bool IsNineBOnly(string text) =>
             NineB.IsMatch(text) && !BetaOrSandbox.IsMatch(text);

@@ -351,10 +351,11 @@ namespace SSF2ModManager.Services
                 {
                     try { if (Directory.Exists(modPath)) Directory.Delete(modPath, true); } catch { }
                     DebugLogger.Error($"Archive extraction failed for {extension} file", ex);
+                    if (ex is InvalidOperationException)
+                        throw new InvalidOperationException($"Could not install {file.FileName}.\n\n{ex.Message}");
                     throw new InvalidOperationException(
-                        $"Failed to extract {file.FileName} ({extension}).\n" +
-                        $"The archive may be corrupted or in an unsupported format.\n\n" +
-                        $"Error: {ex.Message}");
+                        $"Could not open {file.FileName}. The download may be damaged or in a format the manager can't read.\n\n" +
+                        $"Details: {ex.Message}");
                 }
             }
             else

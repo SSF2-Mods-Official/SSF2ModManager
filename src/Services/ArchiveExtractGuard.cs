@@ -16,7 +16,7 @@ namespace SSF2ModManager.Services
 
         private static readonly HashSet<string> Allowed = new(StringComparer.OrdinalIgnoreCase)
         {
-            ".swf", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".json", ".xml", ".txt", ".md",
+            ".swf", ".ssf", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".json", ".xml", ".txt", ".md",
             ".mp3", ".wav", ".ogg", ".flv", ".dat", ".csv", ".as", ".fla", ".anm", ".svg"
         };
 
@@ -39,7 +39,8 @@ namespace SSF2ModManager.Services
 
             var ext = Path.GetExtension(name);
             if (string.IsNullOrEmpty(ext) || !Allowed.Contains(ext))
-                return "File type is not allowed: " + entryKey;
+                return "The mod contains a file type the manager does not install ("
+                    + (string.IsNullOrEmpty(ext) ? "no extension" : ext) + "): " + entryKey;
             return null;
         }
 

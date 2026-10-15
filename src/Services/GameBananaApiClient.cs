@@ -83,6 +83,22 @@ namespace SSF2ModManager.Services
             return ParseRecordPage(response, requireModModel: false);
         }
 
+        /// <summary>Every SSF2 mod, 50 a page. Records carry preview, submitter, likes and views but no description.</summary>
+        public async Task<(List<GameBananaMod> Mods, bool HasMore, int TotalCount)> BrowseIndexAsync(int page, int perPage = 50)
+        {
+            var url = $"{API_BASE}/Mod/Index?_nPage={page}&_nPerpage={perPage}&_aFilters%5BGeneric_Game%5D={SSF2_GAME_ID}";
+            var response = await _httpClient.GetStringAsync(url);
+            return ParseRecordPage(response, requireModModel: false);
+        }
+
+        /// <summary>Description (<c>_sText</c>), download count and files for one mod.</summary>
+        public async Task<GameBananaMod?> GetModDetailsAsync(int modId)
+        {
+            var url = $"{API_BASE}/Mod/{modId}?_csvProperties=_sText,_nDownloadCount,_aFiles";
+            var response = await _httpClient.GetStringAsync(url);
+            return JsonConvert.DeserializeObject<GameBananaMod>(response);
+        }
+
         private static (List<GameBananaMod> Mods, bool HasMore, int TotalCount) ParseRecordPage(string response, bool requireModModel)
         {
             var wrapper = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);

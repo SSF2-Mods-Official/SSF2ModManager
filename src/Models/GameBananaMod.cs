@@ -35,6 +35,9 @@ namespace SSF2ModManager.Models
         [JsonProperty("_tsDateUpdated")]
         public long DateUpdatedTimestamp { get; set; }
 
+        [JsonProperty("_tsDateModified")]
+        public long DateModifiedTimestamp { get; set; }
+
         [JsonProperty("_aSubmitter")]
         public GameBananaSubmitter? Submitter { get; set; }
 

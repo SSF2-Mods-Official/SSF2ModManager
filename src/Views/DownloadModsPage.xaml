@@ -24,17 +24,35 @@
         <Button x:Name="BtnMore" DockPanel.Dock="Bottom" Content="Load more"
                 HorizontalAlignment="Left" Margin="0,8,0,0"
                 Style="{StaticResource ModernButton}" Padding="12,6" Click="BtnMore_Click"/>
-        <ListBox x:Name="LstMods" BorderThickness="0" Background="Transparent">
+        <ListBox x:Name="LstMods" BorderThickness="0" Background="Transparent"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.ScrollUnit="Pixel">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel Margin="0,6,0,6">
-                        <Button Content="Download" DockPanel.Dock="Right"
-                                Style="{StaticResource AccentButton}" Padding="12,6"
-                                Click="BtnDownload_Click" Tag="{Binding}"/>
+                        <Border DockPanel.Dock="Left" Width="176" Height="99" Margin="0,0,12,0"
+                                CornerRadius="4" ClipToBounds="True"
+                                Background="{DynamicResource SurfaceBrush}">
+                            <Image Source="{Binding PreviewUrl, TargetNullValue={x:Null}}" Stretch="UniformToFill"
+                                   RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Border>
+                        <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center" Margin="12,0,0,0">
+                            <Button Content="Download" Style="{StaticResource AccentButton}" Padding="12,6"
+                                    Click="BtnDownload_Click" Tag="{Binding}"/>
+                            <Button Content="Page" Style="{StaticResource ModernButton}" Padding="12,4" Margin="0,6,0,0"
+                                    Click="BtnPage_Click" Tag="{Binding}"/>
+                        </StackPanel>
                         <StackPanel>
-                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold"
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="15" TextTrimming="CharacterEllipsis"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="{Binding CategoryLabel}" FontSize="12"
+                            <TextBlock Text="{Binding Byline}" FontSize="12" TextTrimming="CharacterEllipsis"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding Stats}" FontSize="12" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding Snippet}" FontSize="12" Margin="0,4,0,0"
+                                       TextWrapping="Wrap" MaxHeight="34" TextTrimming="CharacterEllipsis"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="{Binding FileSummary}" FontSize="11" Margin="0,2,0,0"
                                        Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </StackPanel>
                     </DockPanel>
