@@ -3,17 +3,19 @@ using System.IO;
 namespace SSF2ModManager.Services
 {
     /// <summary>
-    /// Shrinks a character SWF/SSF for GameBanana alts: keep scripts and sounds, drop display art.
+    /// Shrinks a GameBanana character alt to sounds only: DefineSound + SymbolClass names.
+    /// Art and DoABC scripts are dropped — the resource id already comes from mappings / UrlOverride.
     /// </summary>
     public static class AltSoundPackService
     {
         // Keep: End(0), ShowFrame(1), SetBackgroundColor(9), Protect(24), FileAttributes(69),
-        // ScriptLimits(65), Metadata(77), DoABC(72/82), DefineSound(14), StartSound(15),
+        // ScriptLimits(65), Metadata(77), DefineSound(14), StartSound(15),
         // SymbolClass(76), ExportAssets(56), ImportAssets(57/71), EnableDebugger(64/66),
         // DefineSceneAndFrameLabelData(86).
+        // Drop DoABC (72/82): register() and stats scripts are not needed for a voice UrlOverride.
         private static readonly HashSet<int> Keep = new()
         {
-            0, 1, 9, 14, 15, 24, 56, 57, 64, 65, 66, 69, 71, 72, 76, 77, 82, 86
+            0, 1, 9, 14, 15, 24, 56, 57, 64, 65, 66, 69, 71, 76, 77, 86
         };
 
         /// <summary>
@@ -52,7 +54,7 @@ namespace SSF2ModManager.Services
             return destPath;
         }
 
-        /// <summary>Pure transform for fixtures. Returns null when the SWF cannot be walked.</summary>
+        /// <summary>Pure transform for fixtures. Returns null when no DefineSound tag remains.</summary>
         public static byte[]? StripDisplayTags(byte[] fws)
         {
             if (fws.Length < 12 || fws[0] != (byte)'F' || fws[1] != (byte)'W' || fws[2] != (byte)'S')
@@ -69,7 +71,7 @@ namespace SSF2ModManager.Services
             outBody.Write(fws, 8, headerEnd - 8);
 
             pos = headerEnd;
-            var keptAbc = false;
+            var keptSound = false;
             while (pos + 2 <= fws.Length)
             {
                 var headerAt = pos;
@@ -99,13 +101,13 @@ namespace SSF2ModManager.Services
                 {
                     var headerLen = longHeader ? 6 : 2;
                     outBody.Write(fws, headerAt, headerLen + length);
-                    if (type is 72 or 82) keptAbc = true;
+                    if (type == 14) keptSound = true;
                 }
 
                 pos += length;
             }
 
-            if (!keptAbc)
+            if (!keptSound)
                 return null;
 
             var body = outBody.ToArray();

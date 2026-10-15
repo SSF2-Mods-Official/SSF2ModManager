@@ -8,14 +8,15 @@ namespace SSF2ModManager.Tests.Services
     public class AltSoundPackTests
     {
         [Fact]
-        public void StripDisplayTags_DropsBitmapKeepsAbc()
+        public void StripDisplayTags_DropsArtAndAbc_KeepsSound()
         {
             var swf = BuildToySwf();
             var outBytes = AltSoundPackService.StripDisplayTags(swf);
             Assert.NotNull(outBytes);
             Assert.True(outBytes!.Length < swf.Length, $"expected shrink {swf.Length} -> {outBytes.Length}");
-            Assert.True(IndexOf(outBytes, "register"u8) >= 0);
+            Assert.True(IndexOf(outBytes, "SNDDATA!!"u8) >= 0);
             Assert.True(IndexOf(outBytes, "FAKEJPEG"u8) < 0);
+            Assert.True(IndexOf(outBytes, "register"u8) < 0);
         }
 
         [Fact]
@@ -58,38 +59,49 @@ namespace SSF2ModManager.Tests.Services
             }
         }
 
-        /// <summary>Minimal FWS: empty rect, DoABC with "register", and a fat DefineBitsJPEG2 to strip.</summary>
+        /// <summary>FWS with DefineSound, fat JPEG, and DoABC — strip must keep sound only.</summary>
         private static byte[] BuildToySwf()
         {
             using var body = new MemoryStream();
-            // RECT: nBits=1 → 5+4 bits = 9 → 2 bytes
-            body.WriteByte(0x08); // nBits=1 in top 5 bits of first byte roughly; use simple 0x00 empty-ish
+            body.WriteByte(0x08);
             body.WriteByte(0x00);
-            // frame rate 12.0, frame count 1
             body.WriteByte(0x00);
             body.WriteByte(0x0C);
             body.WriteByte(0x01);
             body.WriteByte(0x00);
 
-            // FileAttributes tag 69, length 4, value 8 (AS3)
             WriteTag(body, 69, new byte[] { 0x08, 0x00, 0x00, 0x00 });
 
-            // DoABC tag 82: flags(4) + name\0 + abc bytes containing "register"
+            // DefineSound 14: id + format byte + sample count + "SNDDATA!!"
+            var sound = new byte[2 + 1 + 4 + 9];
+            sound[0] = 1;
+            sound[1] = 0;
+            sound[2] = 0x20; // format nibble
+            Buffer.BlockCopy(Encoding.ASCII.GetBytes("SNDDATA!!"), 0, sound, 7, 9);
+            WriteTag(body, 14, sound);
+
+            // SymbolClass linking id 1 → voice_test
+            var name = Encoding.ASCII.GetBytes("voice_test");
+            var sym = new byte[2 + 2 + name.Length + 1];
+            sym[0] = 1;
+            sym[1] = 0; // count
+            sym[2] = 1;
+            sym[3] = 0; // id
+            Buffer.BlockCopy(name, 0, sym, 4, name.Length);
+            WriteTag(body, 76, sym);
+
             var abc = Encoding.ASCII.GetBytes("xxxxregisteryyyy");
-            var doAbc = new byte[4 + 1 + abc.Length];
-            doAbc[0] = 1; // flags
-            // name empty string at offset 4
+            var doAbc = new byte[5 + abc.Length];
+            doAbc[0] = 1;
             Buffer.BlockCopy(abc, 0, doAbc, 5, abc.Length);
             WriteTag(body, 82, doAbc);
 
-            // Fat image tag 21 DefineBitsJPEG2: id + "FAKEJPEG" + padding
             var jpeg = new byte[2 + 8 + 2000];
-            jpeg[0] = 1;
+            jpeg[0] = 2;
             jpeg[1] = 0;
             Buffer.BlockCopy(Encoding.ASCII.GetBytes("FAKEJPEG"), 0, jpeg, 2, 8);
             WriteTag(body, 21, jpeg);
 
-            // End
             body.WriteByte(0);
             body.WriteByte(0);
 
