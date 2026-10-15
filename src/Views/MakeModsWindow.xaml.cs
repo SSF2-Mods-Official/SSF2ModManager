@@ -593,8 +593,13 @@ namespace SSF2ModManager.Views
             }
             try
             {
-                var pickPath = Path.Combine(_shell, "data", "ssf2mm", "state", "alt-costume-pick.json");
-                try { if (File.Exists(pickPath)) File.Delete(pickPath); } catch { }
+                var pickPaths = new[]
+                {
+                    Path.Combine(ShellWorkspaceService.StateDirectory(_shell), "alt-costume-pick.json"),
+                    Path.Combine(ShellWorkspaceService.UserStateDirectory(_shell), "alt-costume-pick.json")
+                };
+                foreach (var p in pickPaths)
+                    try { if (File.Exists(p)) File.Delete(p); } catch { }
                 ShellDirectLaunchService.Launch(_shell, ShellDirectLaunchService.ScreenCss,
                     new Dictionary<string, object?>
                     {
@@ -613,7 +618,8 @@ namespace SSF2ModManager.Views
                         TxtAltWork.Text = "Costume pick timed out. Type the costume index (−1 = base) yourself.";
                         return;
                     }
-                    if (!File.Exists(pickPath)) return;
+                    var pickPath = pickPaths.FirstOrDefault(File.Exists);
+                    if (pickPath == null) return;
                     try
                     {
                         var jo = JObject.Parse(File.ReadAllText(pickPath));
@@ -621,6 +627,7 @@ namespace SSF2ModManager.Views
                         TxtAltCostume.Text = jo["costume"]!.ToString();
                         TxtAltWork.Text = "Picked costume " + TxtAltCostume.Text + " for " + (jo["character"] ?? character) + ".";
                         _altPickTimer.Stop();
+                        try { File.Delete(pickPath); } catch { }
                     }
                     catch { }
                 };
