@@ -493,6 +493,21 @@ namespace SSF2ModManager.Services
             catch { return null; }
 
             var document = SwfPackage.DocumentClass(raw);
+            var registers = SwfPackage.RegisterCalls(swf);
+            if (registers.Count > 0)
+            {
+                if (document != null && !SwfPackage.IsBetaDocument(document) && !SwfPackage.IsTimelineDocument(document))
+                    return null;
+                var id = registers.FirstOrDefault(r => r.Key == "id").Value;
+                var kind = registers.Any(r => r.Key == "stage") ? OneClickKind.Stage
+                    : registers.Any(r => r.Key == "music") ? OneClickKind.Song
+                    : SwfPackage.IsCharacter(swf) ? OneClickKind.Character
+                    : (OneClickKind?)null;
+                if (kind == null || string.IsNullOrWhiteSpace(id))
+                    return null;
+                return new OneClickItem { Kind = kind.Value, RelativePath = relative, FullPath = path, Id = id, Selected = true };
+            }
+
             var (stageId, _) = ShellStageCloneService.ReadStageImportIdentity(swf);
             var stageClip = HasStageClip(swf);
             if (SwfPackage.IsStage(swf) || stageClip)

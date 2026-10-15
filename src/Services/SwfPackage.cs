@@ -279,6 +279,139 @@ namespace SSF2ModManager.Services
             return names;
         }
 
+        /// <summary>
+        /// Each <c>register("key", "value")</c> call in the SWF's ABC, in code order. Value is null when the second
+        /// argument is not a string literal (<c>register("stage", draculascastle)</c>).
+        /// </summary>
+        public static IReadOnlyList<(string Key, string? Value)> RegisterCalls(byte[] raw)
+        {
+            var calls = new List<(string, string?)>();
+            byte[] swf;
+            try { swf = ToSwf(raw); }
+            catch { return calls; }
+            if (swf.Length < 12 || swf[0] != (byte)'F')
+                return calls;
+            var pos = 8;
+            if (!SkipRect(swf, ref pos))
+                return calls;
+            pos += 4;
+            while (pos + 2 <= swf.Length)
+            {
+                var code = swf[pos] | (swf[pos + 1] << 8);
+                pos += 2;
+                var type = code >> 6;
+                var length = code & 0x3F;
+                if (length == 0x3F)
+                {
+                    if (pos + 4 > swf.Length)
+                        break;
+                    length = swf[pos] | (swf[pos + 1] << 8) | (swf[pos + 2] << 16) | (swf[pos + 3] << 24);
+                    pos += 4;
+                }
+                if (length < 0 || pos + length > swf.Length || type == 0)
+                    break;
+                if (type == 82 || type == 72)
+                {
+                    var abc = pos;
+                    var end = pos + length;
+                    if (type == 82)
+                    {
+                        abc += 4;
+                        while (abc < end && swf[abc] != 0)
+                            abc++;
+                        abc++;
+                    }
+                    try { ReadRegisterCalls(swf, abc, end, calls); }
+                    catch (IndexOutOfRangeException) { }
+                }
+                pos += length;
+            }
+            return calls;
+        }
+
+        private static void ReadRegisterCalls(byte[] b, int p, int end, List<(string, string?)> calls)
+        {
+            int U30()
+            {
+                int result = 0, shift = 0;
+                for (var i = 0; i < 5; i++)
+                {
+                    var v = b[p++];
+                    result |= (v & 0x7F) << shift;
+                    if ((v & 0x80) == 0)
+                        break;
+                    shift += 7;
+                }
+                return result;
+            }
+
+            p += 4;
+            for (int i = 1, n = U30(); i < n; i++) U30();
+            for (int i = 1, n = U30(); i < n; i++) U30();
+            var doubles = U30();
+            p += Math.Max(0, doubles - 1) * 8;
+            var stringCount = U30();
+            var strings = new string[Math.Max(1, stringCount)];
+            for (var i = 1; i < stringCount; i++)
+            {
+                var len = U30();
+                strings[i] = System.Text.Encoding.UTF8.GetString(b, p, len);
+                p += len;
+            }
+            var nsCount = U30();
+            for (var i = 1; i < nsCount; i++) { p++; U30(); }
+            var setCount = U30();
+            for (var i = 1; i < setCount; i++) { for (int j = 0, c = U30(); j < c; j++) U30(); }
+            var register = new HashSet<int>();
+            var nameCount = U30();
+            for (var i = 1; i < nameCount; i++)
+            {
+                var kind = b[p++];
+                var name = 0;
+                switch (kind)
+                {
+                    case 0x07: case 0x0D: U30(); name = U30(); break;
+                    case 0x0F: case 0x10: name = U30(); break;
+                    case 0x11: case 0x12: break;
+                    case 0x09: case 0x0E: name = U30(); U30(); break;
+                    case 0x1B: case 0x1C: U30(); break;
+                    case 0x1D: U30(); for (int j = 0, c = U30(); j < c; j++) U30(); break;
+                    default: return;
+                }
+                if (name > 0 && name < strings.Length && strings[name] == "register")
+                    register.Add(i);
+            }
+            if (register.Count == 0)
+                return;
+
+            string? Str(int index) => index > 0 && index < strings.Length ? strings[index] : null;
+            while (p < end - 2)
+            {
+                if (b[p] != 0x5D)
+                {
+                    p++;
+                    continue;
+                }
+                var at = p;
+                p++;
+                if (!register.Contains(U30()) || p >= end || b[p] != 0x2C)
+                {
+                    p = at + 1;
+                    continue;
+                }
+                p++;
+                var key = Str(U30());
+                string? value = null;
+                if (p < end && b[p] == 0x2C)
+                {
+                    p++;
+                    value = Str(U30());
+                }
+                if (key != null)
+                    calls.Add((key, value));
+            }
+        }
+
         public static bool IsBetaDocument(string? documentClass) =>
             !string.IsNullOrEmpty(documentClass)
             && (documentClass.Equals("Main", StringComparison.Ordinal)
