@@ -7,10 +7,14 @@
                        Foreground="{DynamicResource TextPrimaryBrush}"/>
             <TextBlock TextWrapping="Wrap" Margin="0,4,0,8"
                        Foreground="{DynamicResource TextSecondaryBrush}"
-                       Text="Events, music, tutorials, characters, stages, intros, and general mods."/>
+                       Text="Every SSF2 mod on GameBanana, newest first."/>
             <DockPanel>
                 <ComboBox x:Name="CmbCategory" Width="180" Margin="0,0,8,0"
                           Style="{StaticResource DarkComboBox}" SelectionChanged="Filter_Changed"/>
+                <CheckBox x:Name="ChkNineB" DockPanel.Dock="Right" Margin="8,0,0,0" VerticalAlignment="Center"
+                          Content="Show 9B mods (likely unsupported)"
+                          Foreground="{DynamicResource TextPrimaryBrush}"
+                          Checked="Filter_Changed" Unchecked="Filter_Changed"/>
                 <TextBox x:Name="TxtSearch" Style="{StaticResource ModernTextBox}"
                          TextChanged="Filter_Changed"/>
             </DockPanel>

@@ -32,6 +32,8 @@ namespace SSF2ModManager.Views
             new("intro", "Intros", "Intro", PlaceholderCategory),
             new("mod", "General Mods", "Mod", PlaceholderCategory)
         ];
+        /// <summary>Every SSF2 mod, newest first. Categories without their own id filter this feed by root category.</summary>
+        private readonly CategoryFeed _gameFeed = new("all", "All", "Mod", 0);
         private bool _loading;
         private bool _ready;
 
@@ -57,6 +59,7 @@ namespace SSF2ModManager.Views
             if (!_ready)
                 return;
             ApplyFilter();
+            BtnMore.IsEnabled = !_loading && HasMoreForFilter();
             if (VisibleCount() == 0 && HasMoreForFilter())
                 await LoadMoreAsync();
         }
@@ -105,28 +108,13 @@ namespace SSF2ModManager.Views
             TxtStatus.Text = "Loading…";
             try
             {
-                var filter = SelectedFilter();
-                var selected = FeedFor(filter);
-                if (selected != null && selected.CategoryId <= 0)
+                foreach (var feed in FeedsForFilter())
                 {
-                    ApplyFilter();
-                    TxtStatus.Text = "That category is listed, but its GameBanana id is not set yet.";
-                    BtnMore.IsEnabled = false;
-                    return;
-                }
-                foreach (var feed in _feeds)
-                {
-                    if (filter != "all" && filter != feed.Kind)
-                        continue;
-                    if (feed.CategoryId <= 0 || !feed.More)
-                        continue;
-                    await PullAsync(feed);
+                    if (feed.More)
+                        await PullAsync(feed);
                 }
                 ApplyFilter();
-                TxtStatus.Text = LstMods.Items.Count + " mod(s)";
                 BtnMore.IsEnabled = HasMoreForFilter();
-                if (!BtnMore.IsEnabled)
-                    TxtStatus.Text += " — end of the list";
             }
             catch (Exception ex)
             {
@@ -141,19 +129,34 @@ namespace SSF2ModManager.Views
         private async Task PullAsync(CategoryFeed feed)
         {
             feed.Page++;
-            var (mods, more, _) = await _api.SearchCategoryAsync(feed.CategoryId, feed.Page, 40);
+            var fromGame = feed == _gameFeed;
+            var (mods, more, _) = fromGame
+                ? await _api.SearchModsAsync("", feed.Page, 50, "new")
+                : await _api.SearchCategoryAsync(feed.CategoryId, feed.Page, 40);
             feed.More = more;
             foreach (var mod in mods)
             {
-                if (_rows.Any(r => r.Mod.Id == mod.Id))
+                var owner = fromGame ? FeedFor(BrowseModFilter.KindFor(mod.RootCategory?.Name)) ?? FeedFor("mod")! : feed;
+                var label = fromGame && !string.IsNullOrWhiteSpace(mod.RootCategory?.Name) ? mod.RootCategory!.Name : owner.Label;
+                var existing = _rows.FirstOrDefault(r => r.Mod.Id == mod.Id);
+                if (existing != null)
+                {
+                    if (!fromGame)
+                    {
+                        existing.Kind = owner.Kind;
+                        existing.CategoryLabel = owner.Label;
+                        existing.CategoryName = owner.CategoryName;
+                    }
                     continue;
+                }
                 _rows.Add(new BrowseRow
                 {
                     Mod = mod,
                     Name = string.IsNullOrWhiteSpace(mod.Name) ? "Mod " + mod.Id : mod.Name,
-                    CategoryLabel = feed.Label,
-                    CategoryName = feed.CategoryName,
-                    Kind = feed.Kind
+                    CategoryLabel = label,
+                    CategoryName = owner.CategoryName,
+                    Kind = owner.Kind,
+                    NineBOnly = BrowseModFilter.IsNineBOnly(mod)
                 });
             }
         }
@@ -162,10 +165,27 @@ namespace SSF2ModManager.Views
         {
             var filter = SelectedFilter();
             var q = (TxtSearch.Text ?? "").Trim();
-            var shown = _rows.Where(r =>
+            var showNineB = ChkNineB.IsChecked == true;
+            var matching = _rows.Where(r =>
                 (filter == "all" || r.Kind == filter)
-                && (q.Length == 0 || r.Name.Contains(q, StringComparison.OrdinalIgnoreCase)));
-            LstMods.ItemsSource = shown.ToList();
+                && (q.Length == 0 || r.Name.Contains(q, StringComparison.OrdinalIgnoreCase))).ToList();
+            var shown = matching.Where(r => showNineB || !r.NineBOnly).ToList();
+            var hidden = matching.Count - shown.Count;
+            LstMods.ItemsSource = shown;
+            TxtStatus.Text = shown.Count + " mod(s)"
+                + (hidden > 0 ? $", {hidden} 9B mod(s) hidden" : "")
+                + (HasMoreForFilter() ? "" : " — end of the list");
+            DebugLogger.Log($"[browse] shown={shown.Count} hidden9b={hidden} rows={_rows.Count}");
+        }
+
+        /// <summary>All reads the game feed plus every category with its own id; a category without one reads the game feed.</summary>
+        private IEnumerable<CategoryFeed> FeedsForFilter()
+        {
+            var filter = SelectedFilter();
+            if (filter == "all")
+                return new[] { _gameFeed }.Concat(_feeds.Where(f => f.CategoryId > 0));
+            var feed = FeedFor(filter);
+            return new[] { feed != null && feed.CategoryId > 0 ? feed : _gameFeed };
         }
 
         private string SelectedFilter()
@@ -179,18 +199,7 @@ namespace SSF2ModManager.Views
 
         private int VisibleCount() => LstMods.Items.Count;
 
-        private bool HasMoreForFilter()
-        {
-            var filter = SelectedFilter();
-            foreach (var feed in _feeds)
-            {
-                if (filter != "all" && filter != feed.Kind)
-                    continue;
-                if (feed.CategoryId > 0 && feed.More)
-                    return true;
-            }
-            return false;
-        }
+        private bool HasMoreForFilter() => FeedsForFilter().Any(f => f.More);
 
         private string EnsureShellVersion()
         {
@@ -241,6 +250,7 @@ namespace SSF2ModManager.Views
             public string CategoryLabel { get; set; } = "";
             public string CategoryName { get; set; } = "";
             public string Kind { get; set; } = "";
+            public bool NineBOnly { get; set; }
         }
     }
 }

@@ -1,18 +1,19 @@
 # SSF2 Mod Manager
 
-A Windows mod manager for **Super Smash Flash 2**. Browse and install GameBanana mods with backups and conflict detection, keep several SSF2 builds with their own mod lists, and set up **SSF2 Shell**, a moddable build of SSF2 Beta 1.4.0.1.
+A Windows launcher and mod manager for **Super Smash Flash 2**. It builds **SSF2 Shell**, a moddable copy of SSF2 Beta 1.4.0.1, then lets you download, make and manage mods for it.
 
 ![.NET 8](https://img.shields.io/badge/.NET-8.0-blue) ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Features
 
-- Browse, search and install SSF2 mods from GameBanana
-- Enable, disable, update and uninstall mods, with automatic backups
-- Conflict detection when mods share files
-- Multiple SSF2 builds, each with its own mod list
+- Guided setup: builds SSF2 Shell from your SSF2 Beta 1.4.0.1 and keeps it up to date
+- Download Mods: browse and install SSF2 mods from GameBanana (0.9b-only mods hidden unless you ask)
 - 1-Click installs from GameBanana (`ssf2mm:` links)
-- Guided setup for SSF2 Shell and an optional debugging environment
-- Themes, English and Spanish, in-app news
+- Manage Mods: turn SSF2 Shell mods on or off and change their settings
+- Make Mods: events, costumes, music, boot intros, stages and characters, plus packaging and file tools
+- Configure: start the game straight into a menu, match or event, and pick the boot intro and music
+- Debug: launch SSF2 Shell with the debugger in VS Code (optional)
+- Themes, English and Spanish, in-app news and docs
 
 ## Install
 
@@ -32,9 +33,11 @@ The setup window opens on first launch. Run it again any time from **Settings â†
 
 ## Using it
 
-1. Go to **Browse Mods**, pick a mod, and click **Install**.
-2. Manage mods on the **Installed** page.
-3. To mod another SSF2 folder, use **Settings â†’ Add Version**.
+1. **Play** starts SSF2 Shell. **Configure** sets what it opens into.
+2. **Download Mods**: pick a mod and click **Download**. Tick **Show 9B mods** to include mods made for 0.9b, which likely won't work.
+3. **Manage Mods**: turn mods on or off. Changes apply the next time the game starts.
+4. **Make Mods**: create or import your own content.
+5. To use a different SSF2 Shell folder, click **Change** next to the folder.
 
 Settings and mod data are stored in `%AppData%\SSF2ModManager\`. Player data for SSF2 Shell (playlists, controller profiles) is in `SSF2 Shell\expansions\user`.
 
@@ -86,7 +89,7 @@ dotnet test SSF2ModManager.sln
 
 ## Disclaimer
 
-Mods change game files. The manager makes backups, but keep a copy of your original SSF2 folder. SSF2 Mod Manager is a fan project and is not affiliated with McLeodGaming.
+SSF2 Shell is built in its own folder, and your SSF2 Beta 1.4.0.1 folder is only read. SSF2 Mod Manager is a fan project and is not affiliated with McLeodGaming.
 
 ## License
 

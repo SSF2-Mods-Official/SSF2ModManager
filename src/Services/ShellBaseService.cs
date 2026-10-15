@@ -102,9 +102,11 @@ namespace SSF2ModManager.Services
             }
         }
 
-        /// <summary>A Shell dev tree (decompiled engine present) is maintained by hand, never rebuilt from a release.</summary>
+        /// <summary>A Shell dev tree (decompiled engine present, or built from source as version "dev") is maintained
+        /// by hand, never rebuilt from a release.</summary>
         public static bool IsDevShell(string shellRoot) =>
-            Directory.Exists(Path.Combine(shellRoot, "expansions", "decompiled"));
+            Directory.Exists(Path.Combine(shellRoot, "expansions", "decompiled"))
+            || string.Equals(InstalledVersion(shellRoot), "dev", StringComparison.OrdinalIgnoreCase);
 
         public static bool IsVanillaFolder(string? path) =>
             !string.IsNullOrWhiteSpace(path) && File.Exists(Path.Combine(path, "SSF2.swf"));

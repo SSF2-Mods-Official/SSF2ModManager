@@ -35,6 +35,15 @@ namespace SSF2ModManager.Tests.Services
         }
 
         [Fact]
+        public void SourceBuiltShell_IsNeverRebuilt()
+        {
+            File.WriteAllText(Path.Combine(_dir, ShellBaseService.BuildInfoFile), "{\"version\": \"1.0.0\"}");
+            Assert.False(ShellBaseService.IsDevShell(_dir));
+            File.WriteAllText(Path.Combine(_dir, ShellBaseService.BuildInfoFile), "{\"version\": \"dev\"}");
+            Assert.True(ShellBaseService.IsDevShell(_dir));
+        }
+
+        [Fact]
         public void VanillaFolder_NeedsSsf2Swf()
         {
             Assert.False(ShellBaseService.IsVanillaFolder(_dir));

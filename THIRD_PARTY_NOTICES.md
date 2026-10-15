@@ -1,42 +1,28 @@
 # Third-Party Notices
 
-SSF2 Mod Manager bundles third-party software. Each component is the property of its
-respective authors and is distributed under its own license.
+SSF2 Mod Manager includes the third-party software below. Each component belongs to its
+authors and is distributed under its own license.
 
-## JPEXS Free Flash Decompiler (FFDec)
-
-- Project: https://github.com/jindrapetrik/jpexs-decompiler
-- License: GNU General Public License v3.0 (GPLv3)
-- Bundled location: `src/ffdec/` (copied to the application output directory at build time)
-- Full license text: `src/ffdec/license.txt`
-
-FFDec is bundled and used **unmodified** as jars under `src/ffdec/`. SSF2 Mod Manager
-invokes FFDec only as a separate process and does not link FFDec into its own binary.
-
-Additionally, SSF2 Mod Manager ships a small GPLv3 **FFDec warm worker**
-(`src/ffdec-worker/`, built jar `src/ffdec/ffdec-worker.jar`) that loads FFDec on
-the classpath and runs successive CLI commands in one JVM. That worker is a
-derivative work under GPLv3; its source is included in the repository. The upstream
-FFDec source remains available at the project URL above.
-
-## Bundled Java Runtime (Eclipse Temurin JRE)
-
-- Project: https://adoptium.net/
-- License: GNU General Public License, version 2, with the Classpath Exception
-  (see `jre/legal/` after fetch)
-- Bundled location: `src/jre/` (fetched by `scripts/deps/fetch-native-tools.ps1`, copied to output)
-- Used only to launch the bundled FFDec JAR. Not linked into the Mod Manager process.
-
-## Bundled ffmpeg
+## ffmpeg
 
 - Project: https://ffmpeg.org/
-- Builds used: https://www.gyan.dev/ffmpeg/builds/ (essentials)
-- License: LGPL/GPL depending on build configuration — see license files under `ffmpeg/`
-  after fetch
-- Bundled location: `src/ffmpeg/` (fetched by `scripts/deps/fetch-native-tools.ps1`, copied to output)
-- Used as a separate process for FLA FLV→WAV and music trim / resample (44.1 kHz). FLA export does not use a PATH install.
+- Build: https://www.gyan.dev/ffmpeg/builds/ (essentials)
+- License: GNU General Public License v3.0. See `ffmpeg/LICENSE` and `ffmpeg/README.txt` in the release.
+- Source: https://github.com/FFmpeg/FFmpeg
+- Fetched by `scripts/deps/fetch-native-tools.ps1` and run as a separate process for sound and music conversion.
 
-## Other NuGet dependencies
+## NuGet packages
 
-See the project’s package references (Newtonsoft.Json, SharpCompress, Markdig) for their
-respective licenses.
+| Package | License |
+| --- | --- |
+| [Microsoft.Web.WebView2](https://www.nuget.org/packages/Microsoft.Web.WebView2) | Microsoft WebView2 SDK license |
+| [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) | MIT |
+| [SharpCompress](https://github.com/adamhathcock/sharpcompress) | MIT |
+| [Markdig](https://github.com/xoofx/markdig) | BSD-2-Clause |
+| [NLayer](https://github.com/naudio/NLayer) | MIT |
+
+## Downloaded separately
+
+[Next2Flash](https://github.com/SSF2-Mods-Official/Next2Flash) is downloaded by setup, not
+bundled. Its release includes Python, a Java runtime, JPEXS Free Flash Decompiler and the
+Flex/AIR SDK, each under its own license; see its repository.
