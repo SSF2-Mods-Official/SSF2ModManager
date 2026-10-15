@@ -104,7 +104,7 @@ namespace SSF2ModManager.Tests.Services
         [Fact]
         public void EagerPlaceholderSlotKeys_AreCssPaStock()
         {
-            Assert.Equal(new[] { "select", "charselect", "stock" },
+            Assert.Equal(new[] { "select", "cssp", "stock" },
                 CharacterAssetService.EagerPlaceholderSlotKeys);
         }
     }

@@ -408,16 +408,16 @@ namespace SSF2ModManager.Tests.Services
             MappingsEditService.SetLayoutNumber(doc, "character_select_screen.icon_size.width", 12);
             MappingsEditService.SetLayoutNumber(doc, "character_select_screen.icon_size.height", 12);
             MappingsEditService.SetLayoutNumber(doc, "character_select_screen.position.x", -51);
-            // Sparse 13×4: width ~46; height band 150/4=37 → cell 37.
+            // Sparse 13×4: width 610/13=46, height 200/4=50, capped at 42.
             var grid = Enumerable.Range(0, 4)
                 .Select(_ => Enumerable.Range(0, 13).Select(i => $"c{i}").ToList())
                 .ToList();
             MappingsEditService.FitSelectLayout(doc, isCss: true, grid);
             var size = MappingsEditService.GetLayoutNumber(doc, "character_select_screen.icon_size.width");
             size.Should().Be(MappingsEditService.SuggestIconSize(13, 4));
-            size!.Value.Should().Be(37);
+            size!.Value.Should().Be(42);
             MappingsEditService.GetLayoutNumber(doc, "character_select_screen.position.x")
-                .Should().Be(MappingsEditService.SuggestCssPositionX(13, 37));
+                .Should().Be(MappingsEditService.SuggestCssPositionX(13, 42));
         }
 
         [Fact]
@@ -430,9 +430,9 @@ namespace SSF2ModManager.Tests.Services
                 .Select(r => new List<string> { $"r{r}" })
                 .ToList();
             MappingsEditService.FitSelectLayout(doc, isCss: true, grid);
-            // availH 150 / 15 rows → cell 10
+            // availH 200 / 15 rows → cell 13
             MappingsEditService.GetLayoutNumber(doc, "character_select_screen.icon_size.width")
-                .Should().Be(10);
+                .Should().Be(13);
             MappingsEditService.CssMaxRows.Should().Be(15);
         }
 
@@ -449,9 +449,9 @@ namespace SSF2ModManager.Tests.Services
             for (var r = 0; r < 9; r++)
                 grid.Add(new List<string> { $"a{r}", $"b{r}" });
             MappingsEditService.FitSelectLayout(doc, isCss: true, grid);
-            // 30 cols → 20; 10 rows in 150px → 15; cell 15
+            // 30 cols → 20; 10 rows in 200px → 20; cell 20
             MappingsEditService.GetLayoutNumber(doc, "character_select_screen.icon_size.width")
-                .Should().Be(15);
+                .Should().Be(20);
         }
 
         [Fact]
