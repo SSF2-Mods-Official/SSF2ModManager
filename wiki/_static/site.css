@@ -330,7 +330,7 @@ pre code {
 }
 .modal h2 { margin: 0; font-size: 1.15rem; }
 .modal label { display: grid; gap: 0.25rem; font-size: 0.85rem; }
-.modal input {
+.modal input, .modal select {
   font: inherit;
   padding: 0.4rem 0.5rem;
   border: 1px solid var(--border);

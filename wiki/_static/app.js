@@ -234,12 +234,15 @@
     var html = '<section class="history">' + historyHtml(versionRows(record)) + "</section>";
     if (item) {
       html += '<div class="page-actions"><button type="button" id="edit-page">Edit</button>';
+      html += '<button type="button" id="dl-page">Download</button>';
       html += '<button type="button" class="danger" id="del-page">Delete</button></div>';
     }
     foot.innerHTML = html;
     content.appendChild(foot);
     var edit = foot.querySelector("#edit-page");
     if (edit) edit.addEventListener("click", function () { openEditor(file, raw); });
+    var dl = foot.querySelector("#dl-page");
+    if (dl) dl.addEventListener("click", function () { downloadArticle(file, raw); });
     var del = foot.querySelector("#del-page");
     if (del) {
       del.addEventListener("click", function () {
@@ -341,7 +344,7 @@
       var html = historyHtml(rows);
       html += '<div class="page-actions"><button type="button" id="edit-page">Edit</button>';
       if (record && record.userMade) {
-        html += '<button type="button" id="pkg-page">Download article</button>';
+        html += '<button type="button" id="pkg-page">Download</button>';
         html += '<button type="button" class="danger" id="del-page">Delete</button>';
       }
       html += "</div>";
@@ -658,6 +661,14 @@
       back.className = "modal-back";
       var html = '<form class="modal"><h2>' + escape(title) + "</h2>";
       fields.forEach(function (f) {
+        if (f.type === "select") {
+          html += "<label>" + escape(f.label) + '<select name="' + escape(f.id) + '">';
+          (f.options || []).forEach(function (opt) {
+            html += '<option value="' + escape(opt.id) + '">' + escape(opt.label) + "</option>";
+          });
+          html += "</select></label>";
+          return;
+        }
         html +=
           "<label>" +
           escape(f.label) +
@@ -754,6 +765,14 @@
     var at = 0;
     chunks.forEach(function (p) { out.set(p, at); at += p.length; });
     return out;
+  }
+
+  function tutorialMarkdown(title, template) {
+    var safe = String(title).replace(/[\r\n]/g, " ");
+    if (template === "reference") {
+      return "---\ntitle: " + safe + "\nsummary: One line on what this page is for.\norder: 50\n---\n\n# " + safe + "\n\n## Info\n\n| " + safe + " |\n| --- |\n| Field | Value |\n| Related | [Another page](another-page.md) |\n\nOne sentence on what this page is for.\n\n## Contents\n\n1. [How it works](#how-it-works)\n2. [References](#references)\n\n## How it works\n\n| Function | What it does | Log line |\n| --- | --- | --- |\n| `name` | What it does. | `log line` |\n\n## References\n\n1. [Another page](another-page.md) — what that page is for.\n";
+    }
+    return "---\ntitle: " + safe + "\nsummary: One line on what this page is for.\norder: 10\n---\n\nOne sentence on what the reader does here.\n\n## First step\n\nWrite the step.\n\n## Next step\n\nWrite the next step.\n";
   }
 
   function downloadArticle(file, raw) {
@@ -920,11 +939,18 @@
 
     var neu = document.getElementById("new-tutorial");
     if (neu) neu.addEventListener("click", function () {
-      askForm("New tutorial", [{ id: "title", label: "Title", value: "" }], "Create").then(function (fields) {
+      askForm("New tutorial", [
+        { id: "title", label: "Title", value: "" },
+        { id: "template", label: "Template", type: "select", options: [
+          { id: "article", label: "Article" },
+          { id: "reference", label: "Reference" }
+        ] }
+      ], "Create").then(function (fields) {
         if (!fields || !fields.title.trim()) return;
         var title = fields.title.trim();
+        var template = fields.template === "reference" ? "reference" : "article";
         if (window.wiki && window.wiki.createTutorial) {
-          window.wiki.createTutorial(title).then(function (file) {
+          window.wiki.createTutorial(title, tutorialMarkdown(title, template)).then(function (file) {
             sessionStorage.setItem("wiki-open-edit", file);
             location.hash = "#/" + encodeURIComponent(file);
             location.reload();
@@ -935,7 +961,7 @@
         }
         var slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "tutorial";
         var file = "My Tutorials/" + slug + ".md";
-        var md = "---\ntitle: " + title + "\nsummary:\norder: 10\n---\n\n# " + title + "\n\n";
+        var md = tutorialMarkdown(title, template);
         var store = localStore();
         store[file] = {
           md: md,

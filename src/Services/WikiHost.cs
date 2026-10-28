@@ -170,7 +170,7 @@ namespace SSF2ModManager.Services
             return Task.Run(() => DownloadCore(idRaw)).GetAwaiter().GetResult();
         }
 
-        public string CreateTutorial(string titleRaw)
+        public string CreateTutorial(string titleRaw, string bodyRaw)
         {
             var title = (titleRaw ?? "").Trim();
             if (title.Length == 0)
@@ -187,7 +187,9 @@ namespace SSF2ModManager.Services
             }
             var abs = PageInside(rel) ?? throw new InvalidOperationException("That title cannot be used.");
             var safe = title.Replace("\r", " ").Replace("\n", " ");
-            var body = "---\ntitle: " + safe + "\nsummary:\norder: 50\n---\n\n# " + safe + "\n\n";
+            var body = string.IsNullOrWhiteSpace(bodyRaw)
+                ? "---\ntitle: " + safe + "\nsummary: One line on what this page is for.\norder: 10\n---\n\nOne sentence on what the reader does here.\n\n## First step\n\nWrite the step.\n"
+                : bodyRaw.Replace("\0", "");
             Directory.CreateDirectory(Path.GetDirectoryName(abs)!);
             File.WriteAllText(abs, body, Encoding.UTF8);
             WriteRecord(rel, new JObject { ["userMade"] = true, ["entries"] = new JArray() });

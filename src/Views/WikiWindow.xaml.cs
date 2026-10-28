@@ -53,7 +53,7 @@ namespace SSF2ModManager.Views
                         packagePage: function (file, author) { return b.PackagePage(file, author); },
                         deletePage: function (file) { return b.DeletePage(file); },
                         downloadTutorial: function (id) { return b.DownloadTutorial(id); },
-                        createTutorial: function (title) { return b.CreateTutorial(title); }
+                        createTutorial: function (title, body) { return b.CreateTutorial(title, body); }
                       };
                     })();
                     """);
