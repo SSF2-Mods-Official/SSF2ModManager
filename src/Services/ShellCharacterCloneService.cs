@@ -260,7 +260,6 @@ namespace SSF2ModManager.Services
                     OutputDirectory = work,
                     JpexsPath = jpexsPath,
                     DisplayName = shown,
-                    SetupForReFlash2 = false,
                     TakenNames = CollectTakenSymbolNames(installRoot)
                 }, progress, cancellationToken);
 
@@ -578,7 +577,6 @@ namespace SSF2ModManager.Services
                         NewName = assigned,
                         OutputDirectory = work,
                         DisplayName = shown,
-                        SetupForReFlash2 = false,
                         TakenNames = CollectTakenSymbolNames(installRoot)
                     }, progress, cancellationToken);
                     produced = clone.OutputSwfPath;

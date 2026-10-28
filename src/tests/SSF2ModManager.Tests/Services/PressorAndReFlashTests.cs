@@ -351,19 +351,8 @@ namespace SSF2ModManager.Tests.Services
         }
     }
 
-    public class ReFlashPackagingTests
+    public class CloneFolderTests
     {
-        [Fact]
-        public void ResolveExpansionFolderName_UsesDisplayNameWithSpaces()
-        {
-            CharacterCloneService.ResolveExpansionFolderName("Just Mario", "mario_clone")
-                .Should().Be("Just Mario");
-            CharacterCloneService.ResolveExpansionFolderName(null, "mario_clone")
-                .Should().Be("mario_clone");
-            CharacterCloneService.ResolveExpansionFolderName("  ", "mario_clone")
-                .Should().Be("mario_clone");
-        }
-
         [Fact]
         public void SanitizeExpansionFolderName_StripsIllegalChars()
         {
@@ -371,17 +360,6 @@ namespace SSF2ModManager.Tests.Services
                 .Should().Be("SFC link");
             CharacterCloneService.SanitizeExpansionFolderName("bad:name*here")
                 .Should().Be("badnamehere");
-        }
-
-        [Fact]
-        public void IsExpansionsOutputDirectory_DetectsSuffix()
-        {
-            CharacterCloneService.IsExpansionsOutputDirectory(@"C:\game\expansions\character")
-                .Should().BeTrue();
-            CharacterCloneService.IsExpansionsOutputDirectory(@"C:\game\data\character\expansions")
-                .Should().BeTrue();
-            CharacterCloneService.IsExpansionsOutputDirectory(@"C:\game\data\character")
-                .Should().BeFalse();
         }
 
         [Fact]
@@ -426,34 +404,6 @@ _loc1_[""mario""] = new Array();
             var stub = CharacterCloneService.CreateStubCostumes("wario");
             stub.Should().Contain("_loc1_[\"wario\"].push");
             stub.Should().NotContain("new Array()");
-        }
-
-        [Fact]
-        public void FindSpritePng_PicksFirstStockAndLastSubstantivePortraitFrame()
-        {
-            var root = Path.Combine(Path.GetTempPath(), "ssf2mm-sprites-" + Guid.NewGuid().ToString("N"));
-            var stock = Path.Combine(root, "DefineSprite_1_chibirobo_stock");
-            var portrait = Path.Combine(root, "DefineSprite_2_chibirobo_charselect");
-            Directory.CreateDirectory(stock);
-            Directory.CreateDirectory(portrait);
-            try
-            {
-                File.WriteAllBytes(Path.Combine(stock, "1.png"), new byte[100]);
-                File.WriteAllBytes(Path.Combine(stock, "2.png"), new byte[300]);
-                File.WriteAllBytes(Path.Combine(portrait, "1.png"), new byte[100]);
-                File.WriteAllBytes(Path.Combine(portrait, "8.png"), new byte[900]);
-                File.WriteAllBytes(Path.Combine(portrait, "9.png"), new byte[1200]);
-                File.WriteAllBytes(Path.Combine(portrait, "10.png"), new byte[800]);
-
-                CharacterCloneService.FindSpritePng(root, "chibirobo", true, "stock")
-                    .Should().EndWith("1.png");
-                CharacterCloneService.FindSpritePng(root, "chibirobo", false, "charselect")
-                    .Should().EndWith("10.png");
-            }
-            finally
-            {
-                try { Directory.Delete(root, true); } catch { }
-            }
         }
 
         [Fact]
@@ -515,46 +465,6 @@ _loc1_[""mario""] = new Array();
                 "mario.ssf", StringComparison.OrdinalIgnoreCase));
         }
 
-        [Fact]
-        public async Task ReFlashClone_RealChibiRobo_WritesCorrectExpansionAssets()
-        {
-            var idk = Environment.GetEnvironmentVariable("SSF2_IDK_ROOT");
-            var source = string.IsNullOrWhiteSpace(idk) ? "" : Path.Combine(idk, "data", "character", "chibirobo.ssf");
-            var ffdec = @"C:\Program Files (x86)\FFDec";
-            if (!File.Exists(source) || !Directory.Exists(ffdec)) return;
-
-            var output = Path.Combine(Path.GetTempPath(), "ssf2mm-reflash-e2e-" + Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(output);
-            try
-            {
-                var result = await new CharacterCloneService().CloneAsync(new CharacterCloneRequest
-                {
-                    SourcePath = source,
-                    OldName = "chibirobo",
-                    NewName = "chibirobo_clone",
-                    DisplayName = "Clone Robo",
-                    OutputDirectory = output,
-                    JpexsPath = ffdec,
-                    SetupForReFlash2 = true
-                });
-
-                result.ExpansionFolderPath.Should().NotBeNull();
-                File.Exists(result.OutputSwfPath).Should().BeTrue();
-                File.Exists(Path.Combine(result.ExpansionFolderPath!, "stock.png")).Should().BeTrue();
-                File.Exists(Path.Combine(result.ExpansionFolderPath!, "PA.png")).Should().BeTrue();
-                File.Exists(Path.Combine(result.ExpansionFolderPath!, "settings.json")).Should().BeFalse();
-                var costumes = await File.ReadAllTextAsync(
-                    Path.Combine(result.ExpansionFolderPath!, "costumes.json"));
-                costumes.Should().StartWith("_loc1_[\"chibirobo_clone\"].push");
-                costumes.Should().NotContain("new Array()");
-                result.Notes.Should().NotContain(n => n.Contains(
-                    "id set to", StringComparison.OrdinalIgnoreCase));
-            }
-            finally
-            {
-                try { Directory.Delete(output, true); } catch { }
-            }
-        }
     }
 
     public class GamePrepareHelperTests
@@ -764,35 +674,5 @@ _loc1_[""mario""] = new Array();
             }
         }
 
-        [Fact]
-        public void CrispifyPngForRecolor_HardensAlphaAndScales()
-        {
-            var dir = Path.Combine(Path.GetTempPath(), "ssf2mm-crisp-" + Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(dir);
-            try
-            {
-                var src = Path.Combine(dir, "src.png");
-                var dest = Path.Combine(dir, "dest.png");
-                using (var bmp = new System.Drawing.Bitmap(2, 2))
-                {
-                    bmp.SetPixel(0, 0, System.Drawing.Color.FromArgb(200, 255, 0, 0));
-                    bmp.SetPixel(1, 0, System.Drawing.Color.FromArgb(40, 0, 255, 0));
-                    bmp.SetPixel(0, 1, System.Drawing.Color.FromArgb(255, 0, 0, 255));
-                    bmp.SetPixel(1, 1, System.Drawing.Color.FromArgb(0, 0, 0, 0));
-                    bmp.Save(src, System.Drawing.Imaging.ImageFormat.Png);
-                }
-
-                CharacterCloneService.CrispifyPngForRecolor(src, dest, nearestNeighborScale: 4);
-                using var outBmp = new System.Drawing.Bitmap(dest);
-                outBmp.Width.Should().Be(8);
-                outBmp.Height.Should().Be(8);
-                outBmp.GetPixel(0, 0).A.Should().Be(255);
-                outBmp.GetPixel(4, 0).A.Should().Be(0);
-            }
-            finally
-            {
-                try { Directory.Delete(dir, true); } catch { }
-            }
-        }
     }
 }

@@ -1072,7 +1072,8 @@
         window.wikiHolidayList.forEach(function (item) { root.classList.remove(item.id); });
         if (h) root.classList.add("holiday", h.id);
         else root.classList.remove("holiday");
-        holidayBtn.textContent = window.wikiHolidayPick ? h.mark + " " + h.name : (h ? "Auto " + h.mark : "Auto");
+        var mark = h ? '<span class="holiday-mark" aria-hidden="true">' + h.mark + "</span>" : "";
+        holidayBtn.innerHTML = window.wikiHolidayPick ? mark + " " + escape(h.name) : (h ? "Auto " + mark : "Auto");
       }
       holidayBtn.removeAttribute("hidden");
       paintHoliday();

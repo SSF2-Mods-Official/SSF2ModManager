@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -23,8 +20,6 @@ namespace SSF2ModManager.Services
         public string? JpexsPath { get; set; }
         /// <summary>Optional new in-game display name (the "displayName" field in Main.as). Empty leaves it unchanged.</summary>
         public string? DisplayName { get; set; }
-        /// <summary>When true, packages the clone as a ReFlash 2 expansion folder with stock/PA/costumes.</summary>
-        public bool SetupForReFlash2 { get; set; }
         /// <summary>
         /// Manager-allocated resource GUID written into register("guid", …).
         /// When null/empty, a fresh Guid is generated (callers with mappings should use
@@ -46,7 +41,6 @@ namespace SSF2ModManager.Services
     public class CharacterCloneResult
     {
         public string OutputSwfPath { get; set; } = "";
-        public string? ExpansionFolderPath { get; set; }
         public int XmlReplacements { get; set; }
         public int SymbolClassReplacements { get; set; }
         public int ScriptFileTouches { get; set; }
@@ -282,40 +276,14 @@ namespace SSF2ModManager.Services
                 // XML already checked for newName above — skip FFDec -export symbolClass (~1–2s).
 
                 var outExt = string.IsNullOrWhiteSpace(sourceExt) ? ".swf" : sourceExt;
-                string outputPath;
-                string? expansionFolder = null;
-
-                if (request.SetupForReFlash2)
-                {
-                    var folderName = ResolveExpansionFolderName(request.DisplayName, newName);
-                    expansionFolder = Path.Combine(request.OutputDirectory, folderName);
-                    Directory.CreateDirectory(expansionFolder);
-                    outputPath = Path.Combine(expansionFolder, newName + outExt);
-                    File.Copy(rebuiltSwf, outputPath, overwrite: true);
-
-                    progress?.Report($"Packaging ReFlash 2 expansion folder \"{folderName}\"…");
-                    await PackageReFlash2AssetsAsync(
-                        request.SourcePath,
-                        oldName,
-                        newName,
-                        expansionFolder,
-                        jpexsPath,
-                        workRoot,
-                        progress,
-                        ct);
-                }
-                else
-                {
-                    outputPath = Path.Combine(request.OutputDirectory, newName + outExt);
-                    File.Copy(rebuiltSwf, outputPath, overwrite: true);
-                }
+                var outputPath = Path.Combine(request.OutputDirectory, newName + outExt);
+                File.Copy(rebuiltSwf, outputPath, overwrite: true);
 
                 progress?.Report("Done.");
 
                 var result = new CharacterCloneResult
                 {
                     OutputSwfPath = outputPath,
-                    ExpansionFolderPath = expansionFolder,
                     XmlReplacements = xmlHits,
                     SymbolClassReplacements = xmlHits,
                     ScriptTextReplacements = xmlHits,
@@ -339,11 +307,6 @@ namespace SSF2ModManager.Services
                 result.Notes.Add(guidHits > 0
                     ? $"Resource GUID set to {appliedGuid} ({guidHits} touch(es))."
                     : $"Resource GUID {appliedGuid} was requested but no guid field could be located.");
-
-                if (request.SetupForReFlash2)
-                {
-                    result.Notes.Add("ReFlash 2 setup: stock, PA, and costumes written into expansion folder.");
-                }
 
                 result.Notes.Add(usedInMemory
                     ? "Cloned via FFDec in-memory identifier rewrite (SymbolClass + ABC strings)."
@@ -1984,15 +1947,6 @@ namespace SSF2ModManager.Services
                  .Replace("<", "&lt;")
                  .Replace(">", "&gt;");
 
-        /// <summary>
-        /// Expansion folder name: sanitized display name (spaces allowed), else new linkage name.
-        /// </summary>
-        public static string ResolveExpansionFolderName(string? displayName, string newName)
-        {
-            var raw = !string.IsNullOrWhiteSpace(displayName) ? displayName.Trim() : newName;
-            return SanitizeExpansionFolderName(raw);
-        }
-
         public static string SanitizeExpansionFolderName(string name)
         {
             if (string.IsNullOrWhiteSpace(name)) return "expansion";
@@ -2000,41 +1954,6 @@ namespace SSF2ModManager.Services
                 name = name.Replace(c.ToString(), "");
             name = name.Trim().TrimEnd('.');
             return string.IsNullOrWhiteSpace(name) ? "expansion" : name;
-        }
-
-        public static bool IsExpansionsOutputDirectory(string? path)
-        {
-            if (string.IsNullOrWhiteSpace(path)) return false;
-            var normalized = path.Replace('/', '\\').TrimEnd('\\');
-            return normalized.EndsWith(@"expansions\character", StringComparison.OrdinalIgnoreCase)
-                   || normalized.EndsWith(@"data\character\expansions", StringComparison.OrdinalIgnoreCase);
-        }
-
-        /// <summary>
-        /// Walks up from a character file looking for a data root that contains both misc/ and character/.
-        /// </summary>
-        public static string? FindDataRootFromCharacterPath(string sourcePath)
-        {
-            var dir = Path.GetDirectoryName(sourcePath);
-            while (!string.IsNullOrEmpty(dir))
-            {
-                if (Directory.Exists(Path.Combine(dir, "misc")) &&
-                    Directory.Exists(Path.Combine(dir, "character")))
-                    return dir;
-                dir = Directory.GetParent(dir)?.FullName;
-            }
-            return null;
-        }
-
-        public static string? SuggestExpansionsDirectory(string sourcePath)
-        {
-            var dataRoot = FindDataRootFromCharacterPath(sourcePath);
-            if (dataRoot == null) return null;
-            var installRoot = Directory.GetParent(dataRoot)?.FullName;
-            if (!string.IsNullOrWhiteSpace(installRoot)
-                && Directory.Exists(Path.Combine(installRoot, "data")))
-                return ShellWorkspaceService.CharacterExpansionsDirectory(installRoot);
-            return Path.Combine(dataRoot, "character", "expansions");
         }
 
         /// <summary>
@@ -2155,89 +2074,6 @@ namespace SSF2ModManager.Services
             Convert.FromBase64String(
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO5W5aUAAAAASUVORK5CYII=");
 
-        /// <summary>
-        /// Hardens anti-aliased FFDec sprite exports into recolor-friendly pixel art:
-        /// snap mid alpha to 0/255, then nearest-neighbor upscale.
-        /// </summary>
-        public static void CrispifyPngForRecolor(
-            string sourcePng,
-            string destPng,
-            int nearestNeighborScale = 4,
-            byte alphaThreshold = 128)
-        {
-            if (nearestNeighborScale < 1) nearestNeighborScale = 1;
-
-            using var src = new Bitmap(sourcePng);
-            using var flat = new Bitmap(src.Width, src.Height, PixelFormat.Format32bppArgb);
-            for (var y = 0; y < src.Height; y++)
-            {
-                for (var x = 0; x < src.Width; x++)
-                {
-                    var c = src.GetPixel(x, y);
-                    if (c.A < alphaThreshold)
-                        flat.SetPixel(x, y, Color.FromArgb(0, 0, 0, 0));
-                    else
-                        flat.SetPixel(x, y, Color.FromArgb(255, c.R, c.G, c.B));
-                }
-            }
-
-            if (nearestNeighborScale == 1)
-            {
-                flat.Save(destPng, ImageFormat.Png);
-                return;
-            }
-
-            using var scaled = new Bitmap(
-                flat.Width * nearestNeighborScale,
-                flat.Height * nearestNeighborScale,
-                PixelFormat.Format32bppArgb);
-            using (var g = Graphics.FromImage(scaled))
-            {
-                g.InterpolationMode = InterpolationMode.NearestNeighbor;
-                g.PixelOffsetMode = PixelOffsetMode.Half;
-                g.CompositingMode = CompositingMode.SourceCopy;
-                g.Clear(Color.Transparent);
-                g.DrawImage(flat, 0, 0, scaled.Width, scaled.Height);
-            }
-            scaled.Save(destPng, ImageFormat.Png);
-        }
-
-        public static string? FindSpritePng(
-            string spritesRoot,
-            string oldName,
-            bool preferFirstFrame,
-            params string[] suffixes)
-        {
-            if (!Directory.Exists(spritesRoot)) return null;
-            foreach (var suffix in suffixes)
-            {
-                var needle = $"{oldName}_{suffix}";
-                var dirs = Directory.GetDirectories(spritesRoot, "*", SearchOption.AllDirectories)
-                    .Where(d => Path.GetFileName(d).Contains(needle, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-                foreach (var dir in dirs)
-                {
-                    var pngs = Directory.GetFiles(dir, "*.png", SearchOption.TopDirectoryOnly)
-                        .Where(f => new FileInfo(f).Length >= 64)
-                        .OrderBy(FrameNumber)
-                        .ToList();
-                    if (pngs.Count == 0) continue;
-                    if (preferFirstFrame)
-                        return pngs.First();
-
-                    // Charselect timelines commonly end with the complete portrait.
-                    // Skip tiny placeholder frames and choose the last substantive frame,
-                    // rather than the largest frame (which can be a shadow/glow layer).
-                    var substantive = pngs.Where(f => new FileInfo(f).Length >= 500).ToList();
-                    return substantive.LastOrDefault() ?? pngs.Last();
-                }
-            }
-            return null;
-
-            static int FrameNumber(string path) =>
-                int.TryParse(Path.GetFileNameWithoutExtension(path), out var n) ? n : int.MaxValue;
-        }
-
         private async Task UntypeFlaInstanceSlotsOnCloneAsync(
             string? jpexsPath,
             string rebuiltSwf,
@@ -2253,138 +2089,6 @@ namespace SSF2ModManager.Services
             File.Copy(dest, rebuiltSwf, overwrite: true);
         }
 
-        private async Task PackageReFlash2AssetsAsync(
-            string sourcePath,
-            string oldName,
-            string newName,
-            string expansionFolder,
-            string jpexsPath,
-            string workRoot,
-            IProgress<string>? progress,
-            CancellationToken cancellationToken)
-        {
-            // Older builds of this tool generated settings.json automatically.
-            // ReFlash 2 does not require it; remove stale generated copies on overwrite.
-            var settingsPath = Path.Combine(expansionFolder, "settings.json");
-            if (File.Exists(settingsPath))
-                File.Delete(settingsPath);
-
-            var dataRoot = FindDataRootFromCharacterPath(sourcePath);
-            var misc2 = dataRoot != null ? Path.Combine(dataRoot, "misc", "misc2.ssf") : null;
-            var misc = dataRoot != null ? Path.Combine(dataRoot, "misc", "misc.ssf") : null;
-            if (misc2 != null && !File.Exists(misc2))
-                misc2 = Path.Combine(dataRoot!, "misc", "misc2.swf");
-            if (misc != null && !File.Exists(misc))
-                misc = Path.Combine(dataRoot!, "misc", "misc.swf");
-
-            // Stock + PA from misc2
-            var stockDest = Path.Combine(expansionFolder, "stock.png");
-            var paDest = Path.Combine(expansionFolder, "PA.png");
-            var gotStock = false;
-            var gotPa = false;
-
-            if (!string.IsNullOrEmpty(misc2) && File.Exists(misc2))
-            {
-                try
-                {
-                    progress?.Report("Exporting stock/PA sprites from misc2…");
-                    var spriteDir = Path.Combine(workRoot, "misc2-sprites");
-                    Directory.CreateDirectory(spriteDir);
-                    // Quoted via JpexsCliService.FormatConfigArgument; snapToPixels + no bitmap smoothing
-                    // keep vector AA lower before we hard-threshold alpha for recolor-friendly stock icons.
-                    await _jpexs.ExportAsync(
-                        jpexsPath,
-                        misc2,
-                        spriteDir,
-                        "sprite",
-                        cancellationToken,
-                        "export.zoom=1.0,disableBitmapSmoothing=true,snapToPixels=true");
-                    var spritesRoot = Directory.Exists(Path.Combine(spriteDir, "sprites"))
-                        ? Path.Combine(spriteDir, "sprites")
-                        : spriteDir;
-
-                    var stockSrc = FindSpritePng(spritesRoot, oldName, true, "stock");
-                    if (stockSrc != null)
-                    {
-                        CrispifyPngForRecolor(stockSrc, stockDest, nearestNeighborScale: 4);
-                        gotStock = true;
-                        progress?.Report($"stock.png ← {Path.GetFileName(Path.GetDirectoryName(stockSrc))} (crisp 4×)");
-                    }
-
-                    var paSrc = FindSpritePng(spritesRoot, oldName, true, "classic");
-                    paSrc ??= FindSpritePng(spritesRoot, oldName, false, "charselect");
-                    paSrc ??= FindSpritePng(spritesRoot, oldName, true, "classic_trophy");
-                    if (paSrc != null)
-                    {
-                        CrispifyPngForRecolor(paSrc, paDest, nearestNeighborScale: 2);
-                        gotPa = true;
-                        progress?.Report($"PA.png ← {Path.GetFileName(Path.GetDirectoryName(paSrc))} (crisp 2×)");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    progress?.Report($"Warning: misc2 sprite export failed: {ex.Message}");
-                    DebugLogger.Log($"[Clone] misc2 export failed: {ex}");
-                }
-            }
-            else
-            {
-                progress?.Report("Warning: misc2.ssf not found near source; writing placeholder PNGs.");
-            }
-
-            if (!gotStock)
-            {
-                await File.WriteAllBytesAsync(stockDest, CreatePlaceholderPngBytes(), cancellationToken);
-                progress?.Report("Wrote placeholder stock.png (replace later).");
-            }
-            if (!gotPa)
-            {
-                await File.WriteAllBytesAsync(paDest, CreatePlaceholderPngBytes(), cancellationToken);
-                progress?.Report("Wrote placeholder PA.png (replace later).");
-            }
-
-            // costumes.json from misc.ssf Misc.as
-            var costumesDest = Path.Combine(expansionFolder, "costumes.json");
-            var gotCostumes = false;
-            if (!string.IsNullOrEmpty(misc) && File.Exists(misc))
-            {
-                try
-                {
-                    progress?.Report("Extracting costumes from misc.ssf…");
-                    var scriptDir = Path.Combine(workRoot, "misc-scripts");
-                    Directory.CreateDirectory(scriptDir);
-                    await _jpexs.ExportAsync(jpexsPath, misc, scriptDir, "script", cancellationToken);
-                    var miscAs = Directory.GetFiles(scriptDir, "Misc.as", SearchOption.AllDirectories).FirstOrDefault();
-                    if (miscAs != null)
-                    {
-                        var text = await File.ReadAllTextAsync(miscAs, cancellationToken);
-                        // Prefer primary oldName; also rewrite any other identity-keyed blocks to newName.
-                        var block = ExtractCostumeBlock(text, oldName, newName, new[] { oldName });
-                        if (!string.IsNullOrEmpty(block))
-                        {
-                            await File.WriteAllTextAsync(costumesDest, ToCostumesJson(block, newName), cancellationToken);
-                            gotCostumes = true;
-                            progress?.Report("costumes.json extracted from Misc.as.");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    progress?.Report($"Warning: misc costume extract failed: {ex.Message}");
-                    DebugLogger.Log($"[Clone] misc costume extract failed: {ex}");
-                }
-            }
-            else
-            {
-                progress?.Report("Warning: misc.ssf not found near source; writing stub costumes.json.");
-            }
-
-            if (!gotCostumes)
-            {
-                await File.WriteAllTextAsync(costumesDest, ToCostumesJson(null, newName), cancellationToken);
-                progress?.Report("Wrote stub costumes.json (edit/replace later).");
-            }
-        }
 
         public static int RewriteSymbolClassFile(string csvPath, string oldName, string newName)
         {

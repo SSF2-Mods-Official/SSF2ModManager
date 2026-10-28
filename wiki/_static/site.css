@@ -62,6 +62,32 @@ body {
   display: block;
 }
 .holiday-mark { display: none; }
+html.holiday .holiday-mark {
+  display: inline-block;
+  line-height: 1;
+  vertical-align: -0.12em;
+  filter:
+    drop-shadow(1px 0 0 #fff)
+    drop-shadow(-1px 0 0 #fff)
+    drop-shadow(0 1px 0 #fff)
+    drop-shadow(0 -1px 0 #fff)
+    drop-shadow(1px 1px 0 #fff)
+    drop-shadow(-1px -1px 0 #fff)
+    drop-shadow(1px -1px 0 #fff)
+    drop-shadow(-1px 1px 0 #fff);
+}
+html[data-theme="contrast"] .holiday-mark {
+  filter:
+    drop-shadow(1px 0 0 #000)
+    drop-shadow(-1px 0 0 #000)
+    drop-shadow(0 1px 0 #000)
+    drop-shadow(0 -1px 0 #000)
+    drop-shadow(1px 1px 0 #000)
+    drop-shadow(-1px -1px 0 #000)
+    drop-shadow(1px -1px 0 #000)
+    drop-shadow(-1px 1px 0 #000);
+}
+.holiday-mark svg { width: 1.05em; height: 1.05em; display: block; }
 .brand .sub {
   display: block;
   margin-top: 0.25rem;
@@ -494,7 +520,6 @@ html.dyslexic body { letter-spacing: 0.05em; word-spacing: 0.16em; line-height: 
   padding: 0.7rem 1rem;
   border-radius: 6px;
 }
-html.holiday .holiday-mark { display: inline; }
 html.newyear { --accent: #a16207; }
 html.newyear:not([data-theme="dark"]) { --link: #a16207; }
 html.valentine { --accent: #be123c; }

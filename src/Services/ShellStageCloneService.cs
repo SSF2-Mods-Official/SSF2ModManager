@@ -136,7 +136,6 @@ namespace SSF2ModManager.Services
                     NewName = newId,
                     OutputDirectory = work,
                     DisplayName = string.IsNullOrWhiteSpace(displayName) ? newId : displayName.Trim(),
-                    SetupForReFlash2 = false,
                     IsStageClone = true
                 }, progress, cancellationToken);
 
@@ -395,7 +394,6 @@ namespace SSF2ModManager.Services
                         NewName = assigned,
                         OutputDirectory = work,
                         DisplayName = shown!,
-                        SetupForReFlash2 = false,
                         IsStageClone = true
                     }, progress, cancellationToken);
                     produced = clone.OutputSwfPath;

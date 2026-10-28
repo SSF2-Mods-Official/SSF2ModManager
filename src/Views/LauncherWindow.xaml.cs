@@ -59,7 +59,6 @@ namespace SSF2ModManager.Views
         private DispatcherTimer? _musicSyncTimer;
         private bool _musicSyncMuted;
         private bool _musicSyncWasPlaying;
-        private bool _musicSyncStartedPlayback;
         private bool _musicSyncApplying;
         private bool _musicSyncPushed;
         private int _musicSyncHoldTicks;
@@ -2208,8 +2207,6 @@ namespace SSF2ModManager.Views
             _musicSyncApplying = true;
             try
             {
-                if (!_miniPlayer.IsPlaying)
-                    _musicSyncStartedPlayback = true;
                 var queue = _miniPlayer.Queue.Count > 0 ? _miniPlayer.Queue : songs;
                 _miniPlayer.PlayTrack(reported, queue);
                 _miniPlayer.Volume = 0;
@@ -2328,7 +2325,6 @@ namespace SSF2ModManager.Views
             _musicSyncSentId = null;
             _miniPlayer.Volume = _settings.GetMiniPlayerVolume();
             _miniPlayer.Pause();
-            _musicSyncStartedPlayback = false;
             _musicSyncWasPlaying = false;
         }
 

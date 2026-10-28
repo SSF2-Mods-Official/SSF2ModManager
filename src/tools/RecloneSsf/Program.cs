@@ -23,7 +23,6 @@ var result = await svc.CloneAsync(new CharacterCloneRequest
     NewName = newName,
     OutputDirectory = outDir,
     DisplayName = null,
-    SetupForReFlash2 = false,
     JpexsPath = Directory.Exists(ffdec) ? ffdec : null,
     TakenNames = string.IsNullOrWhiteSpace(shellRoot)
         ? null

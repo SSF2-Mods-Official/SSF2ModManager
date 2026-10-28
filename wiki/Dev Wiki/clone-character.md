@@ -49,7 +49,7 @@ Pick a character that is already on the roster. The new name has to differ from 
 
 The display name field in the SWF is set to the name you typed. The `register("guid")` pool entry is given a new guid. If either field cannot be found, the progress line says so and the clone continues.
 
-`SetupForReFlash2` stays false for a Shell clone. The ReFlash 2 folder pack is not what Make Mods writes.
+`CloneAsync` writes one SWF named after the new id. It does not build the expansion folder. `CloneIntoShellAsync` does that next.
 
 ## Expansion folder
 
