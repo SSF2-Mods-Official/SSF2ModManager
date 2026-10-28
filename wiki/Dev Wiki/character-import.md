@@ -64,3 +64,4 @@ dotnet test src/tests/SSF2ModManager.Tests/SSF2ModManager.Tests.csproj --filter 
 1. [Where things are](where-things-are.md) — the shell folder the import writes into.
 2. [Clone old assets](clone-old-assets.md) — the list that keeps a clone on the source character's stock, costumes, and Classic / All-Star art.
 3. [Stage import](stage-import.md) — a file with `backgrounds` is imported there.
+4. [Clone a character](clone-character.md) — clone a fighter already in the Shell, and the FLA that clone writes.

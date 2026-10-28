@@ -54,3 +54,4 @@ dotnet test src/tests/SSF2ModManager.Tests/SSF2ModManager.Tests.csproj --filter 
 
 1. [Where things are](where-things-are.md) — Convert to FLA writes under `expansions/decompiled`.
 2. [Stage import](stage-import.md) — a stage clone exports this same FLA layout.
+3. [Clone a character](clone-character.md) — Convert to FLA on a character file uses Shared Animations and the character pretty pass.
