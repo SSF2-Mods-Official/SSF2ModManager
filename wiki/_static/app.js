@@ -213,17 +213,37 @@
     var h1s = content.querySelectorAll("article h1");
     if (h1s.length > 1) h1s[1].remove();
     fixLinks(file);
-      if (window.wiki) mountPageFoot(file, raw);
-      if (window.wiki && sessionStorage.getItem("wiki-open-edit") === file) {
-        sessionStorage.removeItem("wiki-open-edit");
-        openEditor(file, raw);
-      }
+    if (window.wiki) mountPageFoot(file, raw);
+    else if (localStore()[file]) mountLocalEdit(file, raw);
+    if (sessionStorage.getItem("wiki-open-edit") === file) {
+      sessionStorage.removeItem("wiki-open-edit");
+      openEditor(file, raw);
+    }
+  }
+
+  function mountLocalEdit(file, raw) {
+    var actions = document.createElement("div");
+    actions.className = "page-actions";
+    actions.innerHTML = '<button type="button" id="edit-page">Edit</button>';
+    content.appendChild(actions);
+    actions.querySelector("#edit-page").addEventListener("click", function () {
+      openEditor(file, raw);
+    });
+  }
+
+  function pictureSrc(file, rel) {
+    var name = String(rel || "").split("/").pop().split("\\").pop();
+    var item = localStore()[file];
+    if (item && item.images && item.images[name]) return item.images[name];
+    var enc = encodeURIComponent(name);
+    if (location.protocol === "file:") return "../_images/" + enc;
+    return "images/" + enc;
   }
 
   function fixLinks(file) {
     var baseDir = file.replace(/[^/]+$/, "");
     content.querySelectorAll("img[data-rel]").forEach(function (img) {
-      img.setAttribute("src", "../" + resolveRel(baseDir, img.getAttribute("data-rel") || ""));
+      img.setAttribute("src", pictureSrc(file, img.getAttribute("data-rel") || ""));
     });
     content.querySelectorAll('a[href^="#md-rel:"]').forEach(function (a) {
       var rel = decodeURIComponent(a.getAttribute("href").slice(8));
@@ -370,7 +390,10 @@
     content.appendChild(editor);
     var box = editor.querySelector("#edit-body");
     box.value = raw;
-    window.wiki.images().then(function (names) {
+    var known = (window.wiki && window.wiki.images)
+      ? window.wiki.images()
+      : Promise.resolve(Object.keys((localStore()[file] && localStore()[file].images) || {}));
+    known.then(function (names) {
       var sel = editor.querySelector("#edit-images");
       (names || []).forEach(function (name) {
         var opt = document.createElement("option");
@@ -400,8 +423,7 @@
         var h1s = preview.querySelectorAll("h1");
         if (h1s.length > 1) h1s[1].remove();
         preview.querySelectorAll("img[data-rel]").forEach(function (img) {
-          var baseDir = file.replace(/[^/]+$/, "");
-          img.setAttribute("src", "../" + resolveRel(baseDir, img.getAttribute("data-rel") || ""));
+          img.setAttribute("src", pictureSrc(file, img.getAttribute("data-rel") || ""));
         });
       }
     }
@@ -425,6 +447,15 @@
       renderArticle(file, raw);
     });
     editor.querySelector("#edit-save").addEventListener("click", function () {
+      if (!(window.wiki && window.wiki.savePage)) {
+        var store = localStore();
+        var item = store[file] || { images: {} };
+        item.md = box.value;
+        store[file] = item;
+        saveLocal(store);
+        route();
+        return;
+      }
       askSave().then(function (fields) {
         if (!fields) return;
         window.wiki
@@ -456,15 +487,35 @@
         return insert("\n\n| Column | Column |\n| --- | --- |\n|  |  |\n\n");
       }
       if (act === "image") {
-        window.wiki.pickImage().then(function (name) {
-          if (!name) return;
-          var sel = editor.querySelector("#edit-images");
-          var opt = document.createElement("option");
-          opt.value = name;
-          opt.textContent = name;
-          sel.appendChild(opt);
-          insertImage(name);
+        if (window.wiki && window.wiki.pickImage) {
+          window.wiki.pickImage().then(function (name) {
+            if (!name) return;
+            rememberImage(name);
+            insertImage(name);
+          });
+          return;
+        }
+        var picker = document.createElement("input");
+        picker.type = "file";
+        picker.accept = "image/*";
+        picker.addEventListener("change", function () {
+          var picked = picker.files && picker.files[0];
+          if (!picked) return;
+          var reader = new FileReader();
+          reader.onload = function () {
+            var store = localStore();
+            var item = store[file] || { md: box.value, images: {} };
+            if (!item.images) item.images = {};
+            item.images[picked.name] = reader.result;
+            item.md = box.value;
+            store[file] = item;
+            saveLocal(store);
+            rememberImage(picked.name);
+            insertImage(picked.name);
+          };
+          reader.readAsDataURL(picked);
         });
+        picker.click();
       }
     }
 
@@ -491,6 +542,14 @@
       box.value = box.value.slice(0, start) + snippet + box.value.slice(start);
       box.focus();
       box.selectionStart = box.selectionEnd = start + snippet.length;
+    }
+
+    function rememberImage(name) {
+      var sel = editor.querySelector("#edit-images");
+      var opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      sel.appendChild(opt);
     }
 
     function insertImage(name) {
@@ -830,8 +889,10 @@
         var store = localStore();
         store[file] = { md: md, images: {} };
         saveLocal(store);
-        location.hash = "#/" + encodeURIComponent(file);
-        route();
+        sessionStorage.setItem("wiki-open-edit", file);
+        var next = "#/" + encodeURIComponent(file);
+        if (location.hash === next) route();
+        else location.hash = next;
       });
     });
 

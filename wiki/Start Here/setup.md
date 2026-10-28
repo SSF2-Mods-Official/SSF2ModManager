@@ -34,3 +34,8 @@ When setup is finished, click **Play**. The manager opens.
 ## If you need to run it again
 
 **Settings** has **Run setup**. Use that if you move the game folder or want to rebuild Shell.
+
+Below is what the Mod Manager looks like. It's an easy to use interface for all your modding needs.
+
+![Mod Manager Beta.png](../_images/Mod Manager Beta.png)
+

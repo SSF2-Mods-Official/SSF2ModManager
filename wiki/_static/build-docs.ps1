@@ -82,6 +82,16 @@ $js = "window.SSF2_DOCS = $json;"
 $utf8 = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllText($contentPath, $js, $utf8)
 
+$imgSrc = Join-Path $docsRoot "_images"
+$imgDest = Join-Path $staticRoot "images"
+if (Test-Path $imgSrc) {
+	New-Item -ItemType Directory -Force -Path $imgDest | Out-Null
+	Get-ChildItem $imgSrc -File | ForEach-Object {
+		Copy-Item $_.FullName (Join-Path $imgDest $_.Name) -Force
+	}
+	Write-Host "Copied images into $imgDest"
+}
+
 Write-Host "Wrote $contentPath ($($sections.Count) section(s))"
 foreach ($s in $sections) {
 	Write-Host ("  {0}: {1} page(s)" -f $s.title, $s.pages.Count)
