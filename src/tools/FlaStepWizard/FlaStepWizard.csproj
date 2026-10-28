@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Library so the manager can reference cleanup steps during a framework-dependent publish.
+         An Exe here becomes self-contained when PublishSingleFile flows in (NETSDK1151). -->
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AssemblyName>FlaStepWizard</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <IsPublishable>false</IsPublishable>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Interactive CLI only. Clone runs the steps in-process and must not build this exe. -->
+    <Compile Remove="Program.cs" />
+    <Compile Include="..\MergeFlaLayers\FlaBoxLayerMerge.cs" Link="FlaBoxLayerMerge.cs" />
+  </ItemGroup>
+</Project>

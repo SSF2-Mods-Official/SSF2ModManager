@@ -1,0 +1,91 @@
+<UserControl x:Class="SSF2ModManager.Views.NewsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+
+    <Grid Loaded="NewsPage_Loaded">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,8" LastChildFill="True">
+            <WrapPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button x:Name="BtnMarkAllRead" Content="Mark all read" Click="BtnMarkAllRead_Click"
+                        Style="{StaticResource ModernButton}" Margin="0,0,8,0" Padding="10,6"/>
+                <Button x:Name="BtnRefreshNews" Content="Refresh" Click="BtnRefreshNews_Click"
+                        Style="{StaticResource ModernButton}" Margin="0,0,8,0" Padding="10,6"/>
+                <Button x:Name="BtnCheckUpdates" Content="Check for updates" Click="BtnCheckUpdates_Click"
+                        Style="{StaticResource AccentButton}" Padding="10,6"/>
+            </WrapPanel>
+            <TextBlock x:Name="TxtNewsStatus" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"
+                       TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,8,0"/>
+        </DockPanel>
+
+        <Grid Grid.Row="1">
+            <ListBox x:Name="LstArticles"
+                     SelectionChanged="LstArticles_SelectionChanged"
+                     Background="Transparent" BorderThickness="0"
+                     Foreground="{DynamicResource TextPrimaryBrush}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     Cursor="Hand">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0,0,0,8"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border x:Name="Bd" Background="Transparent" BorderBrush="Transparent"
+                                            BorderThickness="2" CornerRadius="8" Padding="0" Cursor="Hand">
+                                        <ContentPresenter/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="12,10" CornerRadius="6" Background="{DynamicResource CardBrush}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Title}" FontSize="15"
+                                           Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Date, StringFormat=d}" FontSize="12"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0"/>
+                                <TextBlock Text="{Binding Excerpt}" FontSize="13"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <DockPanel x:Name="ArticleHost" Visibility="Collapsed">
+                <Button x:Name="BtnArticleBack" DockPanel.Dock="Top" Content="Back"
+                        Click="BtnArticleBack_Click" Style="{StaticResource ModernButton}"
+                        HorizontalAlignment="Left" Padding="12,6" Margin="0,0,0,8"/>
+                <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="8">
+                    <FlowDocumentScrollViewer x:Name="DocViewer"
+                                               VerticalScrollBarVisibility="Auto"
+                                               HorizontalScrollBarVisibility="Disabled"
+                                               IsToolBarVisible="False"
+                                               Background="Transparent"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                               SizeChanged="DocViewer_SizeChanged"/>
+                </Border>
+            </DockPanel>
+        </Grid>
+    </Grid>
+</UserControl>

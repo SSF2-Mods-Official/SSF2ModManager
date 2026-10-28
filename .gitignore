@@ -1,0 +1,48 @@
+# Builds
+[Bb]in/
+[Oo]bj/
+publish/
+dist/
+artifacts/
+TestResults/
+coverage/
+*.log
+*.user
+*.suo
+
+# Editors and OS
+.vs/
+.idea/
+.vscode/
+.cursor/
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# This machine
+HANDOFF.md
+TODO.md
+RELEASE.md
+user-settings.json
+_recover/
+__pycache__/
+*.pyc
+
+# Local installs, scratch, and downloaded toolchains
+SSF2 Mod Manager*/
+.tools-cache/
+src/ffmpeg/
+src/jre/
+node_modules/
+out/
+*.vsix
+.as3mxml-unpackaged-anes/
+
+# Dev Wiki stays on this machine
+**/docs/Dev Wiki/
+**/docs/_history/
+**/docs/_static/content.js
+
+# Author-mark source. The built ssfe_seal.dll ships.
+src/native/ssfe_seal/*
+!src/native/ssfe_seal/*.dll

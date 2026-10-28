@@ -1,0 +1,1932 @@
+<Window x:Class="SSF2ModManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="clr-namespace:SSF2ModManager.Converters"
+        xmlns:local="clr-namespace:SSF2ModManager"
+        xmlns:svc="clr-namespace:SSF2ModManager.Services"
+        xmlns:views="clr-namespace:SSF2ModManager.Views"
+        mc:Ignorable="d"
+        Title="{x:Static svc:AppInfo.ProductName}" Height="700" Width="1050" MinWidth="800" MinHeight="550"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True" ResizeMode="CanResizeWithGrip"
+        Icon="pack://application:,,,/SSF2M.png"
+        Background="{DynamicResource BackgroundBrush}">
+
+    <Window.Resources>
+        <converters:BoolToEnabledTextConverter x:Key="BoolToEnabledText"/>
+        <converters:BoolToToggleTextConverter x:Key="BoolToToggleText"/>
+        <converters:BoolToColorConverter x:Key="BoolToColor"/>
+        <converters:BoolToOpacityConverter x:Key="BoolToOpacity"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibility"/>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="36"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+    <!-- Custom Title Bar -->
+        <Grid Grid.Row="0" Background="{DynamicResource SidebarBrush}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                <Image Source="pack://application:,,,/SSF2M.png" Width="20" Height="20" Margin="4,0,6,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                <TextBlock Text="{x:Static svc:AppInfo.ProductName}" FontSize="13"
+                           Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,6,0">
+                <Button x:Name="BtnDiscord" Click="BtnDiscord_Click" Cursor="Hand"
+                        FontSize="11" Padding="10,4" Margin="0,0,4,0" VerticalAlignment="Center"
+                        ToolTip="Discord">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="14" Height="14" Margin="0,0,6,0">
+                            <Path Data="{StaticResource DiscordMarkGeometry}" Stretch="Uniform"
+                                  Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        </Viewbox>
+                        <TextBlock Text="Discord" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#FF4752C4"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button x:Name="BtnFeedback" Content="✉ Feedback" Click="BtnFeedback_Click" Cursor="Hand"
+                        FontSize="11" Padding="10,4" Margin="0,0,4,0" VerticalAlignment="Center">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#FF246FE6"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button x:Name="BtnSupport" Content="{local:Loc SupportButton}" Click="BtnSupport_Click" Cursor="Hand"
+                        FontSize="11" Padding="10,4" Margin="0,0,4,0" VerticalAlignment="Center">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="{DynamicResource ErrorBrush}"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#FFE04E4B"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+
+            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Stretch">
+                <Button x:Name="BtnMinimize" Content="{local:Loc MinimizeButton}" Click="BtnMinimize_Click" FontSize="13" Width="46" Cursor="Hand">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#30FFFFFF"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button x:Name="BtnMaximize" Content="{local:Loc MaximizeButton}" Click="BtnMaximize_Click" FontSize="13" Width="46" Cursor="Hand">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#30FFFFFF"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button x:Name="BtnClose" Content="{local:Loc CloseButton}" Click="BtnClose_Click" FontSize="13" Width="46" Cursor="Hand">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#FFE53935"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Sidebar -->
+                <Border Grid.Column="0" Background="{DynamicResource SidebarBrush}">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Height="1" Background="#20FFFFFF" Margin="16,14,16,10"/>
+
+                    <!-- Bottom chrome stays visible; Debug Log is above mini player so short windows don't clip it. -->
+                    <StackPanel DockPanel.Dock="Bottom" Margin="12,8,12,10">
+                        <Border Height="1" Background="#20FFFFFF" Margin="4,0,4,8"/>
+                        <Button x:Name="BtnLog" Content="{local:Loc DebugLogSidebar}"
+                            Style="{StaticResource SidebarButton}" Click="BtnLog_Click" Margin="0,0,0,8"/>
+                        <!-- Mini music player: title above controls -->
+                        <Border x:Name="MiniPlayerBar" Background="#18FFFFFF" CornerRadius="8" Padding="8,8" Margin="0,0,0,8"
+                                MouseLeftButtonDown="MiniPlayerBar_MouseLeftButtonDown">
+                            <DockPanel LastChildFill="False">
+                                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                    <TextBlock x:Name="TxtMiniPlayerTrack" Text="No track playing" FontSize="11"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"
+                                               TextWrapping="NoWrap" HorizontalAlignment="Stretch"/>
+                                    <TextBlock x:Name="TxtMiniPlayerArtist" Text="" FontSize="10" Visibility="Collapsed"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                                    <ProgressBar x:Name="MiniCacheProgress" Height="3" Minimum="0" Maximum="100" Value="0"
+                                                 Margin="0,6,0,0" Visibility="Collapsed"/>
+                                    <TextBlock x:Name="TxtMiniCacheStatus" Text="" FontSize="9" Visibility="Collapsed"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Canvas x:Name="MiniPlayerVisualizer" DockPanel.Dock="Top" Height="32" Margin="0,0,0,6"
+                                        ClipToBounds="True" Visibility="Collapsed" IsHitTestVisible="False"/>
+                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                    <TextBlock x:Name="TxtMiniPlayerTime" DockPanel.Dock="Left" Text="0:00" FontSize="9"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                    <TextBlock x:Name="TxtMiniPlayerDuration" DockPanel.Dock="Right" Text="0:00" FontSize="9"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                    <!-- Transparent hit layer owns click+drag; Slider is display-only (WPF Slider track clicks are unreliable). -->
+                                    <Grid x:Name="MiniSeekHitArea" Height="18" Background="Transparent" Cursor="Hand"
+                                          PreviewMouseLeftButtonDown="MiniSeekHitArea_PreviewMouseLeftButtonDown"
+                                          PreviewMouseMove="MiniSeekHitArea_PreviewMouseMove"
+                                          PreviewMouseLeftButtonUp="MiniSeekHitArea_PreviewMouseLeftButtonUp"
+                                          LostMouseCapture="MiniSeekHitArea_LostMouseCapture">
+                                        <Slider x:Name="SldMiniPlayerSeek" Minimum="0" Maximum="1000" Value="0" Height="16"
+                                                VerticalAlignment="Center" IsHitTestVisible="False" Focusable="False"
+                                                IsMoveToPointEnabled="False" IsTabStop="False"/>
+                                    </Grid>
+                                </DockPanel>
+                                <UniformGrid DockPanel.Dock="Top" Columns="5">
+                                    <Button Content="⏮" ToolTip="Previous" Style="{StaticResource ModernButton}" Padding="3,4" Margin="0,0,2,0"
+                                            Click="BtnMiniPlayerPrev_Click" FontSize="11"/>
+                                    <Button x:Name="BtnMiniPlayerPlay" Content="▶" ToolTip="Play / Pause" Style="{StaticResource AccentButton}" Padding="3,4" Margin="0,0,2,0"
+                                            Click="BtnMiniPlayerPlay_Click" FontSize="11"/>
+                                    <Button Content="⏭" ToolTip="Next" Style="{StaticResource ModernButton}" Padding="3,4" Margin="0,0,2,0"
+                                            Click="BtnMiniPlayerNext_Click" FontSize="11"/>
+                                    <Button x:Name="BtnMiniPlayerLoop" Content="🔁" ToolTip="Loop mode" Style="{StaticResource ModernButton}" Padding="3,4" Margin="0,0,2,0"
+                                            Click="BtnMiniPlayerLoop_Click" FontSize="11"/>
+                                    <Button x:Name="BtnMiniPlayerExtend" Content="⏱" ToolTip="Extend loop" Style="{StaticResource ModernButton}" Padding="3,4"
+                                            Click="BtnMiniPlayerExtend_Click" FontSize="11">
+                                        <Button.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Extend 15 minutes" Click="MiniExtend15_Click"/>
+                                                <MenuItem Header="Extend 30 minutes" Click="MiniExtend30_Click"/>
+                                                <MenuItem Header="Extend 60 minutes" Click="MiniExtend60_Click"/>
+                                                <Separator/>
+                                                <MenuItem Header="Custom…" Click="MiniExtendCustom_Click"/>
+                                                <MenuItem Header="Stop extending" Click="MiniExtendStop_Click"/>
+                                            </ContextMenu>
+                                        </Button.ContextMenu>
+                                    </Button>
+                                </UniformGrid>
+                            </DockPanel>
+                        </Border>
+                        <TextBlock x:Name="TxtAppVersion" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        <TextBlock Text="{local:Loc PoweredBy}" FontSize="10" Foreground="#50FFFFFF"/>
+                    </StackPanel>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                  CanContentScroll="False" Padding="0,0,0,4">
+                        <StackPanel>
+                            <Button x:Name="BtnHome" Content="🏠  Home"
+                                Style="{StaticResource SidebarButtonActive}" Click="BtnHome_Click"/>
+
+                            <Expander x:Name="ExpCharacter" Header="👤  Character" Style="{StaticResource SidebarExpander}" IsExpanded="True">
+                                <StackPanel>
+                                    <Button x:Name="BtnCloneCharacter" Content="Clone character"
+                                        Style="{StaticResource SidebarSubButton}" Click="BtnCloneCharacter_Click"/>
+                                    <Button x:Name="BtnAddCharacter" Content="Add character"
+                                        Style="{StaticResource SidebarSubButton}" Click="BtnAddCharacter_Click"/>
+                                    <Button x:Name="BtnTestCharacter" Content="Test character"
+                                        Style="{StaticResource SidebarSubButton}" Click="BtnTestCharacter_Click"/>
+                                    <Button x:Name="BtnManageCss" Content="Manage character select"
+                                        Style="{StaticResource SidebarSubButton}" Click="BtnManageCss_Click"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander x:Name="ExpStage" Header="🗺️  Stage" Style="{StaticResource SidebarExpander}">
+                                <StackPanel>
+                                    <Button x:Name="BtnCloneStage" Content="Clone stage"
+                                        Style="{StaticResource SidebarSubButton}" Click="BtnCloneStage_Click"/>
+                                    <Button x:Name="BtnAddStage" Content="Add stage"
+                                        Style="{StaticResource SidebarSubButton}" Click="BtnAddStage_Click"/>
+                                    <Button x:Name="BtnManageSss" Content="Manage stage select"
+                                        Style="{StaticResource SidebarSubButton}" Click="BtnManageSss_Click"/>
+                                    <Button x:Name="BtnTestStage" Content="Test stage"
+                                        Style="{StaticResource SidebarSubButton}" Click="BtnTestStage_Click"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander x:Name="ExpMusic" Header="🎵  Music" Style="{StaticResource SidebarExpander}">
+                                <StackPanel>
+                                    <Button x:Name="BtnAddMusic" Content="Add music"
+                                        Style="{StaticResource SidebarSubButton}" Click="BtnAddMusic_Click"/>
+                                    <Button x:Name="BtnManageMusic" Content="Manage music"
+                                        Style="{StaticResource SidebarSubButton}" Click="BtnManageMusic_Click"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander x:Name="ExpCostumes" Header="👕  Costumes" Style="{StaticResource SidebarExpander}">
+                                <StackPanel>
+                                    <Button x:Name="BtnMakeCostumes" Content="Make costumes"
+                                        Style="{StaticResource SidebarSubButton}" Click="BtnMakeCostumes_Click"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander x:Name="ExpEvents" Header="⭐  Events" Style="{StaticResource SidebarExpander}">
+                                <StackPanel>
+                                    <Button x:Name="BtnMakeEvents" Content="Make events"
+                                        Style="{StaticResource SidebarSubButton}" Click="BtnMakeEvents_Click"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <Button x:Name="BtnBrowse" Content="{local:Loc BrowseSidebar}"
+                                Style="{StaticResource SidebarButton}" Click="BtnBrowse_Click"/>
+                            <Button x:Name="BtnInstalled" Content="{local:Loc InstalledSidebar}"
+                                Style="{StaticResource SidebarButton}" Click="BtnInstalled_Click"/>
+                            <Button x:Name="BtnBuilds" Content="{local:Loc BuildsSidebar}"
+                                Style="{StaticResource SidebarButton}" Click="BtnBuilds_Click" Visibility="Collapsed"/>
+                            <Button x:Name="BtnPressor" Content="{local:Loc PressorSidebar}"
+                                Style="{StaticResource SidebarButton}" Click="BtnPressor_Click" Visibility="Collapsed"/>
+                            <Button x:Name="BtnMappings" Content="{local:Loc MappingsSidebar}"
+                                Style="{StaticResource SidebarButton}" Click="BtnMappings_Click" Visibility="Collapsed"/>
+                            <Button x:Name="BtnNews" Content="📰  News"
+                                Style="{StaticResource SidebarButton}" Click="BtnNews_Click"/>
+                            <Button x:Name="BtnGettingStarted" Content="📘  Getting Started"
+                                Style="{StaticResource SidebarButton}" Click="BtnGettingStarted_Click"/>
+                            <Button x:Name="BtnSettings" Content="{local:Loc SettingsSidebar}"
+                                Style="{StaticResource SidebarButton}" Click="BtnSettings_Click"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- Content Area -->
+            <Grid Grid.Column="1">
+
+            <!-- ═══ Home ═══ -->
+            <Grid x:Name="PageHome" Margin="24,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="SSF2 Shell" FontSize="22"
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="Play SSF2 Shell (built in Setup from your Beta 1.4.0.1), then use Character / Stage / Music to add content."
+                                           FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,14"/>
+                                <TextBlock Text="SSF2 Shell directory" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                <DockPanel Margin="0,0,0,12">
+                                    <Button DockPanel.Dock="Right" Content="Open folder" Style="{StaticResource ModernButton}"
+                                            Click="BtnHomeOpenFolder_Click" Padding="12,6" Margin="8,0,0,0"/>
+                                    <TextBox x:Name="TxtHomeShellDir" IsReadOnly="True"/>
+                                </DockPanel>
+                                <TextBlock x:Name="TxtHomeExeStatus" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap" Margin="0,0,0,14"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button x:Name="BtnHomePlay" Content="▶  Play" Style="{StaticResource AccentButton}"
+                                            Click="BtnHomePlay_Click" Padding="20,10" FontSize="14"/>
+                                    <Button Content="Open Shell folder in Explorer" Style="{StaticResource ModernButton}"
+                                            Click="BtnHomeOpenFolder_Click" Padding="14,10" Margin="8,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- ═══ Browse Mods Page ═══ -->
+            <Grid x:Name="PageBrowse" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="{local:Loc BrowseMods}" FontSize="22"
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+
+                <Grid Grid.Row="1" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0" Margin="0,0,8,0">
+                        <TextBox x:Name="TxtSearch" Style="{StaticResource ModernTextBox}"
+                                 Text="" Padding="10,8,30,8" KeyDown="TxtSearch_KeyDown"
+                                 TextChanged="TxtSearch_TextChanged">
+                            <TextBox.ToolTip>Search for SSF2 mods on GameBanana</TextBox.ToolTip>
+                        </TextBox>
+                        <Button x:Name="BtnClearSearch" Content="{local:Loc ClearSearch}" Click="BtnClearSearch_Click"
+                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Margin="0,0,6,0" Padding="4,2" FontSize="11" Cursor="Hand"
+                            Foreground="#80FFFFFF" Background="Transparent" BorderThickness="0"
+                            Visibility="Collapsed"/>
+                    </Grid>
+
+                    <ComboBox x:Name="CmbSort" Grid.Column="1" Width="140" Margin="0,0,8,0"
+                              Style="{StaticResource ModernComboBox}" SelectionChanged="CmbSort_Changed">
+                        <ComboBoxItem Content="{local:Loc SortDefault}" IsSelected="True"/>
+                        <ComboBoxItem Content="{local:Loc SortNewest}"/>
+                        <ComboBoxItem Content="{local:Loc SortUpdated}"/>
+                        <ComboBoxItem Content="{local:Loc SortMostLiked}"/>
+                        <ComboBoxItem Content="{local:Loc SortMostDownloaded}"/>
+                    </ComboBox>
+
+                        <Button x:Name="BtnSearch" Grid.Column="2" Content="{local:Loc SearchButton}" 
+                            Style="{StaticResource ModernButton}" Click="BtnSearch_Click" Margin="0,0,8,0"/>
+
+                        <Button x:Name="BtnInstallLocal" Grid.Column="3" Content="{local:Loc InstallLocalButton}" 
+                            Style="{StaticResource ModernButton}" Click="BtnInstallLocal_Click"/>
+                </Grid>
+
+                <ScrollViewer x:Name="BrowseScrollViewer" Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock x:Name="TxtLoading" Text="{local:Loc LoadingMods}" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"
+                                   HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
+
+                        <TextBlock x:Name="TxtNoResults" Text="{local:Loc NoModsFound}" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"
+                                   HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
+
+                        <ItemsControl x:Name="ModBrowserList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource CardBrush}" CornerRadius="8" 
+                                            Padding="16" Margin="0,0,0,10"
+                                            Tag="{Binding}" MouseEnter="BrowseCard_MouseEnter">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Grid.Column="0" CornerRadius="6" Width="100" Height="75"
+                                                    Background="#20FFFFFF" ClipToBounds="True">
+                                                <Image Source="{Binding ThumbnailUrl}" Stretch="UniformToFill"
+                                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="1" Margin="12,0">
+                                                <TextBlock Text="{Binding Name}" FontSize="15"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}" 
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock FontSize="12" Margin="0,2,0,4">
+                                                    <Hyperlink Foreground="{DynamicResource AccentBrush}" 
+                                                               TextDecorations="None" Cursor="Hand"
+                                                               Tag="{Binding}" Click="BtnSearchByCreator_Click">
+                                                        <Run Text="{Binding AuthorName, Mode=OneWay}"/>
+                                                    </Hyperlink>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding Description}" FontSize="12" MaxHeight="34"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}" 
+                                                           TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                                    <TextBlock Text="{Binding StatsText}" FontSize="11"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                    <TextBlock FontSize="11" Margin="12,0,0,0">
+                                                            <Hyperlink Foreground="{DynamicResource PrimaryBrush}" 
+                                                                   TextDecorations="None" Cursor="Hand"
+                                                                   Tag="{Binding}" Click="BtnSearchByCategory_Click">
+                                                            <Run Text="{Binding CategoryName, Mode=OneWay}"/>
+                                                        </Hyperlink>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,4">
+                                                        <Button Content="{local:Loc VideoButton}" Style="{StaticResource ModernButton}"
+                                                            Tag="{Binding}" Click="BtnCardVideo_Click" Padding="10,6"
+                                                            Margin="0,0,6,0" FontSize="11"
+                                                            Visibility="{Binding HasVideo, Converter={StaticResource BoolToVisibility}}"/>
+                                                        <Button Content="{local:Loc InstallButton}" Style="{StaticResource AccentButton}"
+                                                            Tag="{Binding}" Click="BtnInstallMod_Click"
+                                                            Visibility="{Binding IsNotInstalled, Converter={StaticResource BoolToVisibility}}"/>
+                                                        <Button Content="{Binding ToggleTextLocalized}" Style="{StaticResource ModernButton}"
+                                                            Tag="{Binding}" Click="BtnBrowseToggleMod_Click"
+                                                            Visibility="{Binding IsInstalled, Converter={StaticResource BoolToVisibility}}"/>
+                                                </StackPanel>
+                                                <Button Content="{local:Loc ViewPageButton}" Style="{StaticResource ModernButton}"
+                                                    Tag="{Binding}" Click="BtnViewOnGB_Click" Padding="16,6"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Grid Grid.Row="3" Margin="0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Button x:Name="BtnPrevPage" Content="{local:Loc PrevPageButton}" Style="{StaticResource ModernButton}" 
+                                Click="BtnPrevPage_Click" Margin="0,0,8,0" IsEnabled="False"/>
+                        <TextBlock x:Name="TxtPageInfo" Text="Page 1" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13" Margin="8,0"/>
+                            <Button x:Name="BtnNextPage" Content="{local:Loc NextPageButton}" Style="{StaticResource ModernButton}" 
+                                Click="BtnNextPage_Click" Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <Grid Grid.Column="2" x:Name="PlayButtonPanel" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="BtnPlay" Grid.Column="0" Content="{local:Loc PlayButton}" 
+                                Click="BtnPlay_Click" FontSize="13"
+                                Padding="16,7,12,7" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#FF4CAF50"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" 
+                                                        CornerRadius="6,0,0,6" Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#FF66BB6A"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter Property="Background" Value="#FF388E3C"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button x:Name="BtnPlayDropdown" Grid.Column="1" Content="{local:Loc PlayDropdown}" 
+                            Click="BtnPlayDropdown_Click" FontSize="12"
+                                Padding="6,7" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="#FF388E3C"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" 
+                                                        CornerRadius="0,6,6,0" Padding="{TemplateBinding Padding}"
+                                                        BorderBrush="#30000000" BorderThickness="1,0,0,0">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#FF4CAF50"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter Property="Background" Value="#FF2E7D32"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                            <Button.ContextMenu>
+                                <ContextMenu x:Name="PlayVersionMenu"/>
+                            </Button.ContextMenu>
+                        </Button>
+                    </Grid>
+                </Grid>
+
+                <!-- Mod Preview Panel -->
+                <Border Grid.Row="4" x:Name="PreviewPanel" Background="{DynamicResource CardBrush}" 
+                    CornerRadius="8" Padding="16" Margin="0,8,0,0" MinHeight="80"
+                        MaxHeight="160" Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock x:Name="TxtPreviewTitle" FontSize="14"
+                                   Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,4"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <ScrollViewer MaxHeight="100" VerticalScrollBarVisibility="Auto">
+                            <TextBlock x:Name="TxtPreviewDescription" FontSize="12" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ═══ Installed Mods Page ═══ -->
+            <Grid x:Name="PageInstalled" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="{local:Loc InstalledMods}" FontSize="22"
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                <TextBlock x:Name="TxtModCount" Grid.Row="1" Text="{local:Loc InstalledMods}" FontSize="13"
+                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+
+                <!-- Filters -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12">
+                    <TextBlock Text="Filter:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" 
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ComboBox x:Name="CmbFilterBuild" Width="160" Style="{StaticResource ModernComboBox}"
+                              SelectionChanged="CmbFilter_Changed" Margin="0,0,8,0"/>
+                    <!-- Version filter removed per request -->
+                    <ComboBox x:Name="CmbFilterCategory" Width="140" Style="{StaticResource ModernComboBox}"
+                              SelectionChanged="CmbFilter_Changed" Margin="0,0,8,0"/>
+                    <ComboBox x:Name="CmbFilterCreator" Width="150" Style="{StaticResource ModernComboBox}"
+                              SelectionChanged="CmbFilter_Changed"/>
+                            <Button x:Name="BtnCheckAllInstalledUpdates" Content="Check for Updates" Style="{StaticResource ModernButton}"
+                            Click="BtnCheckAllInstalledUpdates_Click" Margin="12,0,0,0" Padding="10,6"/>
+                </StackPanel>
+
+                <ScrollViewer x:Name="InstalledScrollViewer" Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock x:Name="TxtNoMods" Text="{local:Loc NoModsInstalled}" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"
+                                   HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
+
+                        <ItemsControl x:Name="InstalledModsList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource CardBrush}" CornerRadius="8" 
+                                            Padding="16" Margin="0,0,0,10"
+                                            Opacity="{Binding Enabled, Converter={StaticResource BoolToOpacity}}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Ellipse Grid.Column="0" Width="10" Height="10" Margin="0,0,12,0"
+                                                     VerticalAlignment="Center"
+                                                     Fill="{Binding Enabled, Converter={StaticResource BoolToColor}}"/>
+
+                                            <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                                                <TextBlock Text="{Binding Name}" FontSize="15"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <TextBlock Text="{Binding Author}" FontSize="12"
+                                                                   Foreground="{DynamicResource AccentBrush}"/>
+                                                    <TextBlock Text=" • " Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
+                                                    <TextBlock Text="{Binding Category}" FontSize="12"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                    <TextBlock Text=" • " Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
+                                                    <TextBlock Text="{Binding BuildDisplayName}" FontSize="12"
+                                                                   Foreground="{DynamicResource PrimaryBrush}"/>
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding Enabled, Converter={StaticResource BoolToEnabledText}}" 
+                                                           FontSize="11" Margin="0,4,0,0"
+                                                           Foreground="{Binding Enabled, Converter={StaticResource BoolToColor}}"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <!-- per-item update button removed; use global Check updates button above -->
+                                                <Button Content="{local:Loc InstallAnyway}" Style="{StaticResource AccentButton}"
+                                                    Tag="{Binding}" Click="BtnInstallAnyway_Click" Margin="0,0,6,0"
+                                                    Padding="10,6" FontSize="11"
+                                                    Visibility="{Binding IsGameFiles, Converter={StaticResource BoolToVisibility}}"/>
+                                                <Button Content="{Binding Enabled, Converter={StaticResource BoolToToggleText}}" 
+                                                        Style="{StaticResource ModernButton}"
+                                                        Tag="{Binding}" Click="BtnToggleMod_Click" Margin="0,0,6,0"/>
+                                                <Button Content="{local:Loc SettingsButton}" Style="{StaticResource ModernButton}"
+                                                    Tag="{Binding}" Click="BtnInstalledModSettings_Click"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- ═══ Settings Page ═══ -->
+            <Grid x:Name="PageSettings" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                      <TextBlock Grid.Row="0" Text="{local:Loc Settings}" FontSize="22"
+                          Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,20"/>
+
+                <ScrollViewer x:Name="SettingsScrollViewer" Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <!-- Setup Modding Tools (plug-and-play Shell authoring) -->
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="Setup Modding Tools" FontSize="14"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="Install VS Code + ActionScript &amp; MXML + SSF2 Stream, and point the Shell workspace at the bundled JRE and aflex_lite. Adobe Animate stays separate."
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                <TextBlock x:Name="TxtModdingToolchainStatus" Text="" FontSize="12"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" FontFamily="Consolas"
+                                           TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                <WrapPanel>
+                                    <Button Content="Refresh status" Style="{StaticResource ModernButton}"
+                                            Click="BtnModdingToolchainRefresh_Click" Padding="12,6" Margin="0,0,8,8"/>
+                                    <Button Content="Install VS Code" Style="{StaticResource ModernButton}"
+                                            Click="BtnModdingInstallVsCode_Click" Padding="12,6" Margin="0,0,8,8"/>
+                                    <Button Content="Install extensions" Style="{StaticResource AccentButton}"
+                                            Click="BtnModdingInstallExtensions_Click" Padding="12,6" Margin="0,0,8,8"/>
+                                    <Button Content="Write Shell settings" Style="{StaticResource ModernButton}"
+                                            Click="BtnModdingWriteSettings_Click" Padding="12,6" Margin="0,0,8,8"/>
+                                    <Button Content="Open SSF2 Shell" Style="{StaticResource AccentButton}"
+                                            Click="BtnModdingOpenShell_Click" Padding="12,6" Margin="0,0,8,8"/>
+                                </WrapPanel>
+                                <TextBlock x:Name="TxtModdingToolchainLog" Text="" FontSize="11"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Info.json tool moved to Getting Started (Resources) -->
+                        <!-- SSF2 Versions -->
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="{local:Loc InstalledBuilds}" FontSize="14"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{local:Loc AddVersionHelp}" FontSize="12"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+
+                                <ItemsControl x:Name="VersionsList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#15FFFFFF" CornerRadius="6" Padding="12,8" Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding DisplayName}" FontSize="13"
+                                                                               Foreground="{DynamicResource AccentBrush}"
+                                                               MinWidth="100" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding FolderPath}" FontSize="12" 
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                                               TextTrimming="CharacterEllipsis" Margin="12,0"
+                                                               VerticalAlignment="Center"/>
+                                                        <Button Grid.Column="2" Content="{local:Loc RemoveButton}" Style="{StaticResource DangerButton}"
+                                                            Padding="8,4" Tag="{Binding}" Click="BtnRemoveVersion_Click"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <TextBlock x:Name="TxtNoVersions" 
+                                           Text="{local:Loc NoVersionsConfigured}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
+                                           Margin="0,4,0,8" FontStyle="Italic"/>
+
+                                <Button Content="{local:Loc AddVersionButton}" Style="{StaticResource AccentButton}" 
+                                    Click="BtnAddVersion_Click" HorizontalAlignment="Left"
+                                    Margin="0,4,0,0" Padding="16,8"/>
+
+                                <CheckBox x:Name="ChkLegacyModManager" Content="Enable legacy mod manager (Browse Mods, Installed Mods, Installed Builds)"
+                                          Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,16,0,0"
+                                          Checked="ChkLegacyModManager_Changed" Unchecked="ChkLegacyModManager_Changed"/>
+                                <TextBlock Text="Leave this off unless you still install GameBanana mods onto a separate SSF2 copy. Pressor and Mappings stay hidden — those ideas now live under Character / Stage / Music."
+                                           FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+
+                                <!-- Language Selection -->
+                                <StackPanel Orientation="Horizontal" Margin="0,16,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{local:Loc Language}" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <ComboBox x:Name="CmbLanguage" Width="160" SelectionChanged="CmbLanguage_SelectionChanged" Style="{StaticResource DarkComboBox}">
+                                        <ComboBoxItem Content="{local:Loc LanguageEnglish}" Tag="en"/>
+                                        <ComboBoxItem Content="{local:Loc LanguageSpanish}" Tag="es"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <!-- Theme Selection -->
+                                <StackPanel Orientation="Vertical" Margin="0,12,0,0" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="Theme" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <ComboBox x:Name="CmbTheme" Width="220" SelectionChanged="CmbTheme_SelectionChanged" Style="{StaticResource DarkComboBox}"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="TxtThemeDebug" Text="" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- How Mods Work -->
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="{local:Loc HowModsWork}" FontSize="14"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" LineHeight="22">
+                                    <Run Text="{local:Loc HowMods_Step1}"/>
+                                    <LineBreak/>
+                                    <Run Text="{local:Loc HowMods_Step2}"/>
+                                    <LineBreak/>
+                                    <Run Text="{local:Loc HowMods_Step3}"/>
+                                    <LineBreak/>
+                                    <Run Text="{local:Loc HowMods_Step4}"/>
+                                    <LineBreak/>
+                                    <Run Text="{local:Loc HowMods_Step5}"/>
+                                    <LineBreak/>
+                                    <Run Text="{local:Loc HowMods_Step6}"/>
+                                    <LineBreak/>
+                                    <Run Text="{local:Loc HowMods_Step7}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- About -->
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="{local:Loc About}" FontSize="14"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock Text="{local:Loc AppTitle}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Text="Created by MasterWex" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
+                                <TextBlock Text="Spanish Translation by Little Fabi" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
+                                <TextBlock Text="GameBanana Mod Manager for Super Smash Flash 2" 
+                                           Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
+                                <TextBlock Text="Powered by the GameBanana API" 
+                                           Foreground="#50FFFFFF" FontSize="11" Margin="0,4,0,0"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                        <Button Content="Check for Updates" Style="{StaticResource ModernButton}"
+                                            Click="BtnCheckProgramUpdate_Click" Padding="10,6"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- ═══ News Page ═══ -->
+            <views:NewsPage x:Name="PageNews" Visibility="Collapsed" Margin="24,20" />
+
+            <!-- ═══ Debug Log Page ═══ -->
+            <Grid x:Name="PageLog" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="{local:Loc DebugLog}" FontSize="22"
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+
+                <Border Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="12">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" x:Name="LogScrollViewer">
+                        <TextBox x:Name="TxtDebugLog" IsReadOnly="True" TextWrapping="Wrap"
+                                 Background="Transparent" Foreground="{DynamicResource TextSecondaryBrush}"
+                                 BorderThickness="0" FontFamily="Consolas" FontSize="11"
+                                 VerticalScrollBarVisibility="Disabled"/>
+                    </ScrollViewer>
+                </Border>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                    <Button Content="{local:Loc Refresh}" Style="{StaticResource ModernButton}" 
+                            Click="BtnRefreshLog_Click" Margin="0,0,8,0"/>
+                    <Button Content="{local:Loc ClearLog}" Style="{StaticResource DangerButton}" 
+                            Click="BtnClearLog_Click"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ═══ Installed Builds Page ═══ -->
+            <Grid x:Name="PageBuilds" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="{local:Loc InstalledBuilds}" FontSize="22"
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                <TextBlock x:Name="TxtBuildCount" Grid.Row="1" Text="{local:Loc InstalledBuilds}" FontSize="13"
+                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock x:Name="TxtNoBuilds" Text="{local:Loc NoBuildsConfigured}" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"
+                                   HorizontalAlignment="Center" Margin="0,40" Visibility="Collapsed"/>
+
+                        <ItemsControl x:Name="BuildsList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource CardBrush}" CornerRadius="8" 
+                                            Padding="20" Margin="0,0,0,10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding DisplayName}" FontSize="17"
+                                                           Foreground="{DynamicResource AccentBrush}"/>
+                                                <TextBlock Text="{Binding FolderPath}" FontSize="12"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,8"
+                                                           TextTrimming="CharacterEllipsis"/>
+
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                                    <TextBlock Text="{Binding ModCountText}" FontSize="13"
+                                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                </StackPanel>
+
+                                                <ItemsControl ItemsSource="{Binding CategoryBreakdown}" Margin="4,0,0,0">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding}" FontSize="12"
+                                                                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,1"/>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+
+                                                <TextBlock Text="{Binding ExeStatusText}" FontSize="11" Margin="0,6,0,0"
+                                                           Foreground="{Binding ExeStatusColor}"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <Button Content="{local:Loc PlaySmall}" Style="{StaticResource AccentButton}"
+                                                    Tag="{Binding}" Click="BtnPlayBuild_Click" 
+                                                    Padding="20,8" Margin="0,0,0,6"/>
+                                                <Button Content="{local:Loc SettingsButton}" Style="{StaticResource ModernButton}"
+                                                    Tag="{Binding}" Click="BtnBuildSettings_Click"
+                                                    Padding="14,7"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0" HorizontalAlignment="Left">
+                            <Button Content="{local:Loc AddVersionButton}" Style="{StaticResource AccentButton}"
+                                Click="BtnAddVersion_Click" Padding="16,8"/>
+                            <Button Content="Download SSF2" Style="{StaticResource ModernButton}"
+                                Tag="https://www.supersmashflash.com/play/ssf2/downloads/archives/"
+                                Click="BtnResourceLink_Click" Margin="8,0,0,0" Padding="12,8"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- ═══ Clone Character Page ═══ -->
+            <Grid x:Name="PageCloneCharacter" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" x:Name="TxtCloneCharacterTitle" Text="Clone Character" FontSize="22"
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="Clone a fighter that is already in SSF2 Shell. JPEXS renames the SWF and the expansion template is copied. FLA export is skipped by default for speed."
+                                           FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,14"/>
+
+                                <TextBlock Text="Character to clone" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="CmbCloneSourceCharacter" Style="{StaticResource ModernComboBox}"
+                                          DisplayMemberPath="Label" Margin="0,0,0,10"/>
+
+                                <TextBlock Text="Display name (shown in-game)" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                <TextBox x:Name="TxtCloneDisplayName" Margin="0,0,0,10"/>
+
+                                <TextBlock Text="Character name (expansion folder — spaces are kept; SWF id is derived)" FontSize="12"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                <TextBox x:Name="TxtCloneNewName" Margin="0,0,0,10"/>
+
+                                <CheckBox x:Name="ChkCloneKeepOldAssets" Content="Keep using clone's assets"
+                                          Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,14"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button x:Name="BtnCloneRun" Content="Clone Character" Style="{StaticResource AccentButton}"
+                                            Click="BtnCloneRun_Click" Padding="16,8"/>
+                                    <Button x:Name="BtnCloneOpenOutput" Content="Open folder" Style="{StaticResource ModernButton}"
+                                            Click="BtnCloneOpenOutput_Click" Padding="12,8" Margin="8,0,0,0" IsEnabled="False"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="Progress" FontSize="14"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBox x:Name="TxtCloneLog" IsReadOnly="True" TextWrapping="Wrap"
+                                         AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                                         MinHeight="160" MaxHeight="320"
+                                         FontFamily="Consolas" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <views:ShellScaffoldPage x:Name="PageAddCharacter" Visibility="Collapsed"
+                Title="Add Character"
+                Description="Drop in a finished fighter pack (SWF + CSS art) without cloning a stock character. This page will copy it into SSF2 Shell expansions."
+                StatusText="Scaffold — clone a roster character for now, then we will add a file-drop flow here."/>
+
+            <views:ShellScaffoldPage x:Name="PageTestCharacter" Visibility="Collapsed"
+                Title="Test Character"
+                Description="Launch SSF2 Shell straight to Character Select so you can pick your expansion and fight."
+                StatusText="Uses the built-in Manager Bridge pack (no engine2 patch). The Expansions pack adds the chip."
+                ActionLabel="▶  Open Character Select"
+                ActionClick="BtnTestCharacterLaunch_Click"/>
+
+            <views:ShellScaffoldPage x:Name="PageManageCss" Visibility="Collapsed"
+                Title="Manage Character Select"
+                Description="Opens SSF2 Shell on Character Select. Use the in-game CSS Editor (F1 → Edit Character Select) to rearrange chips."
+                StatusText="Direct launch writes data/ssf2mm/state/launch.json and starts the game. The Manager Bridge pack reads it after boot."
+                ActionLabel="▶  Open Character Select"
+                ActionClick="BtnManageCssLaunch_Click"
+                SecondaryLabel="Open CSS Editor notes"
+                SecondaryClick="BtnManageCssHelp_Click"/>
+
+            <views:ShellScaffoldPage x:Name="PageCloneStage" Visibility="Collapsed"
+                Title="Clone Stage"
+                Description="Clone a stage that is already in SSF2 Shell, the same way Clone Character works for fighters."
+                StatusText="Scaffold — JPEXS rename + FLA export will land here next."/>
+
+            <views:ShellScaffoldPage x:Name="PageAddStage" Visibility="Collapsed"
+                Title="Add Stage"
+                Description="Install a finished stage SWF into SSF2 Shell and put it on Stage Select."
+                StatusText="Scaffold — drop-in stage packs will be wired after clone stage."/>
+
+            <views:ShellScaffoldPage x:Name="PageManageSss" Visibility="Collapsed"
+                Title="Manage Stage Select"
+                Description="Launch SSF2 Shell on Stage Select. Rearrange stages with the in-game Stage Editor."
+                StatusText="Same launch file as Character Select, with screen set to sssedit."
+                ActionLabel="▶  Open Stage Select"
+                ActionClick="BtnManageSssLaunch_Click"/>
+
+            <views:ShellScaffoldPage x:Name="PageTestStage" Visibility="Collapsed"
+                Title="Test Stage"
+                Description="Jump into Stage Select to load a cloned or added stage."
+                ActionLabel="▶  Open Stage Select"
+                ActionClick="BtnTestStageLaunch_Click"/>
+
+            <Grid x:Name="PageAddMusic" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Add Music" FontSize="22"
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="Create a new Shell music track from an MP3. JPEXS clones a stock BGM SWF and swaps the sound — it does not patch engine2."
+                                           FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                <TextBlock Text="MP3 file" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                <DockPanel Margin="0,0,0,10">
+                                    <Button DockPanel.Dock="Right" Content="Browse…" Style="{StaticResource ModernButton}"
+                                            Click="BtnShellMusicBrowse_Click" Padding="12,6" Margin="8,0,0,0"/>
+                                    <TextBox x:Name="TxtShellMusicMp3" IsReadOnly="True"/>
+                                </DockPanel>
+                                <TextBlock Text="Track id (bgm_ is added if missing)" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                <TextBox x:Name="TxtShellMusicId" Margin="0,0,0,10"/>
+                                <TextBlock Text="Song name" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                <TextBox x:Name="TxtShellMusicName" Margin="0,0,0,10"/>
+                                <TextBlock Text="Artist" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                <TextBox x:Name="TxtShellMusicArtist" Margin="0,0,0,10"/>
+                                <TextBlock Text="Loop point (milliseconds)" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                <TextBox x:Name="TxtShellMusicLoop" Text="0" Margin="0,0,0,14"/>
+                                <Button x:Name="BtnShellMusicAdd" Content="Add to SSF2 Shell" Style="{StaticResource AccentButton}"
+                                        Click="BtnShellMusicAdd_Click" Padding="16,8" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="Progress" FontSize="14"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBox x:Name="TxtShellMusicLog" IsReadOnly="True" TextWrapping="Wrap"
+                                         AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                                         MinHeight="140" MaxHeight="280" FontFamily="Consolas" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <Grid x:Name="PageManageMusic" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Manage Music" FontSize="22"
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                <TextBlock Grid.Row="1" Text="Tracks registered in SSF2 Shell mappings.json. Stage playlist editing is still coming."
+                           FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+                <DockPanel Grid.Row="2">
+                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
+                        <Button Content="Refresh" Style="{StaticResource ModernButton}" Click="BtnManageMusicRefresh_Click" Padding="12,8"/>
+                        <Button Content="Open sound folder" Style="{StaticResource ModernButton}" Click="BtnManageMusicOpenFolder_Click"
+                                Padding="12,8" Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <ListBox x:Name="LstShellMusic" DisplayMemberPath="DisplayLabel"/>
+                </DockPanel>
+            </Grid>
+
+            <views:ShellScaffoldPage x:Name="PageCostumes" Visibility="Collapsed"
+                Title="Make Costumes"
+                Description="Build extra costumes for a Shell character (palette swaps and extra slots)."
+                StatusText="Scaffold — Palette Maker already lives in SSF2 Shell (Vault). This tab will wrap that flow."/>
+
+            <views:ShellScaffoldPage x:Name="PageEvents" Visibility="Collapsed"
+                Title="Make Events"
+                Description="Create Event Match setups that use your custom characters and stages."
+                StatusText="Scaffold — event packs will be authored here later."/>
+
+            <!-- ═══ Pressor Page ═══ -->
+            <Grid x:Name="PagePressor" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" x:Name="TxtPressorTitle" Text="{local:Loc Pressor}" FontSize="22"
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="Prepare an SSF2 install for modding: reveal DAT names, decompress everything to .swf under friendly folders, and patch the engine so it loads those paths. You can fully revert to the original DAT layout."
+                                   FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="Prepare install" FontSize="16"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+                                <TextBlock Text="Select the folder that contains SSF2.swf and data/. Prepare modifies that install in place — use a copy if you want to keep a pristine Beta."
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                <DockPanel Margin="0,0,0,10">
+                                    <Button DockPanel.Dock="Right" Content="Browse…" Style="{StaticResource ModernButton}"
+                                            Click="BtnPressorBrowseInstall_Click" Padding="12,6" Margin="8,0,0,0"/>
+                                    <TextBox x:Name="TxtPressorInstallRoot" IsReadOnly="True"/>
+                                </DockPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <Button x:Name="BtnPressorPrepare" Content="Prepare for modding" Style="{StaticResource AccentButton}"
+                                            Click="BtnPressorPrepare_Click" Padding="14,8"/>
+                                    <Button x:Name="BtnPressorRevert" Content="Revert to DAT" Style="{StaticResource ModernButton}"
+                                            Click="BtnPressorRevert_Click" Padding="14,8" Margin="8,0,0,0"/>
+                                    <Button x:Name="BtnPressorDebugConsole" Content="Game Debug Console…" Style="{StaticResource ModernButton}"
+                                            Click="BtnPressorDebugConsole_Click" Padding="14,8" Margin="8,0,0,0"
+                                            ToolTip="In-app listener + patch install/upgrade"/>
+                                    <Button x:Name="BtnPressorDebugLaunch" Content="Launch + debug CMD…" Style="{StaticResource AccentButton}"
+                                            Click="BtnPressorDebugLaunch_Click" Padding="14,8" Margin="8,0,0,0"
+                                            ToolTip="Opens a CMD window that listens for SSF2API.print / uncaught errors and starts the game"/>
+                                    <Button x:Name="BtnPressorConvertOneDat" Content="Convert file → DAT…" Style="{StaticResource ModernButton}"
+                                            Click="BtnPressorConvertOneDat_Click" Padding="14,8" Margin="8,0,0,0"
+                                            ToolTip="Compress one .swf to its DAT name alongside the original (does not replace the .swf)"/>
+                                </StackPanel>
+                                <TextBox x:Name="TxtPressorDatLog" IsReadOnly="True" TextWrapping="Wrap"
+                                         AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                                         MinHeight="140" MaxHeight="280"
+                                         FontFamily="Consolas" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Text="Manual compress / uncompress" FontSize="15"
+                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                        <TextBlock Text="Compress uses the standard Pressor garbage-header format and automatically falls back to zlib-only if needed. Decompress always tries both."
+                                   FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+
+                        <Button Style="{StaticResource ModernButton}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                Padding="20,14" Margin="0,0,0,8" Click="BtnPressorUncompressFiles_Click"
+                                BorderBrush="{DynamicResource AccentBrush}" BorderThickness="3,0,0,0">
+                            <TextBlock Text="Uncompress files!" FontSize="16" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Button>
+                        <Button Style="{StaticResource ModernButton}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                Padding="20,14" Margin="0,0,0,8" Click="BtnPressorUncompressFolder_Click"
+                                BorderBrush="{DynamicResource AccentBrush}" BorderThickness="3,0,0,0">
+                            <TextBlock Text="Uncompress folder!" FontSize="16" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Button>
+                        <Button Style="{StaticResource ModernButton}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                Padding="20,14" Margin="0,0,0,8" Click="BtnPressorCompressFiles_Click"
+                                BorderBrush="{DynamicResource AccentBrush}" BorderThickness="3,0,0,0">
+                            <TextBlock x:Name="TxtPressorCompressFilesLabel" Text="Compress files!" FontSize="16" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Button>
+                        <Button Style="{StaticResource ModernButton}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                Padding="20,14" Margin="0,0,0,12" Click="BtnPressorCompressFolder_Click"
+                                BorderBrush="{DynamicResource AccentBrush}" BorderThickness="3,0,0,0">
+                            <TextBlock Text="Compress folder!" FontSize="16" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Button>
+
+                        <TextBlock x:Name="TxtPressorStatus" Text="Ready." FontSize="13"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- ═══ Mappings Editor (Prepare mode) ═══ -->
+            <Grid x:Name="PageMappings" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" x:Name="TxtMappingsTitle" Text="{local:Loc Mappings}" FontSize="22"
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                <TextBlock Grid.Row="1" Text="Guided tools for characters, stages, and music on a prepared install. Changes save and apply to the game automatically."
+                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+
+                <Grid Grid.Row="2">
+                    <Border x:Name="MappingsNotPreparedPanel" Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="24"
+                            VerticalAlignment="Top">
+                        <StackPanel>
+                            <TextBlock Text="Prepare this install first" FontSize="16"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                            <TextBlock Text="Use Pressor → Prepare for modding, then come back here."
+                                       FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Content="Browse…" Style="{StaticResource ModernButton}"
+                                        Click="BtnMappingsBrowseInstall_Click" Padding="12,6" Margin="8,0,0,0"/>
+                                <TextBox x:Name="TxtMappingsInstallRoot" IsReadOnly="True"/>
+                            </DockPanel>
+                            <Button Content="Go to Pressor" Style="{StaticResource AccentButton}" HorizontalAlignment="Left"
+                                    Margin="0,12,0,0" Padding="14,8" Click="BtnMappingsGoPressor_Click"/>
+                        </StackPanel>
+                    </Border>
+
+                    <DockPanel x:Name="MappingsEditorPanel" Visibility="Collapsed">
+                        <Border DockPanel.Dock="Top" Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="12" Margin="0,0,0,10">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right" Content="Browse…" Style="{StaticResource ModernButton}"
+                                            Click="BtnMappingsBrowseInstall_Click" Padding="10,5" Margin="8,0,0,0"/>
+                                    <Button x:Name="BtnMappingsBack" DockPanel.Dock="Left" Content="← Back" Style="{StaticResource ModernButton}"
+                                            Padding="10,5" Margin="0,0,8,0" Click="BtnMappingsBack_Click" Visibility="Collapsed"/>
+                                    <TextBox x:Name="TxtMappingsInstallRootActive" IsReadOnly="True"/>
+                                </DockPanel>
+                                <TextBlock x:Name="TxtMappingsStatus" Text="Ready." FontSize="12" Margin="0,8,0,0"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Disabled horizontal scroll so WrapPanels actually wrap when the window is narrow. -->
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel>
+                                <!-- Hub -->
+                                <StackPanel x:Name="MapPanelHub">
+                                    <TextBlock Text="What do you want to manage?" FontSize="18"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                                    <Button Content="Characters" Style="{StaticResource AccentButton}" Padding="16,14" Margin="0,0,0,8"
+                                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                            Click="BtnMapHubCharacters_Click"/>
+                                    <Button Content="Stages" Style="{StaticResource AccentButton}" Padding="16,14" Margin="0,0,0,8"
+                                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                            Click="BtnMapHubStages_Click"/>
+                                    <Button Content="Music" Style="{StaticResource AccentButton}" Padding="16,14" Margin="0,0,0,16"
+                                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                            Click="BtnMapHubMusic_Click"/>
+                                    <Expander Header="Advanced (JSON / validate)" Foreground="{DynamicResource TextSecondaryBrush}">
+                                        <WrapPanel Margin="0,8,0,0">
+                                            <Button Content="Open JSON" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,6"
+                                                    Click="BtnMappingsOpenJson_Click"/>
+                                            <Button Content="Show in Explorer" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,6"
+                                                    Click="BtnMappingsExplorer_Click"/>
+                                            <Button Content="Reload / re-export" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,6"
+                                                    Click="BtnMappingsReload_Click"/>
+                                            <Button Content="Validate" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,6"
+                                                    Click="BtnMappingsValidate_Click"/>
+                                        </WrapPanel>
+                                    </Expander>
+                                    <ListBox x:Name="ListMappingsIssues" MaxHeight="140" Margin="0,8,0,0"
+                                             FontFamily="Consolas" FontSize="11" Visibility="Collapsed"/>
+                                </StackPanel>
+
+                                <!-- Category choice -->
+                                <StackPanel x:Name="MapPanelCategory" Visibility="Collapsed">
+                                    <TextBlock x:Name="TxtMapCategoryTitle" Text="" FontSize="18"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                                    <Button x:Name="BtnMapCatAdd" Content="Clone Character" Style="{StaticResource AccentButton}"
+                                            Padding="16,14" Margin="0,0,0,8" HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left" Click="BtnMapCatAdd_Click"/>
+                                    <Button x:Name="BtnMapCatEdit" Content="Update Character" Style="{StaticResource ModernButton}"
+                                            Padding="16,14" Margin="0,0,0,8" HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left" Click="BtnMapCatEdit_Click"
+                                            Visibility="Collapsed"/>
+                                    <Button x:Name="BtnMapCatArrange" Content="Arrange select screen" Style="{StaticResource ModernButton}"
+                                            Padding="16,14" Margin="0,0,0,8" HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left" Click="BtnMapCatArrange_Click"/>
+                                    <Button x:Name="BtnMapCatPlaylists" Content="Manage stage playlists" Style="{StaticResource ModernButton}"
+                                            Padding="16,14" Margin="0,0,0,8" HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left" Click="BtnMapCatPlaylists_Click"
+                                            Visibility="Collapsed"/>
+                                    <Button x:Name="BtnMapCatPlayMusic" Content="Play music" Style="{StaticResource ModernButton}"
+                                            Padding="16,14" Margin="0,0,0,8" HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left" Click="BtnMapCatPlayMusic_Click"
+                                            Visibility="Collapsed"/>
+                                </StackPanel>
+
+                                <!-- Clone Character wizard -->
+                                <StackPanel x:Name="MapPanelCharAdd" Visibility="Collapsed">
+                                    <TextBlock x:Name="TxtMapCharWizTitle" Text="Clone Character" FontSize="18"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="TxtMapCharWizStep" Text="Pick donor, id, name, and symbol — then clone. Editable assets land in the package folder for Update Character."
+                                               FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10"/>
+
+                                    <!-- Hidden legacy mode radios (always Clone) -->
+                                    <StackPanel x:Name="MapCharStepMode" Visibility="Collapsed">
+                                        <RadioButton x:Name="RadMapCharModeClone" GroupName="MapCharMode" Content="Clone" IsChecked="True"/>
+                                        <RadioButton x:Name="RadMapCharModeNew" GroupName="MapCharMode" Content="New"/>
+                                        <RadioButton x:Name="RadMapCharModeEdit" GroupName="MapCharMode" Content="Edit"/>
+                                    </StackPanel>
+
+                                    <!-- Step 1: Identity -->
+                                    <StackPanel x:Name="MapCharStepIdentity" Visibility="Visible">
+                                        <TextBlock x:Name="LblMapCharDonor" Text="Donor character (UI / assets source)" FontSize="11"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <ComboBox x:Name="CmbMapCharDonor" Margin="0,0,0,6" IsEditable="True"
+                                                  SelectionChanged="CmbMapCharDonor_SelectionChanged"
+                                                  LostKeyboardFocus="CmbMapCharDonor_SelectionChanged"/>
+                                        <TextBlock x:Name="LblMapCharEditId" Text="Character to edit" FontSize="11"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" Visibility="Collapsed"/>
+                                        <ComboBox x:Name="CmbMapCharEditId" Margin="0,0,0,6" Visibility="Collapsed"
+                                                  SelectionChanged="CmbMapCharEditId_SelectionChanged"/>
+                                        <TextBlock x:Name="LblMapCharSwf" Text="Optional custom .ssf / .swf (use instead of donor pack)"
+                                                   FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <DockPanel x:Name="PanelMapCharSwf" Margin="0,0,0,6">
+                                            <Button DockPanel.Dock="Right" Content="…" Style="{StaticResource ModernButton}"
+                                                    Padding="8,4" Margin="4,0,0,0" Click="BtnMapCharBrowseSwf_Click"/>
+                                            <TextBox x:Name="TxtMapCharSwf" IsReadOnly="True"/>
+                                        </DockPanel>
+                                        <TextBlock x:Name="LblMapCharWizId" Text="New id (folder-safe)" FontSize="11"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <TextBox x:Name="TxtMapCharWizId" Margin="0,0,0,6"/>
+                                        <TextBlock Text="Display name (also names the character package folder)" FontSize="11"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <TextBox x:Name="TxtMapCharWizName" Margin="0,0,0,6"
+                                                 TextChanged="TxtMapCharWizName_TextChanged"/>
+                                        <TextBlock Text="Series symbol (used on event PA + mappings)" FontSize="11"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <ComboBox x:Name="CmbMapCharSeriesIcon" Margin="0,0,0,4" IsEditable="True"/>
+                                        <CheckBox x:Name="ChkMapCharNewSeriesSymbol" Content="Add new series symbol (clone from template below)"
+                                                  Margin="0,0,0,4" Checked="ChkMapCharNewSeriesSymbol_Changed"
+                                                  Unchecked="ChkMapCharNewSeriesSymbol_Changed"/>
+                                        <StackPanel x:Name="PanelMapCharNewSeriesSymbol" Visibility="Collapsed" Margin="0,0,0,6">
+                                            <TextBlock Text="Clone template" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            <ComboBox x:Name="CmbMapCharSeriesTemplate" Margin="0,0,0,4" IsEditable="True"/>
+                                            <TextBlock Text="New symbol name" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            <TextBox x:Name="TxtMapCharNewSeriesName" Margin="0,0,0,4"/>
+                                            <DockPanel Margin="0,0,0,0">
+                                                <Button DockPanel.Dock="Right" Content="…" Style="{StaticResource ModernButton}"
+                                                        Padding="8,4" Margin="4,0,0,0" Click="BtnMapCharBrowseSeriesPng_Click"/>
+                                                <TextBox x:Name="TxtMapCharSeriesPng" IsReadOnly="True"
+                                                         ToolTip="Optional PNG to replace on the new symbol"/>
+                                            </DockPanel>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkMapCharLastRow" Content="Add to last row" IsChecked="True" Margin="0,0,0,4"
+                                                  Checked="ChkMapCharCssRow_Changed" Unchecked="ChkMapCharCssRow_Changed"/>
+                                        <CheckBox x:Name="ChkMapCharNewRow" Content="Place on a new CSS row" Margin="0,0,0,4"
+                                                  Checked="ChkMapCharCssRow_Changed" Unchecked="ChkMapCharCssRow_Changed"/>
+                                        <CheckBox x:Name="ChkMapCharRandom" Content="Add to random pool" IsChecked="True" Margin="0,0,0,10"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                            <Button Content="Back" Style="{StaticResource ModernButton}" Padding="14,8" Margin="0,0,8,0"
+                                                    Click="BtnMapCharStepBack_Click"/>
+                                            <Button Content="Clone Character" Style="{StaticResource AccentButton}" Padding="16,8"
+                                                    Click="BtnMapCharFinish_Click"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Step 2: WYSIWYG assets -->
+                                    <StackPanel x:Name="MapCharStepAssets" Visibility="Collapsed">
+                                        <TextBlock Text="Place art over the greyed placeholder. Drag to move · scroll to scale art · Ctrl+scroll for pixel zoom."
+                                                   FontSize="11" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                        <ComboBox x:Name="CmbMapCharSlot" Margin="0,0,0,8"
+                                                  SelectionChanged="CmbMapCharSlot_SelectionChanged"/>
+                                        <Border Background="{DynamicResource CardBrush}" CornerRadius="6" Padding="8" Margin="0,0,0,8"
+                                                Height="300">
+                                            <views:ArtPlacementCanvas x:Name="MapCharArtCanvas"/>
+                                        </Border>
+                                        <Grid Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                                <TextBlock Text="X" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                <TextBox x:Name="TxtMapCharArtX" Text="0" LostFocus="TxtMapCharArtNumeric_LostFocus"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="0,0,6,0">
+                                                <TextBlock Text="Y" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                <TextBox x:Name="TxtMapCharArtY" Text="0" LostFocus="TxtMapCharArtNumeric_LostFocus"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Margin="0,0,6,0">
+                                                <TextBlock Text="Scale" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                <TextBox x:Name="TxtMapCharArtScale" Text="1" LostFocus="TxtMapCharArtNumeric_LostFocus"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="3">
+                                                <TextBlock Text="Name font" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                <TextBox x:Name="TxtMapCharNameFont" Text="8" LostFocus="TxtMapCharNameFont_LostFocus"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <WrapPanel Margin="0,0,0,10">
+                                            <Button Content="Load PNG…" Style="{StaticResource AccentButton}" Padding="10,6" Margin="0,0,6,4"
+                                                    Click="BtnMapCharLoadOverlay_Click"/>
+                                            <Button Content="Clear art" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,4"
+                                                    Click="BtnMapCharClearOverlay_Click"/>
+                                            <Button Content="Fit" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,4"
+                                                    Click="BtnMapCharArtFit_Click"/>
+                                            <Button Content="Reset" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,4"
+                                                    Click="BtnMapCharArtReset_Click"/>
+                                            <CheckBox x:Name="ChkMapCharFlipH" Content="Flip H" Margin="0,4,8,4"
+                                                      Foreground="{DynamicResource TextPrimaryBrush}"
+                                                      Checked="ChkMapCharFlip_Changed" Unchecked="ChkMapCharFlip_Changed"/>
+                                            <CheckBox x:Name="ChkMapCharFlipV" Content="Flip V" Margin="0,4,0,4"
+                                                      Foreground="{DynamicResource TextPrimaryBrush}"
+                                                      Checked="ChkMapCharFlip_Changed" Unchecked="ChkMapCharFlip_Changed"/>
+                                        </WrapPanel>
+                                        <!-- Hidden path holders for finish export -->
+                                        <TextBox x:Name="TxtMapCharStock" Visibility="Collapsed"/>
+                                        <TextBox x:Name="TxtMapCharPa" Visibility="Collapsed"/>
+                                        <TextBox x:Name="TxtMapCharChip" Visibility="Collapsed"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Back" Style="{StaticResource ModernButton}" Padding="14,8" Margin="0,0,8,0"
+                                                    Click="BtnMapCharStepBack_Click"/>
+                                            <Button Content="Next — review" Style="{StaticResource AccentButton}" Padding="14,8"
+                                                    Click="BtnMapCharStepNext_Click"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Step 3: Review + checklist -->
+                                    <StackPanel x:Name="MapCharStepReview" Visibility="Collapsed">
+                                        <TextBlock x:Name="TxtMapCharReviewSummary" Text="" FontSize="12" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Asset checklist"
+                                                   FontSize="13"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+                                        <TextBlock Text="Finish writes the CSS slot, shared PA art, package folder (assets + FLA + costumes), and mappings."
+                                                   FontSize="11" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                                        <ListBox x:Name="ListMapCharChecklist" Height="180" Margin="0,0,0,12"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Back" Style="{StaticResource ModernButton}" Padding="14,8" Margin="0,0,8,0"
+                                                    Click="BtnMapCharStepBack_Click"/>
+                                            <Button Content="Finish — clone character" Style="{StaticResource AccentButton}" Padding="14,8"
+                                                    Click="BtnMapCharFinish_Click"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Update Character panel -->
+                                <StackPanel x:Name="MapPanelCharUpdate" Visibility="Collapsed">
+                                    <TextBlock Text="Update Character" FontSize="18"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Packages under data/character/{Display Name}/. Both options default on; uncheck what you don't need. Choices persist per character."
+                                               FontSize="11" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10"/>
+                                    <ListBox x:Name="ListMapCharUpdate" Height="260" Margin="0,0,0,10"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Content="Back" Style="{StaticResource ModernButton}" Padding="14,8" Margin="0,0,8,0"
+                                                Click="BtnMapCharUpdateBack_Click"/>
+                                        <Button Content="Update selected" Style="{StaticResource AccentButton}" Padding="14,8"
+                                                Click="BtnMapCharUpdateRun_Click"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Stage add wizard -->
+                                <StackPanel x:Name="MapPanelStageAdd" Visibility="Collapsed">
+                                    <TextBlock Text="Add stage" FontSize="18"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Source stage .swf" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <DockPanel Margin="0,0,0,6">
+                                        <Button DockPanel.Dock="Right" Content="…" Style="{StaticResource ModernButton}"
+                                                Padding="8,4" Margin="4,0,0,0" Click="BtnMapStageBrowseSwf_Click"/>
+                                        <TextBox x:Name="TxtMapStageSwf" IsReadOnly="True"/>
+                                    </DockPanel>
+                                    <TextBlock Text="Id" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBox x:Name="TxtMapStageWizId" Margin="0,0,0,6"/>
+                                    <TextBlock Text="Display name" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBox x:Name="TxtMapStageWizName" Margin="0,0,0,6"/>
+                                    <TextBlock Text="Stage select button PNG" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <DockPanel Margin="0,0,0,6">
+                                        <Button DockPanel.Dock="Right" Content="…" Style="{StaticResource ModernButton}"
+                                                Padding="8,4" Margin="4,0,0,0" Click="BtnMapStageBrowsePng_Click"/>
+                                        <TextBox x:Name="TxtMapStagePng" IsReadOnly="True"/>
+                                    </DockPanel>
+                                    <CheckBox x:Name="ChkMapStageNewRow" Content="Place on a new SSS row" Margin="0,0,0,4"/>
+                                    <CheckBox x:Name="ChkMapStageTraining" Content="Training only" Margin="0,0,0,4"/>
+                                    <CheckBox x:Name="ChkMapStageRandom" Content="Add to random pool" IsChecked="True" Margin="0,0,0,10"/>
+                                    <Button Content="Finish — add stage" Style="{StaticResource AccentButton}"
+                                            Padding="14,8" HorizontalAlignment="Left" Click="BtnMapStageFinish_Click"/>
+                                </StackPanel>
+
+                                <!-- Music add wizard -->
+                                <StackPanel x:Name="MapPanelMusicAdd" Visibility="Collapsed">
+                                    <TextBlock Text="Add song" FontSize="18"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="MP3 file" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <DockPanel Margin="0,0,0,6">
+                                        <Button DockPanel.Dock="Right" Content="…" Style="{StaticResource ModernButton}"
+                                                Padding="8,4" Margin="4,0,0,0" Click="BtnMapMusicBrowseMp3_Click"/>
+                                        <TextBox x:Name="TxtMapMusicMp3" IsReadOnly="True"/>
+                                    </DockPanel>
+                                    <TextBlock x:Name="TxtMapMusicDuration" Text="Duration: —"
+                                               FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Track id (bgm_…)" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBox x:Name="TxtMapMusicWizId" Margin="0,0,0,6"/>
+                                    <TextBlock Text="Song name" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBox x:Name="TxtMapMusicSongName" Margin="0,0,0,6"/>
+                                    <TextBlock Text="Artist" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBox x:Name="TxtMapMusicArtist" Margin="0,0,0,10"/>
+
+                                    <Border Background="{DynamicResource CardBrush}" CornerRadius="6" Padding="12" Margin="0,0,0,10">
+                                        <StackPanel>
+                                            <TextBlock Text="Audio tools" FontSize="13"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+                                            <TextBlock Text="Blue = trim start · Orange = trim end · Green = loop (in trimmed clip) · White = playhead. Drag markers on the waveform."
+                                                       FontSize="11" TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                            <views:AudioWaveformControl x:Name="MusicWaveform" Margin="0,0,0,8"
+                                                                        MarkersChanged="MusicWaveform_MarkersChanged"/>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                                    <TextBlock Text="Trim start (ms)" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                    <TextBox x:Name="TxtMapMusicTrimStart" Text="0" LostFocus="TxtMapMusicMarker_LostFocus"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Margin="0,0,6,0">
+                                                    <TextBlock Text="Trim end (ms)" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                    <TextBox x:Name="TxtMapMusicTrimEnd" LostFocus="TxtMapMusicMarker_LostFocus"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Loop in trimmed clip (ms)" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                    <TextBox x:Name="TxtMapMusicLoop" Text="0" LostFocus="TxtMapMusicMarker_LostFocus"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <WrapPanel Margin="0,0,0,4">
+                                                <Button Content="Play trim" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,4"
+                                                        Click="BtnMapMusicPlayTrim_Click"/>
+                                                <Button Content="Preview loop" Style="{StaticResource AccentButton}" Padding="10,6" Margin="0,0,6,4"
+                                                        Click="BtnMapMusicPreviewLoop_Click"/>
+                                                <Button Content="Stop" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,4"
+                                                        Click="BtnMapMusicStop_Click"/>
+                                                <Button Content="Use playhead as loop" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,0,4"
+                                                        Click="BtnMapMusicMarkLoop_Click"/>
+                                            </WrapPanel>
+                                            <TextBlock x:Name="TxtMapMusicPreviewStatus" Text="Load an MP3 to preview."
+                                                       FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <TextBlock Text="Add to these stages (Ctrl+click multi-select). Leave empty to register only."
+                                               FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                    <ListBox x:Name="ListMapMusicStages" SelectionMode="Extended" Height="140" Margin="0,0,0,10"/>
+                                    <Button Content="Finish — create song" Style="{StaticResource AccentButton}"
+                                            Padding="14,8" HorizontalAlignment="Left" Click="BtnMapMusicFinish_Click"/>
+                                </StackPanel>
+
+                                <!-- Arrange CSS/SSS -->
+                                <StackPanel x:Name="MapPanelArrange" Visibility="Collapsed">
+                                    <TextBlock x:Name="TxtMapArrangeTitle" Text="Arrange select screen" FontSize="18"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Drag chips to rearrange. Click to select, then Insert / Remove. Each id can appear only once (inserting a roster id moves it)."
+                                               FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <WrapPanel Margin="0,0,0,8">
+                                        <Button Content="Insert id…" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,6"
+                                                Click="BtnMapArrangeInsert_Click"/>
+                                        <Button Content="New row + id…" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,6"
+                                                Click="BtnMapArrangeNewRow_Click"/>
+                                        <Button Content="Remove selected" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,6"
+                                                Click="BtnMapArrangeRemove_Click"/>
+                                        <Button x:Name="BtnMapArrangeCrazy" Content="🤪 Crazy CSS…" Style="{StaticResource ModernButton}"
+                                                Padding="10,6" Margin="0,0,6,6" Click="BtnMapArrangeCrazy_Click"
+                                                ToolTip="Design a custom CSS grid — mix chip art, playable fighters, and labels"/>
+                                        <Button x:Name="BtnMapArrangeVanilla" Content="Vanilla CSS" Style="{StaticResource ModernButton}"
+                                                Padding="10,6" Margin="0,0,6,6" Click="BtnMapArrangeVanilla_Click"
+                                                ToolTip="Restore the CSS layout from before Crazy CSS"/>
+                                        <Button Content="Done — save layout" Style="{StaticResource AccentButton}" Padding="10,6" Margin="0,0,0,6"
+                                                Click="BtnMapArrangeDone_Click"/>
+                                    </WrapPanel>
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                            <TextBlock Text="position.x" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            <TextBox x:Name="TxtMapLayoutPosX"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="0,0,6,0">
+                                            <TextBlock Text="position.y" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            <TextBox x:Name="TxtMapLayoutPosY"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" Margin="0,0,6,0">
+                                            <TextBlock Text="icon width" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            <TextBox x:Name="TxtMapLayoutIconW"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="3">
+                                            <TextBlock Text="icon height" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            <TextBox x:Name="TxtMapLayoutIconH"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <TextBlock x:Name="TxtMapArrangeFitHint" Text="" FontSize="11" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                    <StackPanel x:Name="ArrangeRowsHost"/>
+                                    <!-- Keep hidden hosts for code compat -->
+                                    <ItemsControl x:Name="CssRowsHost" Visibility="Collapsed"/>
+                                    <ItemsControl x:Name="SssRowsHost" Visibility="Collapsed"/>
+                                </StackPanel>
+
+                                <!-- Stage playlists -->
+                                <StackPanel x:Name="MapPanelPlaylists" Visibility="Collapsed">
+                                    <DockPanel Margin="0,0,0,8">
+                                        <Button DockPanel.Dock="Right" Content="Refresh cache" Style="{StaticResource ModernButton}"
+                                                Padding="10,6" Click="BtnMapMusicCacheRefresh_Click"/>
+                                        <TextBlock Text="Stage playlists" FontSize="18"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                    </DockPanel>
+                                    <TextBlock Text="Pick a stage, add/remove songs by name, preview, then save."
+                                               FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                    <ComboBox x:Name="CmbMapPlaylistStage" Margin="0,0,0,8"
+                                              Style="{StaticResource ModernComboBox}"
+                                              DisplayMemberPath="StageName"
+                                              SelectionChanged="CmbMapPlaylistStage_SelectionChanged"/>
+                                    <ListBox x:Name="LstMapPlaylistTracks" Height="200" Margin="0,0,0,8"
+                                             DisplayMemberPath="DisplayLabel"/>
+                                    <DockPanel Margin="0,0,0,8">
+                                        <Button DockPanel.Dock="Right" Content="Add" Style="{StaticResource AccentButton}"
+                                                Padding="12,6" Margin="6,0,0,0" Click="BtnMapPlaylistAddTrack_Click"/>
+                                        <Button DockPanel.Dock="Right" Content="Preview" Style="{StaticResource ModernButton}"
+                                                Padding="12,6" Margin="6,0,0,0" Click="BtnMapPlaylistPreviewAddSong_Click"/>
+                                        <ComboBox x:Name="CmbMapPlaylistAddSong" DisplayMemberPath="DisplayLabel"
+                                                  Style="{StaticResource ModernComboBox}"/>
+                                    </DockPanel>
+                                    <WrapPanel>
+                                        <Button Content="Remove selected" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,0"
+                                                Click="BtnMapPlaylistRemoveTrack_Click"/>
+                                        <Button Content="Preview selected" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,0"
+                                                Click="BtnMapPlaylistPreview_Click"/>
+                                        <Button Content="Save playlist to stage" Style="{StaticResource AccentButton}" Padding="10,6"
+                                                Click="BtnMapPlaylistSave_Click"/>
+                                    </WrapPanel>
+                                    <!-- Hidden legacy field for compat -->
+                                    <TextBox x:Name="TxtMapPlaylistTracks" Visibility="Collapsed"/>
+                                </StackPanel>
+
+                                <!-- Play music (library + user playlists) -->
+                                <StackPanel x:Name="MapPanelPlayMusic" Visibility="Collapsed">
+                                    <DockPanel Margin="0,0,0,8">
+                                        <Button DockPanel.Dock="Right" Content="Refresh library" Style="{StaticResource ModernButton}"
+                                                Padding="10,6" Click="BtnMapMusicCacheRefresh_Click"/>
+                                        <TextBlock Text="Play music" FontSize="18"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                    </DockPanel>
+                                    <TextBlock Text="Browse SSF2 tracks, preview, build Mod Manager playlists, and extend seamless loops."
+                                               FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                    <StackPanel x:Name="PlayMusicCacheStatusPanel" Visibility="Collapsed" Margin="0,0,0,8">
+                                        <DockPanel>
+                                            <TextBlock x:Name="TxtPlayMusicCacheStatus" DockPanel.Dock="Right" FontSize="11"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                            <ProgressBar x:Name="PlayMusicCacheProgress" Height="8" Minimum="0" Maximum="100" Value="0" Margin="0,0,10,0"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                    <TextBlock Text="Library" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    <TextBox x:Name="TxtPlayMusicSearch" Margin="0,4,0,6"
+                                             Style="{StaticResource ModernTextBox}"
+                                             TextChanged="PlayMusicFilter_Changed"/>
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <ComboBox x:Name="CmbPlayMusicArtist" Grid.Column="0"
+                                                  Style="{StaticResource ModernComboBox}"
+                                                  SelectionChanged="PlayMusicFilter_Changed"/>
+                                        <ComboBox x:Name="CmbPlayMusicStage" Grid.Column="2" DisplayMemberPath="StageName"
+                                                  Style="{StaticResource ModernComboBox}"
+                                                  SelectionChanged="PlayMusicFilter_Changed"/>
+                                    </Grid>
+                                    <ListBox x:Name="LstPlayMusicLibrary" Height="118" Margin="0,0,0,8"
+                                             DisplayMemberPath="DisplayLabel" MouseDoubleClick="LstPlayMusicLibrary_MouseDoubleClick"/>
+                                    <WrapPanel Margin="0,0,0,12">
+                                        <Button Content="Play" Style="{StaticResource AccentButton}" Padding="10,6" Margin="0,0,6,0"
+                                                Click="BtnPlayMusicPlay_Click"/>
+                                        <Button Content="Preview" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,0"
+                                                Click="BtnPlayMusicPreview_Click"/>
+                                        <Button Content="Extend ▾" Style="{StaticResource ModernButton}" Padding="10,6"
+                                                Click="BtnPlayMusicExtendMenu_Click">
+                                            <Button.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Extend 15 minutes" Click="MiniExtend15_Click"/>
+                                                    <MenuItem Header="Extend 30 minutes" Click="MiniExtend30_Click"/>
+                                                    <MenuItem Header="Extend 60 minutes" Click="MiniExtend60_Click"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="Custom…" Click="MiniExtendCustom_Click"/>
+                                                    <MenuItem Header="Stop extending" Click="MiniExtendStop_Click"/>
+                                                </ContextMenu>
+                                            </Button.ContextMenu>
+                                        </Button>
+                                    </WrapPanel>
+                                    <TextBlock Text="Mod Manager playlists" FontSize="12"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    <DockPanel Margin="0,4,0,6">
+                                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                            <Button Content="Rename" Style="{StaticResource ModernButton}"
+                                                    Padding="10,6" Margin="6,0,0,0" Click="BtnUserPlaylistRename_Click"/>
+                                            <Button Content="New…" Style="{StaticResource ModernButton}"
+                                                    Padding="10,6" Margin="6,0,0,0" Click="BtnUserPlaylistNew_Click"/>
+                                        </StackPanel>
+                                        <ComboBox x:Name="CmbUserPlaylists" DisplayMemberPath="Name"
+                                                  Style="{StaticResource ModernComboBox}"
+                                                  SelectionChanged="CmbUserPlaylists_SelectionChanged"/>
+                                    </DockPanel>
+                                    <ListBox x:Name="LstUserPlaylistTracks" Height="140" Margin="0,0,0,8"
+                                             DisplayMemberPath="DisplayLabel"/>
+                                    <WrapPanel>
+                                        <Button Content="Add selected" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,0"
+                                                Click="BtnUserPlaylistAdd_Click"/>
+                                        <Button Content="Add all filtered" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,0"
+                                                Click="BtnUserPlaylistAddAllFiltered_Click"/>
+                                        <Button Content="Remove" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,0"
+                                                Click="BtnUserPlaylistRemove_Click"/>
+                                        <Button Content="Play playlist" Style="{StaticResource AccentButton}" Padding="10,6" Margin="0,0,6,0"
+                                                Click="BtnUserPlaylistPlay_Click"/>
+                                        <Button Content="Export…" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,6,0"
+                                                Click="BtnUserPlaylistsExport_Click"/>
+                                        <Button Content="Import…" Style="{StaticResource ModernButton}" Padding="10,6"
+                                                Click="BtnUserPlaylistsImport_Click"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Grid>
+            </Grid>
+
+            <!-- ═══ Getting Started Page (combined) ═══ -->
+            <Grid x:Name="PageGettingStarted" Margin="24,20" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Getting Started" FontSize="22"
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <!-- Tutorial Card -->
+                        <Border Background="{DynamicResource CardBrush}"
+                                BorderBrush="{DynamicResource AccentBrush}"
+                                BorderThickness="3,0,0,0"
+                                CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="📘 Tutorial" FontSize="18"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="New to SSF2 Mod Manager? Take a quick tutorial to learn how to add versions, browse mods, and get started modding!"
+                                               FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" x:Name="BtnTutorial" Content="Start Tutorial"
+                                        Style="{StaticResource ModernButton}"
+                                        Click="BtnTutorial_Click" Padding="16,8" VerticalAlignment="Center"
+                                       />
+                            </Grid>
+                        </Border>
+
+                        <!-- Resources Section -->
+                        <!-- Wiki -->
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="📖 SSF2 Modding Wiki" FontSize="16"
+                                               Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Official wiki for SSF2 modding, with guides, tutorials, and documentation for modders of all skill levels."
+                                               FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="Open" Style="{StaticResource AccentButton}"
+                                    Tag="https://ssf2mods.miraheze.org/wiki/Main_Page"
+                                    Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Sandbox -->
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="🎨 Sandbox" FontSize="16"
+                                               Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Modpack from SSF2 1.3 with large collection of mods and easy installation."
+                                               FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="Open" Style="{StaticResource AccentButton}"
+                                    Tag="https://color-vault.github.io/Color-Vault/downloads.html"
+                                    Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="⚡ Reflash 2" FontSize="16"
+                                               Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="An open-source tool for reflashing and modifying SSF2 builds."
+                                               FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="Open" Style="{StaticResource AccentButton}"
+                                    Tag="https://github.com/SSF2-Mods-Official/reflash2"
+                                    Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBrush}" CornerRadius="8" Padding="20" Margin="0,0,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="📦 SSF2 Modding Vault" FontSize="16"
+                                               Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="A curated collection of SSF2 modding resources, tools, and documentation."
+                                               FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="Open" Style="{StaticResource AccentButton}"
+                                    Tag="https://github.com/SSF2-Mods-Official/ssf2-modding-vault"
+                                    Click="BtnResourceLink_Click" Padding="16,8" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- Download overlay -->
+            <Border x:Name="DownloadOverlay" Background="#CC000000" Visibility="Collapsed">
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="12" 
+                        Padding="32" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        MinWidth="350">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock x:Name="TxtDownloadStatus" Text="Downloading mod..." FontSize="16" 
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                        <ProgressBar x:Name="DownloadProgress" Width="280" Height="6" 
+                                     Minimum="0" Maximum="100" Value="0"
+                                     Foreground="{DynamicResource PrimaryBrush}" Background="#30FFFFFF"/>
+                        <TextBlock x:Name="TxtDownloadPercent" Text="0%" FontSize="12"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" 
+                                   HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Border>
+
+            </Grid>
+        </Grid>
+
+        <!-- Full-window loading overlay — must be root-level so it blocks sidebar + content -->
+        <Grid x:Name="OverlayLoading" Grid.RowSpan="2" Panel.ZIndex="1000" Visibility="Collapsed"
+              Background="#B0000000" IsHitTestVisible="True">
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="{DynamicResource CardBrush}"
+                    CornerRadius="10" Padding="28,22" MinWidth="360" MaxWidth="520">
+                <StackPanel>
+                    <Ellipse x:Name="OverlaySpinner" Width="48" Height="48" Stroke="{DynamicResource AccentBrush}" StrokeThickness="5"
+                             StrokeDashArray="2 2" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center">
+                        <Ellipse.RenderTransform>
+                            <RotateTransform Angle="0"/>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                    <TextBlock x:Name="TxtOverlayTitle" Text="Working…" FontSize="16"
+                               Margin="0,14,0,4" HorizontalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock x:Name="TxtOverlayMessage" Text="" Margin="0,0,0,12" HorizontalAlignment="Center"
+                               TextWrapping="Wrap" TextAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <ProgressBar x:Name="OverlayProgress" Height="10" Minimum="0" Maximum="100" Value="0"
+                                 Margin="0,0,0,6"/>
+                    <TextBlock x:Name="TxtOverlayStep" Text="" FontSize="11" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400">
+  <rect width="100%" height="100%" fill="#1a1c24" />
+  <text x="50%" y="46%" fill="#ffffff" font-family="Arial, sans-serif" font-size="36" text-anchor="middle">SSF2 Beta Mod Manager v1.1.2</text>
+  <text x="50%" y="62%" fill="#E85D04" font-family="Arial, sans-serif" font-size="22" text-anchor="middle">Play starts. Vanilla hashes are not checked.</text>
+</svg>

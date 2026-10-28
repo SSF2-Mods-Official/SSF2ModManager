@@ -1,0 +1,84 @@
+<Window x:Class="SSF2ModManager.Views.SetupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Set up SSF2 Mod Manager" Width="640" Height="420"
+        MinWidth="520" MinHeight="360"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BackgroundBrush}">
+    <Window.Resources>
+        <Style x:Key="StepTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        </Style>
+        <Style x:Key="StepText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock x:Name="TxtStepCount" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+        <Grid Grid.Row="1">
+            <StackPanel x:Name="StepN2f" Visibility="Collapsed">
+                <TextBlock Text="Next2Flash" Style="{StaticResource StepTitle}"/>
+                <TextBlock Text="This downloads the compiler: Python, Java, FFDec, and the AIR SDK. It is saved in a Next2Flash folder next to the Mod Manager." Style="{StaticResource StepText}"/>
+                <TextBlock x:Name="TxtN2f" Style="{StaticResource StepText}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                    <Button x:Name="BtnN2fDownload" Content="Download" Style="{StaticResource AccentButton}" Padding="14,8" Margin="0,0,8,0" Click="BtnN2fDownload_Click"/>
+                    <Button x:Name="BtnN2fFolder" Content="Choose folder" Style="{StaticResource ModernButton}" Padding="14,8" Click="BtnN2fFolder_Click"/>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel x:Name="StepVanilla" Visibility="Collapsed">
+                <TextBlock Text="SSF2 Beta 1.4.0.1" Style="{StaticResource StepTitle}"/>
+                <TextBlock Text="Pick the folder that contains SSF2.swf. Only version 1.4.0.1 works. The build does not stop on a file hash." Style="{StaticResource StepText}"/>
+                <TextBlock x:Name="TxtVanilla" Style="{StaticResource StepText}"/>
+                <Button x:Name="BtnVanilla" Content="Choose folder" Style="{StaticResource AccentButton}" Padding="14,8" Margin="0,16,0,0" HorizontalAlignment="Left" Click="BtnVanilla_Click"/>
+            </StackPanel>
+            <StackPanel x:Name="StepShell" Visibility="Collapsed">
+                <TextBlock Text="SSF2 Shell" Style="{StaticResource StepTitle}"/>
+                <TextBlock Text="Builds SSF2 Shell from your game and the latest Shell patch. Mods and settings are kept on a rebuild." Style="{StaticResource StepText}"/>
+                <TextBlock x:Name="TxtShell" Style="{StaticResource StepText}"/>
+                <Button x:Name="BtnBuild" Content="Build" Style="{StaticResource AccentButton}" Padding="14,8" Margin="0,16,0,0" HorizontalAlignment="Left" Click="BtnBuild_Click"/>
+            </StackPanel>
+            <StackPanel x:Name="StepDebug" Visibility="Collapsed">
+                <TextBlock Text="Debugging (optional)" Style="{StaticResource StepTitle}"/>
+                <TextBlock Text="Installs an editor if you do not have one, and points it at Next2Flash. You can skip this." Style="{StaticResource StepText}"/>
+                <TextBlock x:Name="TxtDebug" Style="{StaticResource StepText}"/>
+                <Button x:Name="BtnDebug" Content="Set up" Style="{StaticResource ModernButton}" Padding="14,8" Margin="0,16,0,0" HorizontalAlignment="Left" Click="BtnDebug_Click"/>
+            </StackPanel>
+            <StackPanel x:Name="StepDone" Visibility="Collapsed">
+                <TextBlock Text="Setup is complete" Style="{StaticResource StepTitle}"/>
+                <TextBlock Text="Next2Flash and SSF2 Shell are ready. You can play." Style="{StaticResource StepText}"/>
+                <Button x:Name="BtnPlay" Content="Play" Style="{StaticResource AccentButton}" Padding="18,8" Margin="0,20,0,0" HorizontalAlignment="Left" Click="BtnPlay_Click"/>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="2" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="BtnBack" Content="Back" Style="{StaticResource ModernButton}" Padding="14,8" Click="BtnBack_Click"/>
+            <TextBlock x:Name="TxtProgress" Grid.Column="1" Margin="12,0" VerticalAlignment="Center" TextWrapping="Wrap"
+                       FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+            <Button x:Name="BtnNext" Grid.Column="2" Content="Next" Style="{StaticResource AccentButton}" Padding="14,8" Click="BtnNext_Click"/>
+        </Grid>
+        <Grid x:Name="BusyOverlay" Grid.RowSpan="3" Visibility="Collapsed" Background="#CC101018" Panel.ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xE1CD;" FontFamily="Segoe MDL2 Assets" FontSize="42" Foreground="White" HorizontalAlignment="Center"
+                           RenderTransformOrigin="0.5,0.5">
+                    <TextBlock.RenderTransform>
+                        <RotateTransform x:Name="BusySpin"/>
+                    </TextBlock.RenderTransform>
+                </TextBlock>
+                <TextBlock x:Name="TxtBusy" Text="Working…" Margin="0,14,0,0" Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

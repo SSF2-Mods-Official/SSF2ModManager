@@ -1,0 +1,78 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "ActionScript: compile debug - asconfig.json",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/SSF2 Mod Manager/runtime/shell-dev/tools/compile_debug.ps1"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/SSF2 Mod Manager/runtime/shell-dev",
+				"env": {
+					"SSF2_AIR_SDK": "${config:as3mxml.sdk.framework}",
+					"SSF2_JAVA": "${config:as3mxml.java.path}"
+				}
+			},
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"type": "shell",
+			"label": "Prepare AIR debug overlay",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/SSF2 Mod Manager/runtime/shell-dev/tools/prepare_air_debug.ps1"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/SSF2 Mod Manager/runtime/shell-dev"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Prepare AIR debug",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"ActionScript: compile debug - asconfig.json",
+				"Prepare AIR debug overlay"
+			],
+			"type": "shell",
+			"command": "echo",
+			"args": [
+				"AIR debug overlay applied to SSF2 Shell"
+			],
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"type": "shell",
+			"label": "Restore AIR debug",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}/SSF2 Mod Manager/runtime/shell-dev/tools/restore_air_debug.ps1"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/SSF2 Mod Manager/runtime/shell-dev"
+			},
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "silent",
+				"panel": "shared",
+				"showReuseMessage": false
+			}
+		}
+	]
+}
