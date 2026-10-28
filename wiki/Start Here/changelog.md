@@ -4,6 +4,18 @@ summary: The same posts as News in the Mod Manager.
 order: 15
 ---
 
+## SSF2 Beta Mod Manager v0.9.4
+
+2026-10-28
+
+The Log window is the text log. The frame graph is gone.
+
+[v0.9.4 release](https://github.com/SSF2-Mods-Official/SSF2ModManager/releases/tag/v0.9.4)
+
+If you already have the Mod Manager, open **News** and click **Check for updates**, or restart the Mod Manager.
+
+:::details Past versions
+
 ## SSF2 Beta Mod Manager v0.9.3
 
 2026-10-28
@@ -21,8 +33,6 @@ If you already have the Mod Manager, open **News** and click **Check for updates
 The shell builds from the 64-bit installer, the 64-bit portable, the 32-bit installer, and the 32-bit portable. A 32-bit copy starts on that game's Adobe AIR, with Discord and rumble. A 64-bit copy keeps the 64-bit Discord and rumble files.
 
 Update it in the Mod Manager. Open **News** and click **Check for updates**, or restart the Mod Manager.
-
-:::details Past versions
 
 ## SSF2 Beta Mod Manager v0.9.2
 

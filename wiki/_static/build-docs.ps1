@@ -198,3 +198,91 @@ Write-Host "Wrote $(Join-Path $outDir 'content.js') ($($sections.Count) section(
 foreach ($s in $sections) {
 	Write-Host ("  {0}: {1} page(s)" -f $s.title, $s.pages.Count)
 }
+
+if (-not $PrivateOnly) {
+	$site = "https://ssf2-mods-official.github.io/SSF2ModManager"
+	$indexPath = Join-Path $staticRoot "index.html"
+	$indexHtml = [System.IO.File]::ReadAllText($indexPath, $utf8)
+	function Encode-Attr([string]$s) {
+		if (-not $s) { return "" }
+		return ($s -replace '&', '&amp;' -replace '<', '&lt;' -replace '>', '&gt;' -replace '"', '&quot;')
+	}
+	function Share-Text([string]$summary, [string]$raw) {
+		$body = $raw
+		if ($raw -match '(?s)\A---\r?\n.*?\r?\n---\r?\n(.*)\z') { $body = $Matches[1] }
+		$text = ""
+		if ($body -match '(?s)##\s+([^\r\n]+)\s+(?:[0-9]{4}-[0-9]{2}-[0-9]{2}\s+)?(.+?)(?:\r?\n){2,}') {
+			$blurb = ($Matches[1].Trim() + ". " + $Matches[2].Trim())
+			$blurb = [regex]::Replace($blurb, '!\[[^\]]*\]\([^)]*\)', '')
+			$blurb = [regex]::Replace($blurb, '\[([^\]]+)\]\([^)]*\)', '$1')
+			$blurb = [regex]::Replace($blurb, '[#>*_`|]', '')
+			$text = ([regex]::Replace($blurb, '\s+', ' ')).Trim()
+		}
+		if (-not $text) { $text = $summary }
+		if (-not $text) { $text = "SSF2 Mod Manager Wiki" }
+		if ($text.Length -gt 220) { $text = $text.Substring(0, 217).TrimEnd() + "..." }
+		return $text
+	}
+	Get-ChildItem -LiteralPath $staticRoot -Filter *.html -File | ForEach-Object {
+		if ($_.Name -eq "index.html") { return }
+		$head = [System.IO.File]::ReadAllText($_.FullName, $utf8)
+		if ($head.StartsWith("<!-- share-page -->")) { Remove-Item -LiteralPath $_.FullName -Force }
+	}
+	$urls = New-Object System.Collections.Generic.List[string]
+	$urls.Add("$site/")
+	foreach ($sec in $sections) {
+		if ($sec.id -eq "Dev Wiki") { continue }
+		foreach ($p in $sec.pages) {
+			$raw = [string]$pages[$p.file]
+			$stem = [System.IO.Path]::GetFileNameWithoutExtension(($p.file -split '/')[-1])
+			$desc = Share-Text $p.summary $raw
+			$pageTitle = "$($p.title) - SSF2 Mod Manager Wiki"
+			$url = "$site/$stem.html"
+			$descAttr = Encode-Attr $desc
+			$titleAttr = Encode-Attr $p.title
+			$json = (@{
+				"@context" = "https://schema.org"
+				"@type" = "TechArticle"
+				headline = $p.title
+				description = $desc
+				url = $url
+				image = "$site/ssf2m.png"
+				publisher = @{ "@type" = "Organization"; name = "SSF2 Mods Official" }
+			} | ConvertTo-Json -Compress -Depth 5)
+			$meta = @"
+<meta name="description" content="$descAttr" />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="$url" />
+  <meta property="og:site_name" content="SSF2 Mod Manager Wiki" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="$titleAttr" />
+  <meta property="og:description" content="$descAttr" />
+  <meta property="og:url" content="$url" />
+  <meta property="og:image" content="$site/ssf2m.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="$titleAttr" />
+  <meta name="twitter:description" content="$descAttr" />
+  <meta name="twitter:image" content="$site/ssf2m.png" />
+  <link rel="icon" href="ssf2m.png" />
+  <script type="application/ld+json">$json</script>
+"@
+			$html = $indexHtml
+			$html = $html -replace '<html lang="en">', ('<html lang="en" data-page="' + (Encode-Attr $p.file) + '">')
+			$html = $html -replace '<title>[^<]*</title>', ("<title>" + (Encode-Attr $pageTitle) + "</title>")
+			$html = [regex]::Replace($html, '(?s)<!-- share-meta -->.*?<!-- /share-meta -->', "<!-- share-meta -->`n  $meta  <!-- /share-meta -->")
+			$html = $html -replace '<p class="lead">Loading.+</p>', ('<p class="lead">' + (Encode-Attr $desc) + '</p>')
+			$html = "<!-- share-page -->`n" + $html
+			[System.IO.File]::WriteAllText((Join-Path $staticRoot "$stem.html"), $html, $utf8)
+			$urls.Add($url)
+		}
+	}
+	$robots = "User-agent: *`nAllow: /`n`nSitemap: $site/sitemap.xml`n"
+	[System.IO.File]::WriteAllText((Join-Path $staticRoot "robots.txt"), $robots, $utf8)
+	$sm = New-Object System.Text.StringBuilder
+	[void]$sm.AppendLine('<?xml version="1.0" encoding="UTF-8"?>')
+	[void]$sm.AppendLine('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+	foreach ($u in $urls) { [void]$sm.AppendLine("  <url><loc>$u</loc></url>") }
+	[void]$sm.AppendLine('</urlset>')
+	[System.IO.File]::WriteAllText((Join-Path $staticRoot "sitemap.xml"), $sm.ToString(), $utf8)
+	Write-Host "Wrote $($urls.Count) search pages, robots.txt, and sitemap.xml"
+}

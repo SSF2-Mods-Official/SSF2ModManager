@@ -46,6 +46,10 @@ wiki/_static/images/
 **/docs/_history/
 **/docs/_static/content.js
 wiki/_static/content.js
+wiki/_static/robots.txt
+wiki/_static/sitemap.xml
+wiki/_static/*.html
+!wiki/_static/index.html
 wiki/_private/
 scripts/devwiki.bat
 

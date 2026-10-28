@@ -7,16 +7,49 @@
     return window.SSF2_DOCS || null;
   }
 
+  function hereName() {
+    var path = (location.pathname || "").replace(/\/+$/, "");
+    var name = path.split("/").pop();
+    if (!name || name.indexOf(".") < 0) return "index.html";
+    return name;
+  }
+
+  function pageFile(file) {
+    if (!file || file.indexOf("Dev Wiki/") === 0 || file.indexOf("Private Wiki/") === 0 || file.indexOf("My Tutorials/") === 0) return "";
+    return file.split("/").pop().replace(/\.md$/i, "") + ".html";
+  }
+
+  function pageHref(file) {
+    var html = pageFile(file);
+    if (html) return html;
+    return "index.html#/" + encodeURIComponent(file);
+  }
+
   function route() {
-    var raw = (location.hash || "#/").replace(/^#\/?/, "");
-    if (!raw) return showHome();
+    var hash = location.hash || "";
+    if (hash && hash.indexOf("#/") !== 0) {
+      var stay = document.documentElement.getAttribute("data-page");
+      if (stay) return showPage(stay, decodeURIComponent(hash.slice(1)));
+    }
+    var raw = (hash || "#/").replace(/^#\/?/, "");
     var anchor = "";
     var cut = raw.indexOf("#");
     if (cut >= 0) {
       anchor = decodeURIComponent(raw.slice(cut + 1));
       raw = raw.slice(0, cut);
     }
-    return showPage(decodeURIComponent(raw), anchor);
+    if (!raw) {
+      var forced = document.documentElement.getAttribute("data-page");
+      if (forced) return showPage(forced, anchor);
+      return showHome();
+    }
+    var file = decodeURIComponent(raw);
+    var html = pageFile(file);
+    if (html && hereName() !== html) {
+      location.replace(html + (anchor ? "#" + encodeURIComponent(anchor) : ""));
+      return;
+    }
+    return showPage(file, anchor);
   }
 
   function showError(msg) {
@@ -109,7 +142,7 @@
   function buildNav(manifest, currentFile) {
     var html = "";
     var homeOn = !currentFile;
-    html += '<a href="#/"' + (homeOn ? ' class="current"' : "") + ">" + navLabel("Home", homeOn) + "</a>";
+    html += '<a href="index.html"' + (homeOn ? ' class="current"' : "") + ">" + navLabel("Home", homeOn) + "</a>";
     var devOn = localStorage.getItem("wiki-dev") === "1";
     (manifest.sections || []).forEach(function (sec) {
       if (sec.id === "Dev Wiki" && !devOn) return;
@@ -123,8 +156,8 @@
         }
         var on = p.file === currentFile;
         html +=
-          '<a href="#/' +
-          encodeURIComponent(p.file) +
+          '<a href="' +
+          pageHref(p.file) +
           '"' +
           (on ? ' class="current"' : "") +
           ">" +
@@ -159,8 +192,8 @@
           '<a href="https://github.com/SSF2-Mods-Official/SSF2ModManager/releases/latest">GitHub Releases (latest)</a>.</div>'
       );
       parts.push(
-        '<div class="tip"><strong>Discord.</strong> <a href="#/' +
-          encodeURIComponent("Start Here/discord.md") +
+        '<div class="tip"><strong>Discord.</strong> <a href="' +
+          pageHref("Start Here/discord.md") +
           '">Join SSF2 Mods Official</a>.</div>'
       );
       parts.push(
@@ -185,8 +218,8 @@
             lastGroup = g;
           }
           parts.push(
-            '<a class="card" href="#/' +
-              encodeURIComponent(p.file) +
+            '<a class="card" href="' +
+              pageHref(p.file) +
               '"><strong>' +
               escape(p.title) +
               "</strong><span>" +
@@ -300,12 +333,15 @@
     });
     content.querySelectorAll('a[href^="#md-rel:"]').forEach(function (a) {
       var rel = decodeURIComponent(a.getAttribute("href").slice(8));
-      a.setAttribute("href", "#/" + encodeURIComponent(resolveRel(baseDir, rel)));
+      a.setAttribute("href", pageHref(resolveRel(baseDir, rel)));
     });
     content.querySelectorAll("a[href]").forEach(function (a) {
       var href = a.getAttribute("href") || "";
       if (href.charAt(0) === "#" && href.indexOf("#/") !== 0 && href.indexOf("#md-rel:") !== 0) {
-        a.setAttribute("href", "#/" + encodeURIComponent(file) + href);
+        var share = pageFile(file);
+        if (share && hereName() === share) a.setAttribute("href", href);
+        else if (share) a.setAttribute("href", share + href);
+        else a.setAttribute("href", "index.html#/" + encodeURIComponent(file) + href);
       }
     });
   }
@@ -889,10 +925,16 @@
 
     function openFile(file) {
       if (!file) return;
+      if (hits) hits.innerHTML = "";
+      var html = pageFile(file);
+      if (html) {
+        if (hereName() === html) route();
+        else location.href = html;
+        return;
+      }
       var next = "#/" + encodeURIComponent(file);
       if (location.hash !== next) location.hash = next;
-      if (hits) hits.innerHTML = "";
-      route();
+      else route();
     }
 
     function matchingRows(q) {

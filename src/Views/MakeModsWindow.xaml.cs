@@ -51,9 +51,6 @@ namespace SSF2ModManager.Views
         private string _eventMusic = "";
         private string _eventCloneSource = "";
         private EventRecipe? _eventCloneRecipe;
-        private string _eventUnlock = "";
-        private bool _eventRecordStock;
-        private bool _eventRecordFps;
 
         private static readonly (string Id, string Label)[] WinRules =
         {
@@ -67,7 +64,6 @@ namespace SSF2ModManager.Views
         {
             public System.Windows.Controls.ComboBox Character = null!;
             public System.Windows.Controls.ComboBox Stage = null!;
-            public StackPanel? StageHost;
             public System.Windows.Controls.ComboBox Size = null!;
             public System.Windows.Controls.ComboBox Cpu = null!;
             public System.Windows.Controls.CheckBox Human = null!;

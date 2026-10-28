@@ -66,26 +66,20 @@ html.holiday .holiday-mark {
   display: inline-block;
   line-height: 1;
   vertical-align: -0.12em;
-  filter:
-    drop-shadow(1px 0 0 #fff)
-    drop-shadow(-1px 0 0 #fff)
-    drop-shadow(0 1px 0 #fff)
-    drop-shadow(0 -1px 0 #fff)
-    drop-shadow(1px 1px 0 #fff)
-    drop-shadow(-1px -1px 0 #fff)
-    drop-shadow(1px -1px 0 #fff)
-    drop-shadow(-1px 1px 0 #fff);
 }
-html[data-theme="contrast"] .holiday-mark {
+html.valentine .holiday-mark {
   filter:
-    drop-shadow(1px 0 0 #000)
-    drop-shadow(-1px 0 0 #000)
-    drop-shadow(0 1px 0 #000)
-    drop-shadow(0 -1px 0 #000)
-    drop-shadow(1px 1px 0 #000)
-    drop-shadow(-1px -1px 0 #000)
-    drop-shadow(1px -1px 0 #000)
-    drop-shadow(-1px 1px 0 #000);
+    drop-shadow(0.45px 0 0 #fff)
+    drop-shadow(-0.45px 0 0 #fff)
+    drop-shadow(0 0.45px 0 #fff)
+    drop-shadow(0 -0.45px 0 #fff);
+}
+html.valentine[data-theme="contrast"] .holiday-mark {
+  filter:
+    drop-shadow(0.45px 0 0 #000)
+    drop-shadow(-0.45px 0 0 #000)
+    drop-shadow(0 0.45px 0 #000)
+    drop-shadow(0 -0.45px 0 #000);
 }
 .holiday-mark svg { width: 1.05em; height: 1.05em; display: block; }
 .brand .sub {
