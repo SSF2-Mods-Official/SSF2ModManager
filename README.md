@@ -91,3 +91,8 @@ SSF2 Shell is built in its own folder, and your SSF2 Beta 1.4.0.1 folder is only
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Credits
+
+Stariwinkle (David) for the SSF2 IDK which was instrumental in getting this project working and laying the groundwork for the next generation of SSF2 modders.
+VAL for the original palette maker release that was built upon to it's current state. And Sandbox as an inspiration to the modular approach of this mod manager.
