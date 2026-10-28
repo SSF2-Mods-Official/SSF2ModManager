@@ -1,7 +1,8 @@
 ---
 title: GameBanana installs
 summary: Each 1-Click import records its GameBanana mod id in the build it went into, and Browse Mods marks those mods Installed.
-order: 44
+order: 30
+group: Mods
 ---
 
 # GameBanana installs

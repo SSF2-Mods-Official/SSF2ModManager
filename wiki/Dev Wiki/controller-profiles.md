@@ -1,7 +1,8 @@
 ---
 title: Controller profiles
 summary: The nametag on a character-select box, and the profile list on Controls.
-order: 53
+order: 30
+group: Match
 ---
 
 # Controller profiles

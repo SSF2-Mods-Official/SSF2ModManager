@@ -1,7 +1,8 @@
 ---
 title: Palette maker studio
 summary: The hidden studio bar changes music, time of day, and stage. Recolor effects is not booted.
-order: 14
+order: 10
+group: Palette
 ---
 
 # Palette maker studio

@@ -1,7 +1,8 @@
 ---
 title: Character import
 summary: Import keeps the display name. A taken linkage becomes the next free id, donkeykong then donkeykong2.
-order: 27
+order: 70
+group: Characters
 ---
 
 # Character import

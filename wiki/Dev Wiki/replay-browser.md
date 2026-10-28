@@ -1,7 +1,8 @@
 ---
 title: Replay browser
 summary: The vault replay list, extra folders, and the import that starts a replay.
-order: 49
+order: 40
+group: Match
 ---
 
 # Replay browser

@@ -1,7 +1,8 @@
 ---
 title: Event wizard
 summary: Make an event by copying a stock or expansion script. The form edits stage, music, match toggles, and fighter rows.
-order: 52
+order: 30
+group: Events
 ---
 
 # Event wizard

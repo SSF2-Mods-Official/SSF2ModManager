@@ -1,7 +1,8 @@
 ---
 title: Manage stage select
 summary: Make Mods opens stage select and the stage editor.
-order: 13
+order: 10
+group: Stages
 ---
 
 # Manage stage select

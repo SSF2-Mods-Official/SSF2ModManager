@@ -8,6 +8,7 @@ $contentPath = Join-Path $staticRoot "content.js"
 function Get-FrontMatter([string]$text) {
 	$title = $null
 	$summary = $null
+	$group = ""
 	$order = 100
 	$body = $text
 	if ($text -match '(?s)\A---\r?\n(.*?)\r?\n---\r?\n(.*)\z') {
@@ -17,6 +18,7 @@ function Get-FrontMatter([string]$text) {
 			if ($line -match '^\s*title\s*:\s*(.+)\s*$') { $title = $Matches[1].Trim().Trim('"').Trim("'") }
 			elseif ($line -match '^\s*summary\s*:\s*(.+)\s*$') { $summary = $Matches[1].Trim().Trim('"').Trim("'") }
 			elseif ($line -match '^\s*order\s*:\s*(\d+)\s*$') { $order = [int]$Matches[1] }
+			elseif ($line -match '^\s*group\s*:\s*(.+)\s*$') { $group = $Matches[1].Trim().Trim('"').Trim("'") }
 		}
 	}
 	if (-not $title -and $body -match '(?m)^\s*#\s+(.+)\s*$') {
@@ -24,7 +26,7 @@ function Get-FrontMatter([string]$text) {
 	}
 	if (-not $title) { $title = "Untitled" }
 	if (-not $summary) { $summary = "" }
-	return @{ Title = $title; Summary = $summary; Order = $order }
+	return @{ Title = $title; Summary = $summary; Order = $order; Group = $group }
 }
 
 function Write-NewsChangelog {
@@ -121,9 +123,18 @@ Get-ChildItem -LiteralPath $docsRoot -Directory |
 					title   = $fm.Title
 					summary = $fm.Summary
 					order   = $fm.Order
+					group   = $fm.Group
 				}
 			}
-		$list = @($list | Sort-Object { $_.order }, { $_.title })
+		$groupRank = @{
+			"Characters" = 1
+			"Stages" = 2
+			"Palette" = 3
+			"Events" = 4
+			"Match" = 5
+			"Mods" = 6
+		}
+		$list = @($list | Sort-Object { if ($_.group -and $groupRank.ContainsKey($_.group)) { $groupRank[$_.group] } else { 0 } }, { $_.order }, { $_.title })
 		if ($list.Count -gt 0) {
 			$sections += [ordered]@{
 				id    = $sectionDir.Name

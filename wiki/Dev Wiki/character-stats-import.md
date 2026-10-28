@@ -1,7 +1,8 @@
 ---
 title: Character stats import
 summary: CharacterData.importData copies cData onto m_ fields. A missing field is skipped. roll_delay alerts on the debug console.
-order: 14
+order: 90
+group: Characters
 ---
 
 # Character stats import

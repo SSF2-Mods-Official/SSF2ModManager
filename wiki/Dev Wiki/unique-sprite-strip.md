@@ -1,7 +1,8 @@
 ---
 title: Unique sprite strip
 summary: The unique-sprite scrollbar is on the left of the strip.
-order: 15
+order: 40
+group: Characters
 ---
 
 # Unique sprite strip

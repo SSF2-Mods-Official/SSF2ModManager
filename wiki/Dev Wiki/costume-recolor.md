@@ -1,7 +1,8 @@
 ---
 title: Costume recolor
 summary: The base costume is getCostume with num -1. A recolor is a palette pair whose source and replacement differ.
-order: 12
+order: 30
+group: Characters
 ---
 
 # Costume recolor

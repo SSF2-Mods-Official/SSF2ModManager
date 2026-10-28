@@ -115,7 +115,13 @@
     (manifest.sections || []).forEach(function (sec) {
       if (sec.id === "Dev Wiki" && !devOn) return;
       html += '<div class="section">' + escape(sec.title) + "</div>";
+      var lastGroup = "";
       (sec.pages || []).forEach(function (p) {
+        var g = p.group || "";
+        if (g && g !== lastGroup) {
+          html += '<div class="group">' + escape(g) + "</div>";
+          lastGroup = g;
+        }
         var on = p.file === currentFile;
         html +=
           '<a href="#/' +
@@ -166,9 +172,19 @@
       );
 
       (manifest.sections || []).forEach(function (sec) {
+        if (sec.id === "Dev Wiki" && localStorage.getItem("wiki-dev") !== "1") return;
         parts.push("<h2>" + escape(sec.title) + "</h2>");
-        parts.push('<div class="cards">');
+        var lastGroup = "";
+        var open = false;
         (sec.pages || []).forEach(function (p) {
+          var g = p.group || "";
+          if (g !== lastGroup) {
+            if (open) parts.push("</div>");
+            if (g) parts.push("<h3>" + escape(g) + "</h3>");
+            parts.push('<div class="cards">');
+            open = true;
+            lastGroup = g;
+          }
           parts.push(
             '<a class="card" href="#/' +
               encodeURIComponent(p.file) +
@@ -179,7 +195,7 @@
               "</span></a>"
           );
         });
-        parts.push("</div>");
+        if (open) parts.push("</div>");
       });
 
       if (!(manifest.sections || []).length) {

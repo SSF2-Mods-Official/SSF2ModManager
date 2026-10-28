@@ -1,7 +1,8 @@
 ---
 title: Giga Bowser HUD
 summary: The player portrait uses the live Giga Bowser palette.
-order: 16
+order: 50
+group: Characters
 ---
 
 # Giga Bowser HUD

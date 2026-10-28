@@ -1,7 +1,8 @@
 ---
 title: One-click install
 summary: A GameBanana ssf2mm link opens the launcher, then imports a 2.0 pack or loose beta files into the shell.
-order: 42
+order: 20
+group: Mods
 ---
 
 # One-click install

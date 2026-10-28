@@ -1,7 +1,8 @@
 ---
 title: Boot intro
 summary: Skipping the custom boot intro shows the title menu.
-order: 40
+order: 10
+group: Match
 ---
 
 # Boot intro

@@ -1,7 +1,8 @@
 ---
 title: Music player
 summary: My Jukebox mod: which class owns which part, what the mod patches, and the log lines.
-order: 30
+order: 20
+group: Match
 ---
 
 # Music player

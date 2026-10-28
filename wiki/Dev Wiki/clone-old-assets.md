@@ -1,7 +1,8 @@
 ---
 title: Clone old assets
 summary: A clone can keep the source character's stock, costumes, and Classic / All-Star art.
-order: 28
+order: 100
+group: Characters
 ---
 
 # Clone old assets

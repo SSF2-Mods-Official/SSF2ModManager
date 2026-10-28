@@ -1,7 +1,8 @@
 ---
 title: Events
 summary: Make a new event copies a stock or expansion script. The form edits the stage, music, match toggles, and fighter rows, then compiles the pack.
-order: 47
+order: 10
+group: Events
 ---
 
 # Events

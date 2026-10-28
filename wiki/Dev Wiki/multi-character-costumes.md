@@ -1,7 +1,8 @@
 ---
 title: Multi-character costumes
 summary: Linked forms edit one character at a time. Save pairs both files at the same game costume index.
-order: 16
+order: 60
+group: Characters
 ---
 
 # Multi-character costumes

@@ -1,7 +1,8 @@
 ---
 title: Manage character select
 summary: Make Mods opens Versus character select and the roster editor.
-order: 12
+order: 10
+group: Characters
 ---
 
 # Manage character select

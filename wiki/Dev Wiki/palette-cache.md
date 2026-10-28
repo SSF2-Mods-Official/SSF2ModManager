@@ -1,7 +1,8 @@
 ---
 title: Palette cache
 summary: Costume sprite caches stay on the player's machine. A matching file hash is fresh.
-order: 13
+order: 20
+group: Palette
 ---
 
 # Palette cache

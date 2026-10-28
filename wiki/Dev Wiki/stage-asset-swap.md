@@ -1,7 +1,8 @@
 ---
 title: Stage asset swap
 summary: A stage slot that loads an existing stage and swaps its bitmap images for pngs in a pack. No stage SWF is copied.
-order: 46
+order: 40
+group: Stages
 ---
 
 # Stage asset swap

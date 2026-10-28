@@ -1,7 +1,8 @@
 ---
 title: Convert a stage to FLA
 summary: Stage Convert to FLA keeps every clip under Animations. The main clip stays in that folder.
-order: 31
+order: 50
+group: Stages
 ---
 
 # Convert a stage to FLA

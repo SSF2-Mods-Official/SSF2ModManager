@@ -1,7 +1,8 @@
 ---
 title: Expansion event menu
 summary: Grab or taunt on the event menu switches the list between vanilla events and expansion packs.
-order: 48
+order: 20
+group: Events
 ---
 
 # Expansion event menu

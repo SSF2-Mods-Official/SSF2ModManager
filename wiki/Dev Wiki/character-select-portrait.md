@@ -1,7 +1,8 @@
 ---
 title: Character select portrait
 summary: The player-box portrait is mc_pa. A palette costume recolors that clip in place.
-order: 11
+order: 20
+group: Characters
 ---
 
 # Character select portrait

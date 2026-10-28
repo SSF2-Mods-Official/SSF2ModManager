@@ -1,7 +1,8 @@
 ---
 title: Stage background
 summary: A gif, png, or mp4 used as a stage background, with a default stage and no stage SWF copy.
-order: 45
+order: 30
+group: Stages
 ---
 
 # Stage background

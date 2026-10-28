@@ -1,7 +1,8 @@
 ---
 title: Mod dependencies
 summary: A mod lists the GameBanana mods it needs, and a download installs those too.
-order: 51
+order: 40
+group: Mods
 ---
 
 # Mod dependencies

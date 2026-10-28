@@ -1,7 +1,8 @@
 ---
 title: Browse mods
 summary: The launcher's Download Mods page lists SSF2 mods from GameBanana and hides 0.9b-only mods unless asked.
-order: 43
+order: 10
+group: Mods
 ---
 
 # Browse mods

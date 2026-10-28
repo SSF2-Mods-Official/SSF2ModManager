@@ -1,7 +1,8 @@
 ---
 title: Stage import
 summary: Import reads the stage id from the file. A taken id becomes the next free one. A clone can keep the source preview.
-order: 29
+order: 20
+group: Stages
 ---
 
 # Stage import

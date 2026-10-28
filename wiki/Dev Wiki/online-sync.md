@@ -1,7 +1,8 @@
 ---
 title: Online sync
 summary: What an online room shares, and how match music, camera background and costumes stay the same for every SSF2 Shell player without sending new fields.
-order: 23
+order: 50
+group: Mods
 ---
 
 # Online sync

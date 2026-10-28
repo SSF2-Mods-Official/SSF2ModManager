@@ -1,7 +1,8 @@
 ---
 title: Character alts
 summary: Voice alts can keep the stock character SWF and play clips from a sounds folder; jump cycles every alt, and the alt name can show on the match HUD.
-order: 45
+order: 80
+group: Characters
 ---
 
 # Character alts
