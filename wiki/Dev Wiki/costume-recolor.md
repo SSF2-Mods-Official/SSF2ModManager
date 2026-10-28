@@ -48,7 +48,7 @@ A block is `{ colors, replacements }` paired by index. A pair counts as a recolo
 
 If `paletteSwapPA` is missing and `paletteSwap` is set, `getCostume` copies `paletteSwap` onto `paletteSwapPA`.
 
-`PaletteMakerUtils.buildEngineReplMapFromBlock` skips a pair whose RGB matches and whose replacement alpha is 0. `Utils.replacePaletteHelper` walks pairs in order and skips a pair whose two values are equal. A later pair still runs.
+`PaletteDeep.replacePaletteHelper` skips a pair whose two values are equal, and skips a pair whose RGB matches when the replacement alpha is 0. A later pair still runs.
 
 ## Preview log
 
@@ -70,7 +70,7 @@ On boot the pack calls `LeftoverBase.scan`. That reads `costume_data` and every 
 | --- | --- |
 | `getCostume` | `SSF2 Shell/data/engine/decompiled/changed/com/mcleodgaming/ssf2/util/ResourceManager.as` |
 | `updateColorFilter`, `applyPalette`, `setPaletteSwap` | `SSF2 Shell/data/engine/decompiled/changed/com/mcleodgaming/ssf2/engine/InteractiveSprite.as` |
-| `buildEngineReplMapFromBlock` | `SSF2 Shell/data/ssf2mm/palette_maker/src/com/sbxmod/paletteMaker/PaletteMakerUtils.as` |
+| `replacePaletteHelper` | `SSF2 Shell Base/shell/src/mods/palette_maker/src/com/mcleodgaming/ssf2/util/PaletteDeep.as` |
 | Leftover pack | `SSF2 Shell/expansions/mods/leftover_base_recolor/` |
 | Merge | `LeftoverBase.mergeBlock` in that pack's `src/LeftoverBase.as` |
 | Fixture | `leftover_base_recolor/fixture` (`LeftoverBaseFixture`) |

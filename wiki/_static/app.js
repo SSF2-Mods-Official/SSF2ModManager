@@ -178,7 +178,7 @@
         var open = false;
         (sec.pages || []).forEach(function (p) {
           var g = p.group || "";
-          if (g !== lastGroup) {
+          if (!open || g !== lastGroup) {
             if (open) parts.push("</div>");
             if (g) parts.push("<h3>" + escape(g) + "</h3>");
             parts.push('<div class="cards">');

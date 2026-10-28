@@ -13,12 +13,13 @@ group: Characters
 | --- |
 | Portrait clip | `mc_pa` |
 | Live fighter | `mc` |
-| Paint | `paintPortrait` on frame 10 |
-| Menu lookup | `PortraitBox.pick` |
-| Log | `costume paint menu=select` |
+| Clear | `CharacterSelectMenu.removePic` |
+| Confirm | `CostumeSelectorDisplay.applyCssCostumePick` |
+| Menu | `cssMenuForPick` |
+| Log | `[palette_maker] costume apply game=` |
 | Related | [Costume recolor](costume-recolor.md) |
 
-The portrait on a player box is the `*_charselect` clip. A palette confirm adds a new clip, and the paint parks that clip as `mc_pa` so a later costume cycle recolors it.
+The player-box portrait clip is `mc_pa`. `removePic` takes that clip off when the port is cleared. A character-select costume confirm calls `applyCssCostumePick`.
 
 ## Contents
 
@@ -31,48 +32,35 @@ The portrait on a player box is the `*_charselect` clip. A palette confirm adds 
 
 ## How a pick paints
 
-`css_sprite_preview` names the live fighter `mc` and parks the portrait as `mc_pa`. Unselect calls `clearPort` with the menu on the select hook and removes `mc_pa`. The log is `deselect port=`.
+`CharacterSelectMenu.removePic` removes the child named `mc_pa`, and the child named `mc`, when a port is cleared.
 
-`paintPortrait` lets a clip still before frame 10 play its slide-in (`portrait slide`), then colors the settled pose on frame 10 (`portrait settle`) through the `cssPortraitPaint` door.
+A tile click logs `[palette_maker] costume confirm idx=`. When `m_cssPick` is set, that click calls `applyCssCostumePick` and does not call `onClickContainer`. `cssMenuForPick` uses `CurrentCharacterSelectMenu` when that menu has `changePic` and a match, and otherwise uses the menu stored by `noteCssMenu`.
 
-A palette confirm calls `changePic` on the select-hook menu. That adds a fresh charselect named `mc` on top of the fighter. `menuForClip` asks `PortraitBox.pick`. When `CurrentCharacterSelectMenu`'s boxes do not contain the clip, the pick uses the select-hook menu. The log is `costume paint menu=select`. `PortraitBox.park` names that clip `mc_pa`.
-
-`claimPaletteCostumePick` runs only from `onEnterFrame` while `m_cssActive` is set, so a costume menu can open with no `costume pick hooked` line. Opening the grid logs `costume menu cssActive=` with `listen`, `feature`, `onscreen`, `click`, and `css`. A tile click logs `[palette_maker] costume confirm idx=`. A character-select confirm (`css=1`) does not call `onClickContainer`.
-
-`applyCssCostumePick` writes `costume apply game=` with `live=1` when it uses the menu from `CSS_SELECT_CHARACTER`. That hook passes the menu that just called `changePic` (`costume menu noted game=1`). `costume replay enter` is the line just before that call. Back clears `CurrentCharacterSelectMenu`'s `m_game` (`costume gate game=0 pic=1`). `costume gate fail` is a throw while reading the menu.
-
-The October 4 `engine2.swf` click still calls `changePic`. If `changePic` adds a clip while `mc_pa` is already there, that extra clip is removed (`costume drop extra`).
+`applyCssCostumePick` writes `[palette_maker] costume apply game=` with `live=1` when the chosen menu is the stored menu and not the current one. It sets `settings.costume`, logs `[palette_maker] costume replay enter`, and calls `changePic`. A throw while reading the menu logs `[palette_maker] costume gate fail`.
 
 ## Functions
 
 | Function | What it does | Log |
 | --- | --- | --- |
-| `clearPort` | Removes `mc_pa` on unselect. | `deselect port=` |
-| `paintPortrait` | Plays the slide, then colors frame 10. | `portrait slide`, `portrait settle` |
-| `PortraitBox.pick` | Chooses the menu that owns the clip. | `costume paint menu=select` |
-| `PortraitBox.park` | Names the new clip `mc_pa`. | |
-| `applyCssCostumePick` | Uses the menu from `CSS_SELECT_CHARACTER`. | `costume apply game=`, `live=1` |
-| `changePic` | The game adds the charselect clip. The pick calls it on the select-hook menu. | `costume replay enter`, `costume menu noted game=1` |
+| `CharacterSelectMenu.removePic` | Removes `mc_pa` and `mc` when a port is cleared. | None |
+| `cssMenuForPick` | Uses the current menu when it has a match, otherwise the menu from `noteCssMenu`. | None |
+| `applyCssCostumePick` | Sets the slot costume and calls `changePic` on that menu. | `[palette_maker] costume apply game=` |
 
 ## Files
 
 | What | Path |
 | --- | --- |
-| Fixture | `expansions/mods/css_sprite_preview/fixture` (`PortraitPaintFixture`) |
-| Preview mod | `css_sprite_preview` |
-| Palette confirm | `palette_maker` |
-
-The engine `costumeSelectorDisplay` change is source-only until `engine2.swf` is rebuilt.
+| Clear | `SSF2 Shell Base/patches/engine2/patches/com/mcleodgaming/ssf2/menus/CharacterSelectMenu.as.patch` `removePic` |
+| Confirm | `SSF2 Shell Base/shell/src/mods/palette_maker/src/com/sbxmod/paletteMaker/CostumeSelectorDisplay.as` |
+| Menu | `CostumeSelectorNav.cssMenuForPick` |
 
 ## Rebuild
 
-Rebuild `css_sprite_preview` and `palette_maker`. The command is on Where things are. A running game keeps the old swf until a full quit.
+Rebuild `palette_maker`. A running game keeps the old swf until a full quit.
 
 ## Check
 
-Full quit, relaunch. Select a character, open the palette menu, pick a costume, then cycle costumes. The portrait and the fighter both change. After Back, the pick logs `costume paint menu=select`.
-
-The fixture, from `css_sprite_preview/fixture`: `mxmlc -load-config+=air-config.xml`, then `adl PortraitPaintFixture-app.xml`. `%APPDATA%\PortraitPaintFixture\Local Store\portrait-paint-fixture.txt` says `OK`.
+Full quit, relaunch. Select a character, open the palette menu, and pick a costume. The log has `[palette_maker] costume confirm idx=` and `[palette_maker] costume apply game=`.
 
 
 ## References

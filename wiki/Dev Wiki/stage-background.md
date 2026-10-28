@@ -44,9 +44,9 @@ Picking the new slot starts the default stage and draws the file behind the matc
 | `StageBackgroundIcons.decorate` | Centers `stagepreview.png` on the slot. `ensureSelectable` puts the default stage's file name on the pack id so `StageButton.button_CLICK` reaches `STAGE_SELECT`. | `[stage_background] resource id=… file=…` |
 | `StageBackgroundPick.resolve` | Default stage id and asset path for a slot, or null. | — |
 | `StageBackgroundCatalog.create` | In-game upload writes the same folder. The name typed after the file pick is `info.json` `name`. | — |
-| `StageBackgroundIcons.onClick` | A normal click starts `defaultStage` with the file. Set Stage BG locks the file instead. | `[stage_background] click id=… row=…` then `start stage=…` or `start abort game=…` |
+| `StageBackgroundIcons.onClick` | A normal click starts `defaultStage` with the file. Set Stage BG locks the file instead. | `[stage_background] click id=… row=…` then `slot=… default=… asset=…` |
 | `CameraBackgroundMod.useMenuSpace` | **Space BG** sets the flag to `menu_space`. `onQueueResources` reads the host bg from `musicOverride` (`track\|bg=stageId`) before the local flag. Space paints `menu_bg_space` and hides the stage art only after that clip is on screen. | `[camera_background] space bg`, `[camera_background] net bg from=musicOverride id=` |
-| `onStageBackgroundSelect` | Sets the match to the default stage and `stageBackgroundFile`. | `[stage_background] slot=… default=… asset=…` |
+| `StageBackgroundIcons.startMatch` | Sets `LevelData.stage` to the pack's default stage. `StageBackgroundPlayer.remember` stores the file on the session flag. | `[stage_background] start stage=` |
 | `StageBackgroundPlayer.fit` | Sizes the file to the camera background and sets `x` and `y` to half that size, because the background sprite's origin is the middle of the screen. | `[stage_background] play x=… y=…` |
 
 `info.json` has `name`, `id`, `type` = `StageBackground`, `defaultStage`, `asset`, and `enabled`. A png is the preview. A gif uses its first frame. A video uses a thumbnail when the shell can read one.

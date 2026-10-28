@@ -58,7 +58,8 @@ When a replay ends, the next screen is this menu. **Space BG** on the stage sele
 | `ReplaySelectMenu.cancelBtn_CLICK` | Leaves rename or remove and clears the red titles. | |
 | `ReplaySelectMenu.replay_CLICK` | Stops the news button from dispatching another click on the same row. | |
 | `ReplaySelectMenu.show` | Sets `m_backgroundID` to `space` before the stock backdrop paint. | |
-| `ReplaySelectMenu.applyModeFilter` | Keeps the rows whose mode label matches the filter. An empty filter shows every file. | `[replay_browser] filter mode=` |
+| `ReplaySelectMenu.filesForMode` | Keeps the rows whose mode label matches the filter. An empty filter shows every file. | None |
+| `ReplaySelectMenu.armFilterChoice` | Sets the filter from the type list and reloads the rows. | `[replay_browser] filter mode=` |
 | `ReplayBrowserMod.onMenuShow` | After a replay, a vault open is replaced with this menu. | `[replay_browser] return to replay menu` |
 | `ReplayFiles.sanitizePlayersForImport` | Drops player keys that are not fields on `PlayerSetting`. A slot with no character, or a character id `ResourceManager` does not know, is `exist` false. | `[replay_browser] drop empty player` |
 | `ReplayFiles.sanitizeMatchSettingsForImport` | Drops unknown match keys. An empty, `null`, or missing stage becomes `battlefield`. A `musicOverride` that is not a resource is removed. | `[replay_browser] drop missing stage` |
