@@ -148,6 +148,9 @@
           '">Join SSF2 Mods Official</a>.</div>'
       );
       parts.push(
+        '<div class="warning"><strong>WARNING.</strong> The SSF2 Beta Mod Manager is in a beta release state. Features still need to be tested and improved on before being considered stable.</div>'
+      );
+      parts.push(
         "<p>We are looking for developers to help contribute to the Mod Manager and SSF2 Shell. Reach out to justwex on the SSF2 Mods Official discord if you are interested in contributing.</p>"
       );
 
@@ -214,21 +217,42 @@
     if (h1s.length > 1) h1s[1].remove();
     fixLinks(file);
     if (window.wiki) mountPageFoot(file, raw);
-    else if (localStore()[file]) mountLocalEdit(file, raw);
+    else mountSiteFoot(file, raw);
     if (sessionStorage.getItem("wiki-open-edit") === file) {
       sessionStorage.removeItem("wiki-open-edit");
       openEditor(file, raw);
     }
   }
 
-  function mountLocalEdit(file, raw) {
-    var actions = document.createElement("div");
-    actions.className = "page-actions";
-    actions.innerHTML = '<button type="button" id="edit-page">Edit</button>';
-    content.appendChild(actions);
-    actions.querySelector("#edit-page").addEventListener("click", function () {
-      openEditor(file, raw);
-    });
+  function mountSiteFoot(file, raw) {
+    var item = localStore()[file];
+    var record = item
+      ? { userMade: true, entries: item.entries && item.entries.length ? item.entries : [{ author: "You", note: "Created", at: "" }] }
+      : { userMade: false, entries: [] };
+    var foot = document.createElement("div");
+    foot.className = "page-foot";
+    var html = '<section class="history">' + historyHtml(versionRows(record)) + "</section>";
+    if (item) {
+      html += '<div class="page-actions"><button type="button" id="edit-page">Edit</button>';
+      html += '<button type="button" class="danger" id="del-page">Delete</button></div>';
+    }
+    foot.innerHTML = html;
+    content.appendChild(foot);
+    var edit = foot.querySelector("#edit-page");
+    if (edit) edit.addEventListener("click", function () { openEditor(file, raw); });
+    var del = foot.querySelector("#del-page");
+    if (del) {
+      del.addEventListener("click", function () {
+        askConfirm("Delete this page?", "Delete").then(function (ok) {
+          if (!ok) return;
+          var store = localStore();
+          delete store[file];
+          saveLocal(store);
+          if (location.hash === "#/" || location.hash === "") route();
+          else location.hash = "#/";
+        });
+      });
+    }
   }
 
   function pictureSrc(file, rel) {
@@ -286,9 +310,9 @@
   }
 
   function historyHtml(rows) {
-    if (!rows.length) return "<h2>Version history</h2><p>Not published yet.</p>";
+    if (!rows.length) return "<h2>Changelog</h2><p>Not published yet.</p>";
     return (
-      "<h2>Version history</h2><ul>" +
+      "<h2>Changelog</h2><ul>" +
       rows
         .map(function (row) {
           return (
@@ -448,12 +472,17 @@
     });
     editor.querySelector("#edit-save").addEventListener("click", function () {
       if (!(window.wiki && window.wiki.savePage)) {
-        var store = localStore();
-        var item = store[file] || { images: {} };
-        item.md = box.value;
-        store[file] = item;
-        saveLocal(store);
-        route();
+        askSiteSave().then(function (fields) {
+          if (!fields) return;
+          var store = localStore();
+          var item = store[file] || { images: {} };
+          item.md = box.value;
+          item.entries = item.entries || [];
+          item.entries.unshift({ at: new Date().toISOString(), author: fields.author, note: fields.note });
+          store[file] = item;
+          saveLocal(store);
+          route();
+        });
         return;
       }
       askSave().then(function (fields) {
@@ -557,6 +586,27 @@
       var rel = "../".repeat(Math.max(depth, 0)) + "_images/" + name;
       insert("\n![" + name + "](" + rel + ")\n");
     }
+  }
+
+  function askSiteSave() {
+    var saved = "";
+    try { saved = localStorage.getItem("ssf2-wiki-author") || ""; } catch (e) { saved = ""; }
+    return askForm(
+      "Save page",
+      [
+        { id: "author", label: "Author", value: saved },
+        { id: "note", label: "What changed", value: "" }
+      ],
+      "Save"
+    ).then(function (fields) {
+      if (!fields) return null;
+      if (!fields.author.trim() || !fields.note.trim()) {
+        showError("Author and what changed are both required.");
+        return null;
+      }
+      try { localStorage.setItem("ssf2-wiki-author", fields.author.trim()); } catch (e) {}
+      return { author: fields.author.trim(), note: fields.note.trim() };
+    });
   }
 
   function askSave() {
@@ -887,7 +937,11 @@
         var file = "My Tutorials/" + slug + ".md";
         var md = "---\ntitle: " + title + "\nsummary:\norder: 10\n---\n\n# " + title + "\n\n";
         var store = localStore();
-        store[file] = { md: md, images: {} };
+        store[file] = {
+          md: md,
+          images: {},
+          entries: [{ at: new Date().toISOString(), author: "You", note: "Created" }]
+        };
         saveLocal(store);
         sessionStorage.setItem("wiki-open-edit", file);
         var next = "#/" + encodeURIComponent(file);
