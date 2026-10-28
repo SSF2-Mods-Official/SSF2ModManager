@@ -63,7 +63,7 @@ function Write-NewsChangelog {
 		if ($title -match 'v(\d+(?:\.\d+)*)') { $version = $Matches[1] }
 		$posts += [pscustomobject]@{ Title = $title; Date = $date; Version = $version; Id = $_.Name; Shell = $shell; Body = $body.Trim() }
 	}
-	$posts = @($posts | Sort-Object { $_.Date }, { $_.Version }, { $_.Id } -Descending)
+	$posts = @($posts | Sort-Object { $_.Date }, { $_.Version }, { $_.Shell }, { $_.Id } -Descending)
 	$sb = New-Object System.Text.StringBuilder
 	[void]$sb.AppendLine("---")
 	[void]$sb.AppendLine("title: Changelog")

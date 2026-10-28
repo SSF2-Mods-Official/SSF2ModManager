@@ -14,12 +14,6 @@ Setup builds from the 64-bit installer, the 64-bit portable, the 32-bit installe
 
 If you already have the Mod Manager, open **News** and click **Check for updates**, or restart the Mod Manager.
 
-## SSF2 Beta Mod Manager v0.9.2
-
-2026-10-28
-
-The mini player can show the bars on a PC that does not have ffmpeg. The song still plays the same way. Setup now shows a percent and a plain sentence for each step, so you can see what it is doing.
-
 ## SSF2 Shell v0.9.2
 
 2026-10-28
@@ -27,6 +21,12 @@ The mini player can show the bars on a PC that does not have ffmpeg. The song st
 The shell builds from the 64-bit installer, the 64-bit portable, the 32-bit installer, and the 32-bit portable. A 32-bit copy starts on that game's Adobe AIR, with Discord and rumble. A 64-bit copy keeps the 64-bit Discord and rumble files.
 
 [v0.9.2 release](https://github.com/SSF2-Mods-Official/SSF2-Shell-Base/releases/tag/v0.9.2)
+
+## SSF2 Beta Mod Manager v0.9.2
+
+2026-10-28
+
+The mini player can show the bars on a PC that does not have ffmpeg. The song still plays the same way. Setup now shows a percent and a plain sentence for each step, so you can see what it is doing.
 
 ## SSF2 Beta Mod Manager v0.9
 
