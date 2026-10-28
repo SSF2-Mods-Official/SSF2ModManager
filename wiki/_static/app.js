@@ -28,6 +28,7 @@
 
   var QUESTIONS = [
     ["how do I set up", "Start Here/setup.md"],
+    ["how do I join the discord", "Start Here/discord.md"],
     ["how do I download SSF2", "Start Here/setup.md"],
     ["how do I play", "Mod Manager Features/play.md"],
     ["how do I download mods", "Mod Manager Features/download-mods.md"],
@@ -140,6 +141,14 @@
       parts.push(
         '<div class="tip"><strong>Get the build</strong> from ' +
           '<a href="https://github.com/SSF2-Mods-Official/SSF2ModManager/releases/latest">GitHub Releases (latest)</a>.</div>'
+      );
+      parts.push(
+        '<div class="tip"><strong>Discord.</strong> <a href="#/' +
+          encodeURIComponent("Start Here/discord.md") +
+          '">Join SSF2 Mods Official</a>.</div>'
+      );
+      parts.push(
+        "<p>We are looking for developers to help contribute to the Mod Manager and SSF2 Shell. Reach out to justwex on the SSF2 Mods Official discord if you are interested in contributing.</p>"
       );
 
       (manifest.sections || []).forEach(function (sec) {
