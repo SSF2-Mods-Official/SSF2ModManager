@@ -950,11 +950,14 @@
         var title = fields.title.trim();
         var template = fields.template === "reference" ? "reference" : "article";
         if (window.wiki && window.wiki.createTutorial) {
-          window.wiki.createTutorial(title, tutorialMarkdown(title, template)).then(function (file) {
+          var openMade = function (file) {
             sessionStorage.setItem("wiki-open-edit", file);
             location.hash = "#/" + encodeURIComponent(file);
             location.reload();
-          }).catch(function (err) {
+          };
+          Promise.resolve(window.wiki.createTutorial(title, tutorialMarkdown(title, template))).catch(function () {
+            return window.wiki.createTutorial(title);
+          }).then(openMade).catch(function (err) {
             showError(escape(err && err.message ? err.message : String(err)));
           });
           return;
