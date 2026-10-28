@@ -1024,6 +1024,56 @@
     });
   }
 
+  (function bindSiteTools() {
+    var root = document.documentElement;
+    var themeBtn = document.getElementById("theme-toggle");
+    var a11yBtn = document.getElementById("a11y-toggle");
+    var panel = document.getElementById("a11y-panel");
+    var motion = document.getElementById("a11y-motion");
+    var links = document.getElementById("a11y-links");
+    function paintTheme() {
+      var dark = root.getAttribute("data-theme") === "dark";
+      if (themeBtn) {
+        themeBtn.textContent = dark ? "Light" : "Dark";
+        themeBtn.setAttribute("aria-pressed", dark ? "true" : "false");
+      }
+    }
+    paintTheme();
+    if (themeBtn) themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      localStorage.setItem("wiki-theme", next);
+      paintTheme();
+    });
+    if (a11yBtn && panel) a11yBtn.addEventListener("click", function () {
+      var open = panel.hasAttribute("hidden");
+      if (open) panel.removeAttribute("hidden");
+      else panel.setAttribute("hidden", "");
+      a11yBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    if (motion) {
+      motion.checked = root.classList.contains("reduce-motion");
+      motion.addEventListener("change", function () {
+        root.classList.toggle("reduce-motion", motion.checked);
+        localStorage.setItem("wiki-motion", motion.checked ? "reduce" : "");
+      });
+    }
+    if (links) {
+      links.checked = root.classList.contains("underline-links");
+      links.addEventListener("change", function () {
+        root.classList.toggle("underline-links", links.checked);
+        localStorage.setItem("wiki-links", links.checked ? "underline" : "");
+      });
+    }
+    document.querySelectorAll(".a11y-sizes button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var size = b.getAttribute("data-font") || "16";
+        root.style.fontSize = size + "px";
+        localStorage.setItem("wiki-font", size);
+      });
+    });
+  })();
+
   mountCorner();
   window.addEventListener("hashchange", route);
   route();

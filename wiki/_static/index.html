@@ -5,13 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SSF2 Mod Manager Wiki</title>
   <link rel="stylesheet" href="site.css" />
+  <script>
+    (function () {
+      var theme = localStorage.getItem("wiki-theme") || "light";
+      document.documentElement.setAttribute("data-theme", theme);
+      var font = localStorage.getItem("wiki-font") || "16";
+      document.documentElement.style.fontSize = font + "px";
+      if (localStorage.getItem("wiki-motion") === "reduce") document.documentElement.classList.add("reduce-motion");
+      if (localStorage.getItem("wiki-links") === "underline") document.documentElement.classList.add("underline-links");
+      var now = new Date();
+      var month = now.getMonth();
+      var day = now.getDate();
+      if (month === 9 || (month === 10 && day <= 7)) document.documentElement.classList.add("halloween");
+    })();
+  </script>
 </head>
 <body>
+  <div id="site-tools">
+    <button type="button" id="theme-toggle">Dark</button>
+    <button type="button" id="a11y-toggle" aria-expanded="false" aria-controls="a11y-panel">Accessibility</button>
+    <div id="a11y-panel" hidden>
+      <p>Text size</p>
+      <div class="a11y-sizes">
+        <button type="button" data-font="16">Default</button>
+        <button type="button" data-font="18">Large</button>
+        <button type="button" data-font="20">Larger</button>
+      </div>
+      <label><input type="checkbox" id="a11y-motion"> Reduce motion</label>
+      <label><input type="checkbox" id="a11y-links"> Underline links</label>
+    </div>
+  </div>
   <button type="button" class="mobile-toggle" id="nav-toggle">Menu</button>
   <div class="layout">
     <aside class="sidebar">
       <div class="brand">
-        <a href="#/">SSF2 Mod Manager Wiki</a>
+        <div class="brand-name">
+          <a href="#/">SSF2 Mod Manager Wiki</a>
+          <img class="brand-logo" src="ssf2m.png" alt="SSF2M">
+          <span class="halloween-mark" aria-hidden="true">🎃</span>
+        </div>
         <span class="sub">Wiki</span>
       </div>
       <div class="wiki-tools">
