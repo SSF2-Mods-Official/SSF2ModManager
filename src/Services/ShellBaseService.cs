@@ -23,27 +23,48 @@ namespace SSF2ModManager.Services
         private const string LatestApi = "https://api.github.com/repos/" + Repo + "/releases/latest";
         public const string BuildInfoFile = "shell-base-build.json";
         public const string DefaultVanillaFolder = @"C:\Program Files (x86)\Super Smash Flash 2 Beta";
-        /// <summary>sha256 of <c>SSF2.swf</c> in SSF2 Beta 1.4.0.1, the only version the patches apply to.</summary>
+        /// <summary>sha256 of <c>SSF2.swf</c> in the 64-bit installer the patches were captured on.</summary>
         public const string Vanilla1401Sha256 = "9afefb865f540eba5c26549f47c6892cdfbb1802ac93aa55723462c469eaacf4";
+
+        public sealed record VanillaBuild(string Id, string Label, string Sha256);
+
+        public static readonly VanillaBuild[] KnownBuilds =
+        {
+            new("installer64", "64-bit installer", "9afefb865f540eba5c26549f47c6892cdfbb1802ac93aa55723462c469eaacf4"),
+            new("portable64", "64-bit portable", "d37bfe824779757d135333e45e9ceeea9eece1ad055094ca18f7b13fb5fe8bea"),
+            new("installer32", "32-bit installer", "0f13237a19bc6a7f63acb8e7371f3ce8420516292099c279061f4ad84f488fdc"),
+            new("portable32", "32-bit portable", "ebf175c88bc37b46b0c1a34c368eae6d529d0a50f7e8ada85fdefd874f5b17c5"),
+        };
+
+        public static VanillaBuild? BuildForHash(string? sha) =>
+            KnownBuilds.FirstOrDefault(b => string.Equals(b.Sha256, sha, StringComparison.OrdinalIgnoreCase));
 
         public enum VanillaCheck { Missing, WrongVersion, Ok }
 
-        /// <summary>Whether <paramref name="path"/> holds SSF2 Beta 1.4.0.1, by the <c>SSF2.swf</c> hash.</summary>
+        /// <summary>Which known 1.4.0.1 build <paramref name="path"/> is, or null.</summary>
+        public static VanillaBuild? Identify(string? path)
+        {
+            if (!IsVanillaFolder(path))
+                return null;
+            try
+            {
+                return BuildForHash(Sha256File(Path.Combine(path!, "SSF2.swf")));
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log("[setup] vanilla identify failed: " + ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>Whether <paramref name="path"/> holds a known SSF2 Beta 1.4.0.1 build, by the <c>SSF2.swf</c> hash.</summary>
         public static VanillaCheck CheckVanilla(string? path)
         {
             if (!IsVanillaFolder(path))
                 return VanillaCheck.Missing;
-            try
-            {
-                var ok = Sha256File(Path.Combine(path!, "SSF2.swf")) == Vanilla1401Sha256;
-                DebugLogger.Log($"[setup] vanilla check ok={(ok ? 1 : 0)} path={path}");
-                return ok ? VanillaCheck.Ok : VanillaCheck.WrongVersion;
-            }
-            catch (Exception ex)
-            {
-                DebugLogger.Log("[setup] vanilla check failed: " + ex.Message);
-                return VanillaCheck.Missing;
-            }
+            var build = Identify(path);
+            DebugLogger.Log($"[setup] vanilla check ok={(build != null ? 1 : 0)} id={build?.Id ?? "none"} path={path}");
+            return build != null ? VanillaCheck.Ok : VanillaCheck.WrongVersion;
         }
 
         public sealed record ReleaseAsset(long Id, string Name, long Size);

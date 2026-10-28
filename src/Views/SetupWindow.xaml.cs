@@ -68,7 +68,10 @@ namespace SSF2ModManager.Views
 
             TxtVanilla.Text = s.VanillaCheck switch
             {
-                ShellBaseService.VanillaCheck.Ok => "Found 1.4.0.1: " + s.Vanilla,
+                ShellBaseService.VanillaCheck.Ok => "Found 1.4.0.1 (" + (s.VanillaLabel ?? "known build") + "): " + s.Vanilla
+                    + (s.VanillaLabel != null && s.VanillaLabel.StartsWith("32-bit")
+                        ? " This folder's AIR is 32-bit. The shell needs 64-bit AIR 32."
+                        : ""),
                 ShellBaseService.VanillaCheck.WrongVersion => "This folder is not 1.4.0.1: " + s.Vanilla,
                 _ => "Not found. Choose the folder that has SSF2.swf."
             };

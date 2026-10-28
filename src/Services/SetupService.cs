@@ -15,7 +15,8 @@ namespace SSF2ModManager.Services
             string? Shell,
             string? ShellVersion,
             bool DevShell,
-            string? Editor);
+            string? Editor,
+            string? VanillaLabel = null);
 
         /// <summary>Where a new SSF2 Shell is built: beside the Mod Manager exe.</summary>
         public static string DefaultShellTarget() =>
@@ -36,15 +37,20 @@ namespace SSF2ModManager.Services
             Next2FlashSetup.MigrateLegacy();
             var vanilla = FindVanilla(settings.GetVanillaSsf2Folder());
             var shell = ShellWorkspaceService.FindShellFolder();
+            var identified = ShellBaseService.Identify(vanilla);
             var status = new Status(
                 AppPaths.Next2FlashRoot,
                 vanilla,
-                ShellBaseService.CheckVanilla(vanilla),
+                identified != null ? ShellBaseService.VanillaCheck.Ok
+                    : ShellBaseService.IsVanillaFolder(vanilla) ? ShellBaseService.VanillaCheck.WrongVersion
+                    : ShellBaseService.VanillaCheck.Missing,
                 shell,
                 shell == null ? null : ShellBaseService.InstalledVersion(shell),
                 shell != null && ShellBaseService.IsDevShell(shell),
-                ModdingToolchainService.ResolveEditorCli());
+                ModdingToolchainService.ResolveEditorCli(),
+                identified?.Label);
             DebugLogger.Log($"[setup] status n2f={(status.Next2Flash != null ? 1 : 0)} vanilla={status.VanillaCheck} " +
+                $"kind={status.VanillaLabel ?? "none"} " +
                 $"shell={(status.Shell != null ? 1 : 0)} version={status.ShellVersion ?? "none"} dev={(status.DevShell ? 1 : 0)} " +
                 $"editor={(status.Editor != null ? 1 : 0)}");
             return status;

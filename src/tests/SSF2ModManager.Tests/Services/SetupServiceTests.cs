@@ -18,6 +18,26 @@ namespace SSF2ModManager.Tests.Services
             finally { Directory.Delete(dir, true); }
         }
 
+        [Theory]
+        [InlineData("9afefb865f540eba5c26549f47c6892cdfbb1802ac93aa55723462c469eaacf4", "installer64", "64-bit installer")]
+        [InlineData("d37bfe824779757d135333e45e9ceeea9eece1ad055094ca18f7b13fb5fe8bea", "portable64", "64-bit portable")]
+        [InlineData("0f13237a19bc6a7f63acb8e7371f3ce8420516292099c279061f4ad84f488fdc", "installer32", "32-bit installer")]
+        [InlineData("ebf175c88bc37b46b0c1a34c368eae6d529d0a50f7e8ada85fdefd874f5b17c5", "portable32", "32-bit portable")]
+        public void BuildForHash_NamesEachBuild(string sha, string id, string label)
+        {
+            var build = ShellBaseService.BuildForHash(sha);
+            Assert.NotNull(build);
+            Assert.Equal(id, build!.Id);
+            Assert.Equal(label, build.Label);
+        }
+
+        [Fact]
+        public void BuildForHash_UnknownIsNull()
+        {
+            Assert.Null(ShellBaseService.BuildForHash("abc"));
+            Assert.Null(ShellBaseService.BuildForHash(null));
+        }
+
         [Fact]
         public void CheckVanilla_OtherSwf_IsWrongVersion()
         {
