@@ -16,7 +16,7 @@ group: Build
 | Drop | `flushUnusedResources` unloads the others |
 | Log | `[ResourceManager] flush dropped=` |
 
-A character, stage, or song SWF stays decoded until `flushUnusedResources` unloads it. The memory line on the [Profiler](profiler.md) strip is the process after that choice.
+A character, stage, or song SWF stays decoded until `flushUnusedResources` unloads it.
 
 ## Contents
 
@@ -56,5 +56,4 @@ Play two matches with different fighters and stages. After results close, `game.
 
 ## References
 
-1. [Profiler](profiler.md) — `privateMb` on the strip is the process after a flush.
-2. [Where things are](where-things-are.md) — engine2 is the SWF that contains `ResourceManager`.
+1. [Where things are](where-things-are.md) — engine2 is the SWF that contains `ResourceManager`.

@@ -14,7 +14,7 @@ group: Build
 | Engine | `modhost/ModHost.as`, `engine/Character.as`, `engine/StageData.as`, `util/Vcam.as`, `engine/AI.as`, `platforms/Platform.as`, `enemies/Enemy.as`, `engine/HitBoxSprite.as` (decompiled `engine2/changed`) |
 | Mods | `palette_maker`, `manager_bridge`, `controller_profiles` |
 | Frame budget | 60 fps, about 16 ms for the whole frame |
-| Related | [Built-in mods](built-in-mods.md), [Profiler](profiler.md) |
+| Related | [Built-in mods](built-in-mods.md) |
 
 The engine calls into the mod host from code that runs every frame for every fighter, so a call with no mod attached must cost nothing.
 
@@ -60,10 +60,8 @@ The engine calls into the mod host from code that runs every frame for every fig
 ## Check
 
 1. Play a match with no optional mods on. `game.log` has no `[ModHost] hook` errors.
-2. Open the in-game profiler ([Profiler](profiler.md)) during a four-player match and compare frame time with the same match before the change.
-3. `shellbase.py verify` prints `verify OK` after the engine change.
+2. `shellbase.py verify` prints `verify OK` after the engine change.
 
 ## References
 
 1. [Built-in mods](built-in-mods.md): the mods named here and how to rebuild them.
-2. [Profiler](profiler.md): measuring frame time in a match.

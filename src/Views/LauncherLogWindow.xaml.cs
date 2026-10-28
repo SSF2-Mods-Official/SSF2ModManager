@@ -34,20 +34,10 @@ namespace SSF2ModManager.Views
 
         private readonly string? _installRoot;
         private readonly DispatcherTimer _timer;
-        private readonly GameProcessProbe _probe = new();
-        private readonly GameProfilerListener? _listener;
-        private ProfilerSnapshot _snap = new();
-        private int _loggedBatch;
-        private const int MaxBars = 160;
         private string _lastText = "";
 		private bool _stickToEnd = true;
         private bool _rebuildingDoc;
         private bool _pinningEnd;
-        private bool _followLive = true;
-        private bool _scrubLock;
-        private int _selected = -1;
-        private int _plotStart;
-        private int _plotShown;
 
         public LauncherLogWindow(string? installRoot, bool ssf2ErrorsOnly = false)
         {
@@ -81,218 +71,11 @@ namespace SSF2ModManager.Views
                     _stickToEnd = atBottom;
                 }), true);
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
-            _timer.Tick += (_, _) =>
-            {
-                SampleProfiler();
-                Reload();
-            };
+            _timer.Tick += (_, _) => Reload();
             _timer.Start();
-            ProfilerPlot.SizeChanged += (_, _) => PaintPlot();
-            try
-            {
-                _listener = new GameProfilerListener();
-            }
-            catch
-            {
-                _listener = null;
-            }
-            SampleProfiler();
             Reload();
         }
 
-        private void SampleProfiler()
-        {
-            if (TxtProfiler == null || ProfilerPlot == null)
-                return;
-            var sample = _probe.Read();
-            _snap = _listener == null ? new ProfilerSnapshot() : _listener.Snapshot();
-            if (!_snap.HasEvents)
-            {
-                _followLive = true;
-                _selected = -1;
-                SyncScrub();
-                TxtProfiler.Text = "SSF2 has not connected";
-                if (TxtSpike != null)
-                    TxtSpike.Text = "";
-            }
-            else
-            {
-                var priv = _snap.PrivateMb > 0 ? _snap.PrivateMb : sample.PrivateMb;
-                TxtProfiler.Text = "fps " + _snap.Fps
-                    + "    max " + _snap.MaxMs + " ms"
-                    + "    flash " + _snap.FlashMb + " MB"
-                    + "    private " + priv + " MB"
-                    + "    cpu " + sample.CpuPercent + "%";
-                SyncScrub();
-                if (TxtSpike != null)
-                    TxtSpike.Text = SelectedLine();
-                AppendProfilerSample();
-            }
-            PaintPlot();
-        }
-
-        private void SyncScrub()
-        {
-            if (ProfilerScrub == null)
-                return;
-            var n = _snap.Frames.Count;
-            _scrubLock = true;
-            ProfilerScrub.IsEnabled = n > 1;
-            ProfilerScrub.Maximum = Math.Max(0, n - 1);
-            if (n == 0)
-            {
-                _selected = -1;
-                ProfilerScrub.Value = 0;
-            }
-            else if (_followLive || _selected < 0 || _selected >= n)
-            {
-                _selected = n - 1;
-                ProfilerScrub.Value = ProfilerScrub.Maximum;
-            }
-            _scrubLock = false;
-        }
-
-        private string SelectedLine()
-        {
-            var frames = _snap.Frames;
-            if (frames.Count == 0 || _selected < 0 || _selected >= frames.Count)
-                return "";
-            return GameProfilerSession.SpikeText(frames[_selected]);
-        }
-
-        private void ProfilerScrub_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (_scrubLock || ProfilerScrub == null)
-                return;
-            var n = _snap.Frames.Count;
-            _selected = (int)Math.Round(ProfilerScrub.Value);
-            if (_selected < 0)
-                _selected = 0;
-            if (n > 0 && _selected >= n)
-                _selected = n - 1;
-            _followLive = n == 0 || _selected >= n - 1;
-            if (TxtSpike != null)
-                TxtSpike.Text = SelectedLine();
-            PaintPlot();
-        }
-
-        private void ProfilerPlot_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (_plotShown <= 0 || ProfilerScrub == null)
-                return;
-            var slot = ProfilerPlot.ActualWidth / MaxBars;
-            if (slot <= 0)
-                return;
-            var origin = MaxBars - _plotShown;
-            var local = (int)(e.GetPosition(ProfilerPlot).X / slot) - origin;
-            if (local < 0 || local >= _plotShown)
-                return;
-            var index = _plotStart + local;
-            _followLive = index >= _snap.Frames.Count - 1;
-            _scrubLock = true;
-            ProfilerScrub.Value = index;
-            _scrubLock = false;
-            _selected = index;
-            if (TxtSpike != null)
-                TxtSpike.Text = SelectedLine();
-            PaintPlot();
-        }
-
-        private void AppendProfilerSample()
-        {
-            if (_snap.Batch == 0 || _snap.Batch == _loggedBatch)
-                return;
-            _loggedBatch = _snap.Batch;
-            if (string.IsNullOrWhiteSpace(_installRoot))
-                return;
-            var path = ShellWorkspaceService.GameLogPath(_installRoot);
-            var line = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " " + GameProfilerSession.SampleLine(_snap);
-            try
-            {
-                File.AppendAllText(path, line + Environment.NewLine);
-            }
-            catch
-            {
-            }
-        }
-
-        private void PaintPlot()
-        {
-            if (ProfilerPlot == null)
-                return;
-            ProfilerPlot.Children.Clear();
-            var frames = _snap.Frames;
-            var w = ProfilerPlot.ActualWidth;
-            var h = ProfilerPlot.ActualHeight;
-            if (w < 8 || h < 8 || frames.Count == 0)
-                return;
-            var selected = _selected;
-            if (selected < 0 || selected >= frames.Count)
-                selected = frames.Count - 1;
-            var start = GameProfilerMath.WindowStart(frames.Count, selected, MaxBars);
-            var shown = Math.Min(MaxBars, frames.Count - start);
-            _plotStart = start;
-            _plotShown = shown;
-            var slot = w / MaxBars;
-            var end = start + shown;
-            var top = 48;
-            for (var i = start; i < end; i++)
-            {
-                if (frames[i].DeltaMs > top)
-                    top = frames[i].DeltaMs;
-            }
-            var lo = frames[start].PrivateMb;
-            var hi = lo;
-            for (var i = start; i < end; i++)
-            {
-                if (frames[i].PrivateMb < lo)
-                    lo = frames[i].PrivateMb;
-                if (frames[i].PrivateMb > hi)
-                    hi = frames[i].PrivateMb;
-            }
-            if (hi - lo < 16)
-                hi = lo + 16;
-            var mem = new System.Windows.Shapes.Polyline
-            {
-                Stroke = new SolidColorBrush(Color.FromRgb(0xC7, 0x92, 0xEA)),
-                StrokeThickness = 1.5
-            };
-            var origin = MaxBars - shown;
-            for (var i = 0; i < shown; i++)
-            {
-                var frame = frames[start + i];
-                var x = (origin + i) * slot;
-                if (frame.DeltaMs > 0)
-                {
-                    var bh = h * (frame.DeltaMs / (double)top);
-                    if (bh > h)
-                        bh = h;
-                    var band = GameProfilerMath.Band(frame.DeltaMs);
-                    var color = band == "spike"
-                        ? Color.FromRgb(0xFF, 0x5D, 0x5D)
-                        : band == "slow"
-                            ? Color.FromRgb(0xF5, 0xC4, 0x51)
-                            : Color.FromRgb(0x3D, 0xDC, 0x97);
-                    var bar = new System.Windows.Shapes.Rectangle
-                    {
-                        Width = Math.Max(1, slot - 1),
-                        Height = Math.Max(1, bh),
-                        Fill = new SolidColorBrush(color)
-                    };
-                    if (start + i == selected)
-                    {
-                        bar.Stroke = Brushes.White;
-                        bar.StrokeThickness = 1;
-                    }
-                    Canvas.SetLeft(bar, x);
-                    Canvas.SetTop(bar, h - bh);
-                    ProfilerPlot.Children.Add(bar);
-                }
-                var my = h - (h * ((frame.PrivateMb - lo) / (double)(hi - lo)));
-                mem.Points.Add(new System.Windows.Point(x, my));
-            }
-            ProfilerPlot.Children.Add(mem);
-        }
 
         public event EventHandler<bool>? FollowChanged;
         private bool _suppressFollow;
@@ -640,7 +423,6 @@ namespace SSF2ModManager.Views
         protected override void OnClosed(EventArgs e)
         {
             _timer.Stop();
-            _listener?.Dispose();
             base.OnClosed(e);
         }
     }

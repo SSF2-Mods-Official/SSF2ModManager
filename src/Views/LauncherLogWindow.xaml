@@ -22,24 +22,6 @@
         </Style>
     </Window.Resources>
     <DockPanel Margin="16">
-        <Border DockPanel.Dock="Top" Margin="0,0,0,12" Background="#FF0E0E14" CornerRadius="8"
-                BorderBrush="#FF2A2A38" BorderThickness="1" Padding="12,8">
-            <DockPanel>
-                <TextBlock x:Name="TxtProfiler" DockPanel.Dock="Top" FontFamily="Consolas" FontSize="14"
-                           Foreground="#FFE8EAEF" Margin="0,0,0,4" Text="SSF2 has not connected"/>
-                <TextBlock DockPanel.Dock="Top" FontFamily="Consolas" FontSize="11"
-                           Foreground="#FF9AA0AE" Margin="0,0,0,6"
-                           Text="frames   green  ≤34 ms   yellow  ≤68 ms   red  hitch      line   purple  private memory"/>
-                <TextBlock x:Name="TxtSpike" DockPanel.Dock="Bottom" FontFamily="Consolas" FontSize="12"
-                           Foreground="#FFC8C8D4" Margin="0,6,0,0" TextWrapping="Wrap"/>
-                <Slider x:Name="ProfilerScrub" DockPanel.Dock="Bottom" Minimum="0" Maximum="0"
-                        IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10"
-                        Margin="0,6,0,0" ValueChanged="ProfilerScrub_Changed"
-                        Foreground="#FFC8C8D4" IsEnabled="False"/>
-                <Canvas x:Name="ProfilerPlot" Height="64" ClipToBounds="True"
-                        MouseLeftButtonDown="ProfilerPlot_MouseDown"/>
-            </DockPanel>
-        </Border>
         <DockPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
             <WrapPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
                 <Button Content="Refresh" Style="{StaticResource LogButton}" Click="BtnRefresh_Click"/>
