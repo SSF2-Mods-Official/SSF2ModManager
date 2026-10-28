@@ -1,40 +1,36 @@
 ---
 title: Set up Mod Manager
-summary: Download the manager, run Setup, build SSF2 Shell from your Beta 1.4.0.1.
+summary: Install the manager, get SSF2 Beta 1.4.0.1, and build SSF2 Shell.
 order: 10
 ---
 
-## 1 — Download
+The manager does not ship with a finished game. Setup downloads the tools, points at your SSF2 Beta install, and builds SSF2 Shell.
 
-Get the latest build:
+## Get the Mod Manager
 
-[https://github.com/SSF2-Mods-Official/SSF2ModManager/releases/latest](https://github.com/SSF2-Mods-Official/SSF2ModManager/releases/latest)
+Download the latest zip from [SSF2 Mod Manager releases](https://github.com/SSF2-Mods-Official/SSF2ModManager/releases/latest).
 
-Unzip it somewhere you can find (for example Documents) and open that folder. The zip is the manager only — it does **not** include a finished SSF2 Shell. Shell is built on this PC in Setup.
+Unzip it somewhere you can find, then open **SSF2ModManager.exe**.
 
-## 2 — Run the launcher
+## Get SSF2 Beta
 
-Double-click `SSF2ModManager.exe`.
+You need **SSF2 Beta 1.4.0.1**. That is the version Setup builds from.
 
-You should see the launcher with **Play**, **Configure**, **Debug**, and the mod buttons. **Open Docs** opens this wiki.
+Download it from [Super Smash Flash 2 downloads](https://www.supersmashflash.com/play/ssf2/downloads/).
 
-On first launch (or when Shell / Next2Flash is missing), **Set up** opens.
+Install it normally and remember the folder. Setup asks for the folder that contains the game.
 
-## 3 — Setup (in order)
+## What Setup asks
 
-1. **Next2Flash** — click **Download**. That zip includes the portable Python and JRE used for compile and Convert to FLA.
-2. **SSF2 Beta 1.4.0.1** — **Choose folder** on your installed copy (the folder with `SSF2.swf`). Only 1.4.0.1 works.
-3. **SSF2 Shell** — click **Build**. The manager downloads Shell Base `.ssfpatch` files and builds a playable Shell beside the exe (or into the folder you set). Your mods are kept on a rebuild.
-4. **Debugging (optional)** — VS Code + ActionScript tools for Make Mods.
+Setup opens the first time. Each step has its own button, and a percent plus a sentence so you can see what it is doing. **Next** stays hidden until that step's button finishes.
 
-## 4 — Install folder
+1. **Tools.** Click **Download**. This is a large download. The percent counts through the download, then unpacks the tools.
+2. **Your SSF2 Beta.** Click **Choose folder** and pick the 1.4.0.1 folder.
+3. **Your game.** Click **Build**. The manager makes SSF2 Shell from that install. The line on screen changes as it reads the install, builds the game, copies characters and stages, and prepares costume colors and songs. Missing songs are skipped. They do not stop the build.
+4. **Editor.** Optional. Skip it if you only want to play. Install it if you want the **Debug** button later. That step sets up the code editor and SSF2 Stream.
 
-On the launcher, **Install folder** should point at the SSF2 Shell you just built (or an existing Shell you use). Click **Change** if it is wrong.
+When setup is finished, click **Play**. The manager opens.
 
-## 5 — Play once
+## If you need to run it again
 
-Click **Play**. SSF2 Shell should start like a normal game.
-
-When you want to make mods, click **Make Mods**.
-
-Next: [Launcher buttons](tasks.md)
+**Settings** has **Run setup**. Use that if you move the game folder or want to rebuild Shell.

@@ -26,10 +26,74 @@
       "</p><p>From <code>shell-dev\\docs</code> double-click <code>Open Docs.bat</code> to rebuild.</p></div>";
   }
 
+  var QUESTIONS = [
+    ["how do I set up", "Start Here/setup.md"],
+    ["how do I download SSF2", "Start Here/setup.md"],
+    ["how do I play", "Mod Manager Features/play.md"],
+    ["how do I download mods", "Mod Manager Features/download-mods.md"],
+    ["how do I configure a match", "Mod Manager Features/configure.md"],
+    ["how do I change how the game starts", "Mod Manager Features/configure.md"],
+    ["how do I make a mod", "Mod Manager Features/make-mods.md"],
+    ["how do I turn mods on", "Mod Manager Features/manage-mods.md"],
+    ["how do I use the music player", "Mod Manager Features/music-player.md"],
+    ["how do I change settings", "Mod Manager Features/settings.md"],
+    ["how do I debug", "Mod Manager Features/debug.md"],
+    ["how do I open the jukebox", "SSF2 Shell Features/my-jukebox.md"],
+    ["how do I add music to my build", "SSF2 Shell Features/my-jukebox.md"],
+    ["how do I upload a song", "SSF2 Shell Features/my-jukebox.md"],
+    ["how do I add a song to a stage", "SSF2 Shell Features/my-jukebox.md"],
+    ["how do I add a character", "Mod Manager Features/add-character.md"],
+    ["how do I clone a character", "Mod Manager Features/add-character.md"],
+    ["how do I import a character", "Mod Manager Features/add-character.md"],
+    ["how do I add a stage", "Mod Manager Features/add-stage.md"],
+    ["how do I clone a stage", "Mod Manager Features/add-stage.md"],
+    ["how do I import a stage", "Mod Manager Features/add-stage.md"],
+    ["how do I add an event", "Mod Manager Features/add-event.md"],
+    ["how do I make an event", "Mod Manager Features/add-event.md"],
+    ["how do I package a mod", "Mod Manager Features/package-mods.md"],
+    ["how do I upload a mod to GameBanana", "Mod Manager Features/package-mods.md"],
+    ["how do I set a nametag", "SSF2 Shell Features/nametags.md"],
+    ["how do I add a stage background", "SSF2 Shell Features/stage-backgrounds.md"],
+    ["how do I use palette maker", "SSF2 Shell Features/palette-maker.md"],
+    ["how do I recolor a character", "SSF2 Shell Features/palette-maker.md"],
+    ["how do I watch a replay", "SSF2 Shell Features/replay-menu.md"],
+    ["how do I change the menu background", "SSF2 Shell Features/menu-background.md"],
+    ["how do I change the camera background", "SSF2 Shell Features/camera-background.md"],
+    ["how do I open the mod menu", "SSF2 Shell Features/mod-menu.md"],
+    ["how do I edit the character select screen", "SSF2 Shell Features/character-select-editor.md"],
+    ["how do I edit the stage select screen", "SSF2 Shell Features/stage-select-editor.md"],
+    ["how do I turn on rumble", "SSF2 Shell Features/rumble.md"]
+  ];
+
+  function localStore() {
+    try { return JSON.parse(localStorage.getItem("ssf2-wiki-local") || "{}"); }
+    catch (e) { return {}; }
+  }
+
+  function saveLocal(store) {
+    localStorage.setItem("ssf2-wiki-local", JSON.stringify(store));
+  }
+
   function loadBundle() {
     var data = docs();
     if (!data || !data.sections) {
-      throw new Error("content.js missing or empty — run Open Docs.bat");
+      throw new Error("content.js missing or empty");
+    }
+    data = JSON.parse(JSON.stringify(data));
+    data.pages = data.pages || {};
+    var store = localStore();
+    var mine = [];
+    Object.keys(store).forEach(function (file) {
+      var item = store[file];
+      if (!item || !item.md) return;
+      data.pages[file] = item.md;
+      var title = "My article";
+      var m = item.md.match(/^title:\s*(.+)$/m);
+      if (m) title = m[1].trim();
+      mine.push({ file: file, title: title, summary: "Saved on this computer.", order: 10 });
+    });
+    if (mine.length) {
+      data.sections = data.sections.concat([{ id: "My Tutorials", title: "My Tutorials", pages: mine }]);
     }
     return data;
   }
@@ -71,12 +135,11 @@
       var parts = [];
       parts.push("<h1>SSF2 Mod Manager Wiki</h1>");
       parts.push(
-        '<p class="lead">New to SSF2 modding? Start with the launcher. Download the latest release, run SSF2ModManager.exe, then use Play / Debug / Make Mods from there.</p>'
+        '<p class="lead">Guides for the Mod Manager and for the features SSF2 Shell adds on top of the normal game.</p>'
       );
       parts.push(
         '<div class="tip"><strong>Get the build</strong> from ' +
-          '<a href="https://github.com/SSF2-Mods-Official/SSF2ModManager/releases/latest">GitHub Releases (latest)</a>. ' +
-          "Quick Launch and Debug open SSF2 Stream. Use <strong>Open Docs</strong> on the launcher to open this wiki.</div>"
+          '<a href="https://github.com/SSF2-Mods-Official/SSF2ModManager/releases/latest">GitHub Releases (latest)</a>.</div>'
       );
 
       (manifest.sections || []).forEach(function (sec) {
@@ -225,7 +288,7 @@
       var html = historyHtml(rows);
       html += '<div class="page-actions"><button type="button" id="edit-page">Edit</button>';
       if (record && record.userMade) {
-        html += '<button type="button" id="pkg-page">Package tutorial</button>';
+        html += '<button type="button" id="pkg-page">Download article</button>';
         html += '<button type="button" class="danger" id="del-page">Delete</button>';
       }
       html += "</div>";
@@ -511,24 +574,286 @@
     });
   }
 
+  function crc32(bytes) {
+    var table = crc32.table;
+    if (!table) {
+      table = crc32.table = new Uint32Array(256);
+      for (var n = 0; n < 256; n++) {
+        var c = n;
+        for (var k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+        table[n] = c;
+      }
+    }
+    var crc = 0xffffffff;
+    for (var i = 0; i < bytes.length; i++) crc = table[(crc ^ bytes[i]) & 255] ^ (crc >>> 8);
+    return (crc ^ 0xffffffff) >>> 0;
+  }
+
+  function u16(view, o, v) { view.setUint16(o, v, true); }
+  function u32(view, o, v) { view.setUint32(o, v, true); }
+
+  function zipStore(files) {
+    var enc = new TextEncoder();
+    var locals = [];
+    var central = [];
+    var offset = 0;
+    files.forEach(function (f) {
+      var name = enc.encode(f.name);
+      var data = f.data;
+      var crc = crc32(data);
+      var local = new DataView(new ArrayBuffer(30));
+      u32(local, 0, 0x04034b50);
+      u16(local, 4, 20);
+      u32(local, 14, crc);
+      u32(local, 18, data.length);
+      u32(local, 22, data.length);
+      u16(local, 26, name.length);
+      var cen = new DataView(new ArrayBuffer(46));
+      u32(cen, 0, 0x02014b50);
+      u16(cen, 4, 20);
+      u16(cen, 6, 20);
+      u32(cen, 16, crc);
+      u32(cen, 20, data.length);
+      u32(cen, 24, data.length);
+      u16(cen, 28, name.length);
+      u32(cen, 42, offset);
+      locals.push(new Uint8Array(local.buffer), name, data);
+      central.push(new Uint8Array(cen.buffer), name);
+      offset += 30 + name.length + data.length;
+    });
+    var centralStart = offset;
+    var centralSize = 0;
+    central.forEach(function (p) { centralSize += p.length; });
+    var end = new DataView(new ArrayBuffer(22));
+    u32(end, 0, 0x06054b50);
+    u16(end, 8, files.length);
+    u16(end, 10, files.length);
+    u32(end, 12, centralSize);
+    u32(end, 16, centralStart);
+    var chunks = locals.concat(central, [new Uint8Array(end.buffer)]);
+    var total = chunks.reduce(function (n, p) { return n + p.length; }, 0);
+    var out = new Uint8Array(total);
+    var at = 0;
+    chunks.forEach(function (p) { out.set(p, at); at += p.length; });
+    return out;
+  }
+
+  function downloadArticle(file, raw) {
+    var store = localStore()[file] || {};
+    var files = [{ name: "article.md", data: new TextEncoder().encode(raw) }];
+    var images = store.images || {};
+    Object.keys(images).forEach(function (name) {
+      var m = String(images[name]).match(/^data:[^;]+;base64,(.+)$/);
+      if (!m) return;
+      var bin = atob(m[1]);
+      var bytes = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      files.push({ name: "images/" + name, data: bytes });
+    });
+    var blob = new Blob([zipStore(files)], { type: "application/zip" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = (file.split("/").pop() || "article").replace(/\.md$/, "") + ".zip";
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  function findLocal(bytes, sig) {
+    for (var i = 0; i < bytes.length - 4; i++) {
+      if (bytes[i] === sig[0] && bytes[i + 1] === sig[1] && bytes[i + 2] === sig[2] && bytes[i + 3] === sig[3])
+        return i;
+    }
+    return -1;
+  }
+
+  async function unzip(bytes) {
+    var out = [];
+    var i = 0;
+    while (i + 30 < bytes.length) {
+      if (bytes[i] !== 0x50 || bytes[i + 1] !== 0x4b || bytes[i + 2] !== 0x03 || bytes[i + 3] !== 0x04) break;
+      var view = new DataView(bytes.buffer, bytes.byteOffset + i);
+      var method = view.getUint16(8, true);
+      var comp = view.getUint32(18, true);
+      var nameLen = view.getUint16(26, true);
+      var extra = view.getUint16(28, true);
+      var name = new TextDecoder().decode(bytes.subarray(i + 30, i + 30 + nameLen));
+      var start = i + 30 + nameLen + extra;
+      var data = bytes.subarray(start, start + comp);
+      if (method === 8 && typeof DecompressionStream !== "undefined") {
+        var ds = new DecompressionStream("deflate-raw");
+        var stream = new Blob([data]).stream().pipeThrough(ds);
+        data = new Uint8Array(await new Response(stream).arrayBuffer());
+      }
+      if (name && !name.endsWith("/")) out.push({ name: name, data: data });
+      i = start + comp;
+    }
+    return out;
+  }
+
   function mountCorner() {
-    if (!window.wiki || document.getElementById("wiki-corner")) return;
-    var corner = document.createElement("div");
-    corner.id = "wiki-corner";
-    corner.innerHTML = '<button type="button" id="new-tutorial">New tutorial</button>';
-    document.body.appendChild(corner);
-    corner.querySelector("#new-tutorial").addEventListener("click", function () {
+    var search = document.getElementById("wiki-search");
+    var hits = document.getElementById("wiki-hits");
+
+    function exactFile(text) {
+      var q = (text || "").trim().toLowerCase();
+      if (!q) return "";
+      for (var i = 0; i < QUESTIONS.length; i++) {
+        if (QUESTIONS[i][0].toLowerCase() === q) return QUESTIONS[i][1];
+      }
+      var found = "";
+      try {
+        var bundle = loadBundle();
+        (bundle.sections || []).forEach(function (sec) {
+          (sec.pages || []).forEach(function (p) {
+            if (!found && (p.title || "").toLowerCase() === q) found = p.file;
+          });
+        });
+      } catch (e2) { /* ignore */ }
+      return found;
+    }
+
+    function bestFile(text) {
+      var exact = exactFile(text);
+      if (exact) return exact;
+      var q = (text || "").trim().toLowerCase();
+      if (q.length < 2) return "";
+      var best = null;
+      QUESTIONS.forEach(function (row) {
+        if (row[0].toLowerCase().indexOf(q) >= 0 && (!best || row[0].length < best[0].length)) best = row;
+      });
+      return best ? best[1] : "";
+    }
+
+    function openFile(file) {
+      if (!file) return;
+      var next = "#/" + encodeURIComponent(file);
+      if (location.hash !== next) location.hash = next;
+      if (hits) hits.innerHTML = "";
+      route();
+    }
+
+    function matchingRows(q) {
+      var rows = [];
+      var seen = {};
+      function add(label, file) {
+        var key = label.toLowerCase();
+        if (!label || seen[key]) return;
+        seen[key] = 1;
+        rows.push({ label: label, file: file });
+      }
+      QUESTIONS.forEach(function (row) {
+        if (!q || row[0].toLowerCase().indexOf(q) >= 0) add(row[0], row[1]);
+      });
+      if (q) {
+        try {
+          var manifest = loadBundle();
+          (manifest.sections || []).forEach(function (sec) {
+            (sec.pages || []).forEach(function (p) {
+              if ((p.title || "").toLowerCase().indexOf(q) >= 0) add(p.title, p.file);
+            });
+          });
+        } catch (e) { /* bundle not ready */ }
+      }
+      return rows;
+    }
+
+    function showHits(q) {
+      if (!hits) return;
+      hits.innerHTML = "";
+      matchingRows(q).forEach(function (row) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = row.label;
+        b.addEventListener("mousedown", function (ev) {
+          ev.preventDefault();
+          openFile(row.file);
+        });
+        hits.appendChild(b);
+      });
+    }
+
+    if (search) {
+      search.addEventListener("focus", function () {
+        showHits(search.value.trim().toLowerCase());
+      });
+      search.addEventListener("input", function () {
+        var typed = search.value.trim().toLowerCase();
+        var exact = exactFile(search.value);
+        if (exact) openFile(exact);
+        else showHits(typed);
+      });
+      search.addEventListener("change", function () {
+        openFile(exactFile(search.value) || bestFile(search.value));
+      });
+      search.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter") {
+          ev.preventDefault();
+          openFile(exactFile(search.value) || bestFile(search.value));
+        }
+      });
+    }
+
+    var neu = document.getElementById("new-tutorial");
+    if (neu) neu.addEventListener("click", function () {
       askForm("New tutorial", [{ id: "title", label: "Title", value: "" }], "Create").then(function (fields) {
         if (!fields || !fields.title.trim()) return;
-        window.wiki.createTutorial(fields.title.trim()).then(function (file) {
-          sessionStorage.setItem("wiki-open-edit", file);
-          location.hash = "#/" + encodeURIComponent(file);
-          location.reload();
+        var title = fields.title.trim();
+        if (window.wiki && window.wiki.createTutorial) {
+          window.wiki.createTutorial(title).then(function (file) {
+            sessionStorage.setItem("wiki-open-edit", file);
+            location.hash = "#/" + encodeURIComponent(file);
+            location.reload();
+          }).catch(function (err) {
+            showError(escape(err && err.message ? err.message : String(err)));
+          });
+          return;
+        }
+        var slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "tutorial";
+        var file = "My Tutorials/" + slug + ".md";
+        var md = "---\ntitle: " + title + "\nsummary:\norder: 10\n---\n\n# " + title + "\n\n";
+        var store = localStore();
+        store[file] = { md: md, images: {} };
+        saveLocal(store);
+        location.hash = "#/" + encodeURIComponent(file);
+        route();
+      });
+    });
+
+    var imp = document.getElementById("import-tutorial");
+    var fileInput = document.getElementById("import-file");
+    if (imp && fileInput) {
+      imp.addEventListener("click", function () { fileInput.click(); });
+      fileInput.addEventListener("change", function () {
+        var file = fileInput.files && fileInput.files[0];
+        fileInput.value = "";
+        if (!file) return;
+        file.arrayBuffer().then(function (buf) { return unzip(new Uint8Array(buf)); }).then(function (entries) {
+          var md = entries.filter(function (e) { return /\.md$/i.test(e.name); })[0];
+          if (!md) throw new Error("That zip has no tutorial.");
+          var text = new TextDecoder().decode(md.data);
+          var title = "Imported tutorial";
+          var m = text.match(/^title:\s*(.+)$/m);
+          if (m) title = m[1].trim();
+          var slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "tutorial";
+          var path = "My Tutorials/" + slug + ".md";
+          var images = {};
+          entries.forEach(function (e) {
+            if (!/\.(png|jpg|jpeg|gif|webp)$/i.test(e.name)) return;
+            var name = e.name.split("/").pop();
+            var bin = "";
+            for (var i = 0; i < e.data.length; i++) bin += String.fromCharCode(e.data[i]);
+            images[name] = "data:image/" + (name.split(".").pop() || "png") + ";base64," + btoa(bin);
+          });
+          var store = localStore();
+          store[path] = { md: text, images: images };
+          saveLocal(store);
+          location.hash = "#/" + encodeURIComponent(path);
+          route();
         }).catch(function (err) {
           showError(escape(err && err.message ? err.message : String(err)));
         });
       });
-    });
+    }
   }
 
   var btn = document.getElementById("nav-toggle");

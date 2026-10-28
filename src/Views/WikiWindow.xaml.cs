@@ -23,7 +23,7 @@ namespace SSF2ModManager.Views
             var docs = FindDocs(_installRoot);
             if (docs == null)
             {
-                System.Windows.MessageBox.Show("Could not find the wiki. Look for runtime\\shell-dev\\docs.",
+                System.Windows.MessageBox.Show("Could not find the wiki folder.",
                     "Open Docs", MessageBoxButton.OK, MessageBoxImage.Warning);
                 Close();
                 return;
@@ -71,19 +71,6 @@ namespace SSF2ModManager.Views
             var fromWalk = TutorialWikiImporter.FindDocs();
             if (fromWalk != null && Directory.Exists(Path.Combine(fromWalk, "_static")))
                 return fromWalk;
-            if (!string.IsNullOrWhiteSpace(installRoot))
-            {
-                var candidate = Path.Combine(installRoot, "runtime", "shell-dev", "docs");
-                if (Directory.Exists(Path.Combine(candidate, "_static")))
-                    return candidate;
-            }
-            var dev = ShellWorkspaceService.FindDevWorkspace();
-            if (!string.IsNullOrWhiteSpace(dev))
-            {
-                var candidate = Path.Combine(dev, "docs");
-                if (Directory.Exists(Path.Combine(candidate, "_static")))
-                    return candidate;
-            }
             return null;
         }
     }

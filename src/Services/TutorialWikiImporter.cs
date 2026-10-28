@@ -120,12 +120,9 @@ namespace SSF2ModManager.Services
             var dir = new DirectoryInfo(AppContext.BaseDirectory);
             for (var i = 0; i < 8 && dir != null; i++, dir = dir.Parent)
             {
-                var candidate = Path.Combine(dir.FullName, "runtime", "shell-dev", "docs");
-                if (Directory.Exists(candidate))
-                    return candidate;
-                candidate = Path.Combine(dir.FullName, "SSF2 Mod Manager", "runtime", "shell-dev", "docs");
-                if (Directory.Exists(candidate))
-                    return candidate;
+                var wiki = Path.Combine(dir.FullName, "wiki");
+                if (File.Exists(Path.Combine(wiki, "_static", "index.html")))
+                    return wiki;
             }
             return null;
         }

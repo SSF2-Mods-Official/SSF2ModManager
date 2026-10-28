@@ -127,13 +127,13 @@ namespace SSF2ModManager.Services
             ZipFile.ExtractToDirectory(corePath, pkg);
             ZipFile.ExtractToDirectory(assetsPath, pkg);
 
-            progress.Report("Checking Next2Flash…");
+            progress.Report(SetupService.Say(40, "Making sure the tools are installed."));
             await Next2FlashSetup.EnsureAsync(ct);
             var out_ = Path.Combine(CacheDirectory, "out");
             if (Directory.Exists(out_))
                 Directory.Delete(out_, recursive: true);
 
-            progress.Report("Building SSF2 Shell (about a minute)…");
+            progress.Report(SetupService.Say(48, "Building your copy of the game. This takes about a minute."));
             var psi = new ProcessStartInfo
             {
                 FileName = Next2FlashSetup.PythonExe(),
@@ -150,13 +150,16 @@ namespace SSF2ModManager.Services
                 psi.ArgumentList.Add("--allow-vanilla-mismatch");
             using var proc = Process.Start(psi) ?? throw new InvalidOperationException("Could not start python.");
             string? last = null;
+            var buildPct = 48;
             void OnLine(string? line)
             {
                 if (string.IsNullOrWhiteSpace(line)) return;
                 last = line;
                 DebugLogger.Log(line.StartsWith("[shellbase]") ? line : "[shellbase] " + line);
-                if (line.StartsWith("[shellbase]"))
-                    progress.Report(line["[shellbase] ".Length..]);
+                var friendly = FriendlyBuildLine(line);
+                if (friendly == null) return;
+                buildPct = Math.Min(78, buildPct + 4);
+                progress.Report(SetupService.Say(buildPct, friendly));
             }
             proc.OutputDataReceived += (_, e) => OnLine(e.Data);
             proc.ErrorDataReceived += (_, e) => OnLine(e.Data);
@@ -169,7 +172,7 @@ namespace SSF2ModManager.Services
                 throw new InvalidOperationException("SSF2 Shell build failed: " + (last ?? "exit " + proc.ExitCode));
             }
 
-            progress.Report("Installing SSF2 Shell…");
+            progress.Report(SetupService.Say(80, "Putting the game in its folder."));
             var copied = CopyTree(out_, shellRoot);
             DebugLogger.Log($"[shellbase] build ok version={release.Version} assets={release.AssetsId} files={copied} -> {shellRoot}");
             try { Directory.Delete(pkg, recursive: true); Directory.Delete(out_, recursive: true); } catch { }
@@ -199,6 +202,27 @@ namespace SSF2ModManager.Services
             return removed;
         }
 
+        private static string? FriendlyBuildLine(string line)
+        {
+            if (line.Contains("vanilla base", StringComparison.OrdinalIgnoreCase))
+                return "Reading your SSF2 install.";
+            if (line.Contains("engine2 source", StringComparison.OrdinalIgnoreCase))
+                return "Adding the shell's changes to the game.";
+            if (line.Contains("engine2.swf", StringComparison.OrdinalIgnoreCase))
+                return "Building the game.";
+            if (line.Contains("AIR runtime", StringComparison.OrdinalIgnoreCase))
+                return "Copying what the game needs to start.";
+            if (line.Contains("shell files", StringComparison.OrdinalIgnoreCase))
+                return "Copying the shell.";
+            if (line.Contains("data copied", StringComparison.OrdinalIgnoreCase))
+                return "Copying characters, stages, and music.";
+            if (line.Contains("mappings", StringComparison.OrdinalIgnoreCase))
+                return "Reading the character and stage list.";
+            if (line.Contains("build OK", StringComparison.OrdinalIgnoreCase))
+                return "The game files are ready.";
+            return null;
+        }
+
         private static async Task DownloadIfMissingAsync(ReleaseAsset asset, string path, IProgress<string> progress,
             CancellationToken ct)
         {
@@ -207,16 +231,28 @@ namespace SSF2ModManager.Services
                 DebugLogger.Log($"[shellbase] cached {asset.Name}");
                 return;
             }
-            progress.Report($"Downloading {asset.Name} ({asset.Size / (1024 * 1024)} MB)…");
+            progress.Report(SetupService.Say(12, "Downloading SSF2 Shell. This file is large."));
             using var http = CreateClient("application/octet-stream");
             http.Timeout = TimeSpan.FromMinutes(30);
             using var response = await http.GetAsync(
                 $"https://api.github.com/repos/{Repo}/releases/assets/{asset.Id}", HttpCompletionOption.ResponseHeadersRead, ct);
             response.EnsureSuccessStatusCode();
             var tmp = path + ".part";
+            var total = response.Content.Headers.ContentLength ?? asset.Size;
             await using (var stream = await response.Content.ReadAsStreamAsync(ct))
             await using (var file = File.Create(tmp))
-                await stream.CopyToAsync(file, ct);
+            {
+                var buf = new byte[1024 * 128];
+                long read = 0;
+                int n;
+                while ((n = await stream.ReadAsync(buf, ct)) > 0)
+                {
+                    await file.WriteAsync(buf.AsMemory(0, n), ct);
+                    read += n;
+                    var pct = total > 0 ? 12 + (int)(24.0 * read / total) : 20;
+                    progress.Report(SetupService.Say(pct, "Downloading SSF2 Shell… " + (read / (1024 * 1024)) + " MB"));
+                }
+            }
             File.Move(tmp, path, overwrite: true);
             DebugLogger.Log($"[shellbase] downloaded {asset.Name} bytes={new FileInfo(path).Length}");
         }

@@ -211,7 +211,7 @@ namespace SSF2ModManager.Services
             IProgress<string>? progress = null,
             CancellationToken cancellationToken = default)
         {
-            progress?.Report("Reading the music list…");
+            progress?.Report(SetupService.Say(90, "Reading the song list."));
             MusicLibraryCache cache;
             var mappingsPath = Path.Combine(installRoot, "data", "misc", "mappings.json");
             if (File.Exists(mappingsPath))
@@ -229,7 +229,8 @@ namespace SSF2ModManager.Services
                 var song = songs[i];
                 if (!string.IsNullOrWhiteSpace(song.PreviewMp3Path) && File.Exists(song.PreviewMp3Path))
                     continue;
-                progress?.Report("Music " + (i + 1) + "/" + songs.Count);
+                var pct = songs.Count == 0 ? 99 : 90 + (int)(9.0 * (i + 1) / songs.Count);
+                progress?.Report(SetupService.Say(pct, "Getting songs ready… " + (i + 1) + " of " + songs.Count));
                 await EnsurePreviewMp3Async(song, null, cancellationToken);
             }
             cache.EnrichmentComplete = true;

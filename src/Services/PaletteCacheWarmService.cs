@@ -120,9 +120,9 @@ namespace SSF2ModManager.Services
             if (!string.IsNullOrWhiteSpace(character))
                 extra["vaultCacheChar"] = character.Trim();
 
-            progress?.Report(string.IsNullOrWhiteSpace(character)
-                ? "Caching costumes…"
-                : "Caching " + character.Trim() + "…");
+            progress?.Report(SetupService.Say(84, string.IsNullOrWhiteSpace(character)
+                ? "Saving costume colors. The game may open for a moment, then come back."
+                : "Saving colors for " + character.Trim() + "."));
             DebugLogger.Log("[palette-cache] warm start char=" + (character ?? "all"));
             ShellDirectLaunchService.Launch(shell, ShellDirectLaunchService.ScreenVaultCostumes, extra);
 

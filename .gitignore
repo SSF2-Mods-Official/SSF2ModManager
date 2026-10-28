@@ -38,7 +38,10 @@ out/
 *.vsix
 .as3mxml-unpackaged-anes/
 
-# Dev Wiki stays on this machine
+# Dev Wiki stays on this machine. One wiki folder; this part is not published.
+wiki/Dev Wiki/
+wiki/_history/
+wiki/_images/
 **/docs/Dev Wiki/
 **/docs/_history/
 **/docs/_static/content.js

@@ -92,7 +92,8 @@ namespace SSF2ModManager.Services
             DebugLogger.Log($"[n2f] moved from AppData copied={counts.Copied} to {dest}");
         }
 
-        public static async Task EnsureAsync(CancellationToken cancellationToken = default, bool update = false)
+        public static async Task EnsureAsync(CancellationToken cancellationToken = default, bool update = false,
+            IProgress<string>? progress = null)
         {
             MigrateLegacy();
             var root = AppPaths.Next2FlashRoot;
@@ -103,12 +104,12 @@ namespace SSF2ModManager.Services
                     if (IsSourceCheckout(root))
                         throw new InvalidOperationException(
                             "This Next2Flash is a source checkout (" + root + "). Update it with git pull.");
-                    await DownloadReleaseAsync(root, cancellationToken);
+                    await DownloadReleaseAsync(root, cancellationToken, progress);
                 }
             }
             else
             {
-                await DownloadReleaseAsync(InstallDirectory, cancellationToken);
+                await DownloadReleaseAsync(InstallDirectory, cancellationToken, progress);
             }
 
             if (AppPaths.Next2FlashRoot == null)
@@ -121,7 +122,8 @@ namespace SSF2ModManager.Services
             await PortableToolchain.EnsureAsync(cancellationToken);
         }
 
-        private static async Task DownloadReleaseAsync(string target, CancellationToken cancellationToken)
+        private static async Task DownloadReleaseAsync(string target, CancellationToken cancellationToken,
+            IProgress<string>? progress = null)
         {
             DebugLogger.Log($"[Next2Flash] downloading the latest release target={target}");
             var remote = await FindReleaseAsync(cancellationToken);
@@ -154,17 +156,28 @@ namespace SSF2ModManager.Services
             {
                 http.DefaultRequestHeaders.UserAgent.ParseAdd("SSF2ModManager");
                 http.Timeout = TimeSpan.FromMinutes(20);
-                using var response = await http.GetAsync(remote.ZipUrl, cancellationToken);
+                using var response = await http.GetAsync(remote.ZipUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
                 response.EnsureSuccessStatusCode();
+                var total = response.Content.Headers.ContentLength ?? 0;
                 await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
                 await using var file = File.Create(zipPath);
-                await stream.CopyToAsync(file, cancellationToken);
+                var buf = new byte[1024 * 128];
+                long read = 0;
+                int n;
+                while ((n = await stream.ReadAsync(buf, cancellationToken)) > 0)
+                {
+                    await file.WriteAsync(buf.AsMemory(0, n), cancellationToken);
+                    read += n;
+                    var pct = total > 0 ? 5 + (int)(70.0 * read / total) : 10;
+                    progress?.Report(SetupService.Say(pct, "Downloading the tools… " + (read / (1024 * 1024)) + " MB"));
+                }
             }
 
             var unpack = Path.Combine(Path.GetTempPath(), "Next2Flash-unpack-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(unpack);
             try
             {
+                progress?.Report(SetupService.Say(80, "Unpacking the tools."));
                 ZipFile.ExtractToDirectory(zipPath, unpack);
                 var source = ReleaseRoot(unpack);
                 var counts = CopyChanged(source, target);

@@ -124,11 +124,7 @@ namespace SSF2ModManager.Views
             _spin.Tick += OnSpin;
             _spin.Start();
             UpdateButtons();
-            var progress = new Progress<string>(m =>
-            {
-                TxtProgress.Text = m;
-                TxtBusy.Text = m;
-            });
+            var progress = new Progress<string>(ShowProgress);
             try
             {
                 TxtProgress.Text = await work(progress);
@@ -152,12 +148,26 @@ namespace SSF2ModManager.Views
 
         private void OnSpin(object? sender, EventArgs e) => BusySpin.Angle = (BusySpin.Angle + 8) % 360;
 
+        private void ShowProgress(string message)
+        {
+            var text = message ?? "";
+            var cut = text.IndexOf('|');
+            if (cut > 0 && int.TryParse(text[..cut], out var pct))
+            {
+                SetupBar.Value = Math.Clamp(pct, 0, 100);
+                TxtBusyPct.Text = pct + "%";
+                text = text[(cut + 1)..];
+            }
+            TxtProgress.Text = text;
+            TxtBusy.Text = text;
+        }
+
         private async void BtnN2fDownload_Click(object sender, RoutedEventArgs e)
         {
             await RunAsync("Next2Flash", async p =>
             {
-                p.Report("Downloading Next2Flash (includes portable Python and JRE)…");
-                await Next2FlashSetup.EnsureAsync(update: _status?.Next2Flash != null);
+                p.Report(SetupService.Say(5, "Downloading the tools. This is the big download."));
+                await Next2FlashSetup.EnsureAsync(update: _status?.Next2Flash != null, progress: p);
                 return PortableToolchain.HasPython() && PortableToolchain.HasJre()
                     ? "Next2Flash is ready (portable Python + JRE)."
                     : "Next2Flash is ready.";
@@ -220,14 +230,14 @@ namespace SSF2ModManager.Views
                 return;
             await RunAsync("SSF2 Shell", async p =>
             {
-                p.Report("Checking the latest SSF2 Shell Base release…");
+                p.Report(SetupService.Say(5, "Looking up the latest SSF2 Shell."));
                 var latest = await ShellBaseService.GetLatestAsync()
                     ?? throw new InvalidOperationException("No SSF2 Shell Base release with .ssfpatch files was found.");
                 var target = s.Shell ?? SetupService.DefaultShellTarget();
                 await VanillaHashPrompt.BuildAsync(latest, s.Vanilla, target, p, _settings, AskVanilla);
-                p.Report("Caching costumes…");
+                p.Report(SetupService.Say(82, "Saving costume colors so they open faster. The game may open for a moment."));
                 await PaletteCacheWarmService.WarmAsync(target, null, p, default);
-                p.Report("Preparing music…");
+                p.Report(SetupService.Say(90, "Getting songs ready so the music player and visualizer work."));
                 await new MusicLibraryCacheService().WarmInstallAsync(target, p, default);
                 ShellBuilt = true;
                 return "SSF2 Shell " + latest.Version + " is ready.";

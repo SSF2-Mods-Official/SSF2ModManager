@@ -57,5 +57,9 @@ namespace SSF2ModManager.Services
         /// <summary>Next stays hidden until that step's own button has finished. Skip is always shown. Done has Play.</summary>
         public static bool ShowNext(int step, bool ready) =>
             step == 3 || (step < 3 && ready);
+
+        /// <summary>A setup line the window can turn into a percent and a sentence.</summary>
+        public static string Say(int percent, string message) =>
+            Math.Clamp(percent, 0, 100) + "|" + message;
     }
 }

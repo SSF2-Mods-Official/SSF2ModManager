@@ -77,7 +77,9 @@
                         <RotateTransform x:Name="BusySpin"/>
                     </TextBlock.RenderTransform>
                 </TextBlock>
-                <TextBlock x:Name="TxtBusy" Text="Working…" Margin="0,14,0,0" Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="TxtBusyPct" Text="" Margin="0,12,0,0" Foreground="White" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                <ProgressBar x:Name="SetupBar" Width="320" Height="10" Minimum="0" Maximum="100" Margin="0,10,0,0"/>
+                <TextBlock x:Name="TxtBusy" Text="Working…" Margin="0,14,0,0" Foreground="White" FontSize="16" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="420" HorizontalAlignment="Center"/>
             </StackPanel>
         </Grid>
     </Grid>

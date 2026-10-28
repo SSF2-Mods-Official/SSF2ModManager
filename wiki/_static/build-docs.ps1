@@ -61,7 +61,7 @@ Get-ChildItem -LiteralPath $docsRoot -Directory |
 		}
 	}
 
-$preferred = @("Start Here", "Next Steps", "Dev Wiki")
+$preferred = @("Start Here", "Mod Manager Features", "SSF2 Shell Features")
 $sections = @(
 	$preferred | ForEach-Object {
 		$want = $_

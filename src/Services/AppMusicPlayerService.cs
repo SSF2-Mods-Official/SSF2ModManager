@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Threading;
+using NLayer;
 
 namespace SSF2ModManager.Services
 {
@@ -422,35 +423,46 @@ namespace SSF2ModManager.Services
 
         private static short[] DecodePcm(string mp3Path)
         {
-            var ffmpeg = MusicEditService.FindFfmpeg();
-            if (ffmpeg == null || !File.Exists(mp3Path)) return Array.Empty<short>();
-
-            var psi = new ProcessStartInfo
+            if (!File.Exists(mp3Path)) return Array.Empty<short>();
+            try
             {
-                FileName = ffmpeg,
-                Arguments = $"-v error -i \"{mp3Path}\" -ac 1 -ar {PcmRate} -f s16le -acodec pcm_s16le -",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true
-            };
-            using var proc = Process.Start(psi);
-            if (proc == null) return Array.Empty<short>();
-            using var ms = new MemoryStream();
-            proc.StandardOutput.BaseStream.CopyTo(ms);
-            proc.WaitForExit(120_000);
-            var bytes = ms.ToArray();
-            if (bytes.Length < 4) return Array.Empty<short>();
-            var samples = new short[bytes.Length / 2];
-            Buffer.BlockCopy(bytes, 0, samples, 0, samples.Length * 2);
-            var max = PcmRate * 60 * 10;
-            if (samples.Length > max)
-            {
-                var trimmed = new short[max];
-                Array.Copy(samples, trimmed, max);
-                return trimmed;
+                using var fs = File.OpenRead(mp3Path);
+                using var mpeg = new MpegFile(fs);
+                var rate = mpeg.SampleRate;
+                var channels = Math.Max(1, mpeg.Channels);
+                if (rate <= 0) return Array.Empty<short>();
+                var buf = new float[8192];
+                var mono = new List<float>();
+                var cap = rate * 60 * 8;
+                int n;
+                while ((n = mpeg.ReadSamples(buf, 0, buf.Length)) > 0)
+                {
+                    for (var i = 0; i < n; i += channels)
+                    {
+                        float sum = 0;
+                        var c = Math.Min(channels, n - i);
+                        for (var k = 0; k < c; k++)
+                            sum += buf[i + k];
+                        mono.Add(sum / c);
+                    }
+                    if (mono.Count >= cap) break;
+                }
+                if (mono.Count == 0) return Array.Empty<short>();
+                var step = rate / (double)PcmRate;
+                var outLen = Math.Max(1, (int)(mono.Count / step));
+                var pcm = new short[outLen];
+                for (var i = 0; i < outLen; i++)
+                {
+                    var src = Math.Min(mono.Count - 1, (int)(i * step));
+                    pcm[i] = (short)Math.Round(Math.Clamp(mono[src], -1f, 1f) * 32767f);
+                }
+                return pcm;
             }
-            return samples;
+            catch (Exception ex)
+            {
+                DebugLogger.Log("[viz] preview decode failed " + ex.Message);
+                return Array.Empty<short>();
+            }
         }
 
         private void OnMediaEnded()
