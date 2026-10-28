@@ -448,6 +448,7 @@ pre code {
   gap: 0.4rem;
   align-items: flex-start;
 }
+#holiday-cycle[hidden] { display: none; }
 #site-tools > button, .a11y-sizes button {
   background: var(--accent);
   color: #fff;

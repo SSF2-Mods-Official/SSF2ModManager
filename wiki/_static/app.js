@@ -1065,6 +1065,29 @@
       }
     }
     paintTheme();
+    var holidayBtn = document.getElementById("holiday-cycle");
+    if (holidayBtn && navigator.userAgent.indexOf("Electron") !== -1 && window.wikiHolidayList) {
+      function paintHoliday() {
+        var h = window.wikiHoliday(new Date());
+        window.wikiHolidayList.forEach(function (item) { root.classList.remove(item.id); });
+        if (h) root.classList.add("holiday", h.id);
+        else root.classList.remove("holiday");
+        holidayBtn.textContent = window.wikiHolidayPick ? h.mark + " " + h.name : (h ? "Auto " + h.mark : "Auto");
+      }
+      holidayBtn.removeAttribute("hidden");
+      paintHoliday();
+      holidayBtn.addEventListener("click", function () {
+        var list = window.wikiHolidayList;
+        var idx = -1;
+        if (window.wikiHolidayPick) {
+          for (var i = 0; i < list.length; i++) if (list[i].id === window.wikiHolidayPick) idx = i;
+        }
+        idx += 1;
+        window.wikiHolidayPick = idx >= list.length ? null : list[idx].id;
+        paintHoliday();
+        route();
+      });
+    }
     if (themeBtn) themeBtn.addEventListener("click", function () {
       if (contrast) contrast.checked = false;
       localStorage.removeItem("wiki-contrast");
