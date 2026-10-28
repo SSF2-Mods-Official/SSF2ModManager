@@ -61,7 +61,7 @@ body {
   width: auto;
   display: block;
 }
-.halloween-mark { display: none; }
+.holiday-mark { display: none; }
 .brand .sub {
   display: block;
   margin-top: 0.25rem;
@@ -493,9 +493,25 @@ html.dyslexic body { letter-spacing: 0.05em; word-spacing: 0.16em; line-height: 
   padding: 0.7rem 1rem;
   border-radius: 6px;
 }
+html.holiday .holiday-mark { display: inline; }
+html.newyear { --accent: #a16207; }
+html.newyear:not([data-theme="dark"]) { --link: #a16207; }
+html.valentine { --accent: #be123c; }
+html.valentine:not([data-theme="dark"]) { --link: #be123c; }
+html.patrick { --accent: #166534; }
+html.patrick:not([data-theme="dark"]) { --link: #166534; }
+html.fools { --accent: #6d28d9; }
+html.fools:not([data-theme="dark"]) { --link: #6d28d9; }
+html.easter { --accent: #7e22ce; }
+html.easter:not([data-theme="dark"]) { --link: #7e22ce; }
+html.july4 { --accent: #1d4ed8; }
+html.july4:not([data-theme="dark"]) { --link: #1d4ed8; }
 html.halloween { --accent: #e85d04; }
 html.halloween:not([data-theme="dark"]) { --link: #c2410c; }
-html.halloween .halloween-mark { display: inline; }
+html.thanksgiving { --accent: #9a3412; }
+html.thanksgiving:not([data-theme="dark"]) { --link: #9a3412; }
+html.christmas { --accent: #166534; }
+html.christmas:not([data-theme="dark"]) { --link: #166534; }
 html[data-theme="dark"] {
   --bg-content: #1c1e20;
   --text: #e6e6e6;

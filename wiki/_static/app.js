@@ -101,9 +101,8 @@
 
   function navLabel(title, selected) {
     var text = escape(title);
-    if (selected && document.documentElement.classList.contains("halloween")) {
-      text += ' <span class="halloween-mark" aria-hidden="true">🎃</span>';
-    }
+    var holiday = selected && window.wikiHoliday && window.wikiHoliday(new Date());
+    if (holiday) text += ' <span class="holiday-mark" aria-hidden="true">' + holiday.mark + "</span>";
     return text;
   }
 
