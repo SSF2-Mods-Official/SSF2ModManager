@@ -19,5 +19,14 @@ namespace SSF2ModManager.Tests.Services
             MusicSync.Find(songs, "missing", "Hueco Mundo")!.Id.Should().Be("bgm_huecomundo");
             MusicSync.Find(songs, "", "").Should().BeNull();
         }
+
+        [Fact]
+        public void ShouldPlay_FollowsTheGameWithoutRepeatingTheSameState()
+        {
+            MusicSync.ShouldPlay(gamePaused: false, miniPlaying: false).Should().BeTrue();
+            MusicSync.ShouldPlay(gamePaused: true, miniPlaying: true).Should().BeFalse();
+            MusicSync.ShouldPlay(gamePaused: false, miniPlaying: true).Should().BeNull();
+            MusicSync.ShouldPlay(gamePaused: true, miniPlaying: false).Should().BeNull();
+        }
     }
 }

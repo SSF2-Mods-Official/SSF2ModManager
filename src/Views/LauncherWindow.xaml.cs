@@ -198,7 +198,12 @@ namespace SSF2ModManager.Views
             var setup = new SetupWindow { Owner = this };
             setup.ShowDialog();
             if (setup.ShellBuilt)
+            {
                 RefreshPlayLabel();
+                _miniQueueReady = false;
+                _miniPlayer.SetQueue(Array.Empty<CachedSongInfo>());
+                _ = WarmMiniPlayerAsync();
+            }
         }
 
         private async Task WarmPaletteCacheAsync()
@@ -367,10 +372,15 @@ namespace SSF2ModManager.Views
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+            var javaw = Path.Combine(Path.GetDirectoryName(java)!, "javaw.exe");
+            if (File.Exists(javaw))
+                java = javaw;
             var psi = new ProcessStartInfo
             {
                 FileName = java,
                 UseShellExecute = false,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
             };
             psi.ArgumentList.Add("-jar");
             psi.ArgumentList.Add(jar);
@@ -2216,17 +2226,18 @@ namespace SSF2ModManager.Views
         {
             if ((DateTime.UtcNow - _musicSyncCommandUtc).TotalMilliseconds < 1500)
                 return;
-            if (!paused || !_miniPlayer.IsPlaying)
+            var play = MusicSync.ShouldPlay(paused, _miniPlayer.IsPlaying);
+            if (play == null || (play == true && _miniPlayer.Current == null))
                 return;
             _musicSyncApplying = true;
             try
             {
-                _miniPlayer.Pause();
+                if (play == true)
+                    _miniPlayer.Play();
+                else
+                    _miniPlayer.Pause();
             }
-            finally
-            {
-                _musicSyncApplying = false;
-            }
+            finally { _musicSyncApplying = false; }
         }
 
         private void NoteMusicSyncCommand()
@@ -2336,20 +2347,12 @@ namespace SSF2ModManager.Views
             Process.Start(new ProcessStartInfo("https://ko-fi.com/justwex") { UseShellExecute = true });
         }
 
-        private WikiWindow? _wikiWindow;
-
         private void BtnOpenDocs_Click(object sender, RoutedEventArgs e)
         {
-            if (_wikiWindow != null)
+            Process.Start(new ProcessStartInfo("https://ssf2-mods-official.github.io/SSF2ModManager/")
             {
-                if (_wikiWindow.WindowState == WindowState.Minimized)
-                    _wikiWindow.WindowState = WindowState.Normal;
-                _wikiWindow.Activate();
-                return;
-            }
-            _wikiWindow = new WikiWindow(InstallRoot);
-            _wikiWindow.Closed += (_, _) => _wikiWindow = null;
-            _wikiWindow.Show();
+                UseShellExecute = true
+            });
         }
 
         private static string FormatLogError(Exception ex)

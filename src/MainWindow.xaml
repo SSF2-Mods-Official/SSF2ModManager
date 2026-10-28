@@ -851,7 +851,8 @@
                                            Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
                                 <TextBlock Text="{local:Loc AppTitle}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
                                 <TextBlock Text="Created by MasterWex" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
-                                <TextBlock Text="Spanish Translation by Little Fabi" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
+                                <TextBlock Text="SSF2 IDK — David (stariwinkle)" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
+                                <TextBlock Text="Palette Maker (original) — VAL" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
                                 <TextBlock Text="GameBanana Mod Manager for Super Smash Flash 2" 
                                            Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
                                 <TextBlock Text="Powered by the GameBanana API" 

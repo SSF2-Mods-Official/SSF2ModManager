@@ -181,9 +181,9 @@ namespace SSF2ModManager.Services
         /// <summary>IDK and the original Palette Maker stay in Notes, which a launch rewrite keeps.</summary>
         public static string StandingCredits(string notes)
         {
-            const string idk = "- IDK — David (stariwinkle)";
+            const string idk = "- SSF2 IDK — David (stariwinkle)";
             const string palette = "- Palette Maker (original) — VAL";
-            var text = notes ?? "";
+            var text = (notes ?? "").Replace("- IDK — David (stariwinkle)", idk);
             if (text.Contains("David (stariwinkle)", StringComparison.Ordinal)
                 && text.Contains("Palette Maker (original)", StringComparison.Ordinal))
                 return text;

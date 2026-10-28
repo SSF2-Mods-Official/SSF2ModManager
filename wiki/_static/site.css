@@ -1,0 +1,363 @@
+/* RTD-inspired layout for SSF2 Shell docs (local, no Sphinx). */
+:root {
+  --bg: #1a1c1e;
+  --bg-side: #141516;
+  --bg-content: #fcfcfc;
+  --text: #404040;
+  --text-side: #d9d9d9;
+  --link: #2980b9;
+  --link-side: #e8e8e8;
+  --border: #e1e4e5;
+  --code-bg: #f8f8f8;
+  --accent: #2980b9;
+  --nav-w: 300px;
+  --font: "Lato", "proxima-nova", "Helvetica Neue", Arial, sans-serif;
+  --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+html { font-size: 16px; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg-content);
+  line-height: 1.55;
+}
+
+.layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: var(--nav-w);
+  flex-shrink: 0;
+  background: var(--bg-side);
+  color: var(--text-side);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid #000;
+  padding-bottom: 4.5rem;
+}
+.brand {
+  padding: 1.1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid #2a2c2e;
+}
+.brand a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+}
+.brand .sub {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #8a8f94;
+}
+
+.menu { padding: 0.75rem 0 2rem; }
+.menu a {
+  display: block;
+  padding: 0.4rem 1.25rem;
+  color: var(--link-side);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+.menu a:hover { background: #1e2124; }
+.menu a.current {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+.menu .section {
+  margin: 0.85rem 1.25rem 0.35rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7a8086;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 1.75rem 2.25rem 3rem;
+  max-width: 56rem;
+}
+.main h1 {
+  margin: 0 0 0.75rem;
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #222;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.55rem;
+}
+.main h2 {
+  margin: 1.75rem 0 0.65rem;
+  font-size: 1.35rem;
+  color: #222;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.35rem;
+  clear: both;
+}
+.main h3 {
+  margin: 1.25rem 0 0.45rem;
+  font-size: 1.1rem;
+  color: #333;
+}
+.main p, .main li { font-size: 0.95rem; }
+.main a { color: var(--link); }
+.main ul, .main ol { padding-left: 1.4rem; }
+.main li { margin: 0.25rem 0; }
+
+.lead {
+  font-size: 1.02rem;
+  color: #555;
+  margin: 0 0 1.25rem;
+}
+
+.note, .warning, .tip {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--accent);
+  background: #e7f2fa;
+  color: #333;
+  font-size: 0.92rem;
+}
+.warning { border-left-color: #f0b37e; background: #ffedcc; }
+.tip { border-left-color: #1abc9c; background: #dbfaf4; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: #f3f6f6; font-weight: 700; }
+table.edit-half { table-layout: fixed; }
+table.edit-half th:nth-child(2),
+table.edit-half td:nth-child(2) { width: 50%; }
+table.edit-half th, table.edit-half td { overflow-wrap: anywhere; }
+
+table.infobox {
+  float: right;
+  clear: right;
+  width: 17.5rem;
+  margin: 0 0 1rem 1.25rem;
+  font-size: 0.84rem;
+}
+table.infobox thead th {
+  background: #3a7ca5;
+  color: #fff;
+  text-align: center;
+  font-size: 0.95rem;
+}
+table.infobox td:first-child {
+  width: 34%;
+  font-weight: 700;
+  background: #f4f6f7;
+}
+
+ol.toc {
+  display: table;
+  border: 1px solid #a2a9b1;
+  background: #f8f9fa;
+  padding: 0.55rem 1.3rem 0.55rem 2rem;
+  margin: 0.35rem 0 1.25rem;
+  min-width: 15rem;
+}
+ol.toc li { margin: 0.15rem 0; }
+
+code, kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--code-bg);
+  border: 1px solid #e1e4e5;
+  border-radius: 3px;
+  padding: 0.05em 0.35em;
+}
+pre {
+  background: #f6f8fa;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.85rem 1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.85rem;
+  margin: 1.25rem 0;
+}
+.card {
+  display: block;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  text-decoration: none;
+  color: inherit;
+  background: #fff;
+}
+.card:hover { border-color: var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.card strong { display: block; color: var(--link); margin-bottom: 0.35rem; }
+.card span { font-size: 0.88rem; color: #666; }
+
+.page-foot { margin-top: 2.5rem; }
+.page-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+.page-actions button, .md-footer button, .modal button, #wiki-corner button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+}
+.page-actions button.ghost, .modal button.ghost, .md-footer #edit-cancel {
+  background: #e8e8e8;
+  color: #333;
+}
+.page-actions button.danger, .modal button.danger {
+  background: #a33;
+}
+.history { margin-top: 0; padding-top: 1rem; border-top: 1px solid var(--border); }
+.history span { color: #777; font-size: 0.85rem; }
+.main img { max-width: 100%; height: auto; }
+
+#wiki-corner {
+  position: fixed;
+  left: 0.7rem;
+  bottom: 0.7rem;
+  z-index: 30;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.md-editor {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 4rem);
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background: #fff;
+  overflow: hidden;
+}
+.md-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  padding: 0.45rem 0.55rem;
+  background: #f6f8fa;
+  border-bottom: 1px solid #d0d7de;
+}
+.md-modes, .md-tools { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; }
+.md-toolbar button, .md-toolbar select {
+  background: #fff;
+  color: #24292f;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  padding: 0.28rem 0.5rem;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.md-modes button.on { background: #24292f; color: #fff; border-color: #24292f; }
+.md-editor textarea, .md-preview {
+  flex: 1;
+  min-height: 420px;
+  margin: 0;
+  border: 0;
+  padding: 1rem 1.1rem;
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+.md-preview { font-family: var(--font); background: #fff; }
+.md-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.55rem;
+  border-top: 1px solid #d0d7de;
+  background: #f6f8fa;
+}
+.modal-back {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal {
+  background: #fff;
+  width: min(420px, 92vw);
+  padding: 1.1rem 1.2rem 1rem;
+  border-radius: 6px;
+  display: grid;
+  gap: 0.65rem;
+}
+.modal h2 { margin: 0; font-size: 1.15rem; }
+.modal label { display: grid; gap: 0.25rem; font-size: 0.85rem; }
+.modal input {
+  font: inherit;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+.modal-actions { display: flex; justify-content: flex-end; gap: 0.45rem; }
+
+.footer-nav {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.mobile-toggle {
+  display: none;
+  position: fixed;
+  top: 0.65rem;
+  left: 0.65rem;
+  z-index: 20;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.45rem 0.7rem;
+  border-radius: 3px;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 860px) {
+  .mobile-toggle { display: block; }
+  .sidebar {
+    position: fixed;
+    z-index: 15;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .main { padding: 3.25rem 1.1rem 2rem; }
+}

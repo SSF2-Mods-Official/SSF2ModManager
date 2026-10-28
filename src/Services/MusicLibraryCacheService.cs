@@ -203,6 +203,41 @@ namespace SSF2ModManager.Services
         }
 
         /// <summary>
+        /// Song list and preview audio for a shell that was just built. Reads mappings when they exist,
+        /// then extracts each missing preview. One pass at setup, not while the game is running.
+        /// </summary>
+        public async Task<MusicLibraryCache> WarmInstallAsync(
+            string installRoot,
+            IProgress<string>? progress = null,
+            CancellationToken cancellationToken = default)
+        {
+            progress?.Report("Reading the music list…");
+            MusicLibraryCache cache;
+            var mappingsPath = Path.Combine(installRoot, "data", "misc", "mappings.json");
+            if (File.Exists(mappingsPath))
+            {
+                var doc = JObject.Parse(File.ReadAllText(mappingsPath));
+                cache = SeedFromMappings(installRoot, doc, Load(installRoot));
+            }
+            else
+                cache = EnsureFastLibrary(installRoot);
+
+            var songs = cache.Songs;
+            for (var i = 0; i < songs.Count; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var song = songs[i];
+                if (!string.IsNullOrWhiteSpace(song.PreviewMp3Path) && File.Exists(song.PreviewMp3Path))
+                    continue;
+                progress?.Report("Music " + (i + 1) + "/" + songs.Count);
+                await EnsurePreviewMp3Async(song, null, cancellationToken);
+            }
+            cache.EnrichmentComplete = true;
+            Save(cache);
+            return cache;
+        }
+
+        /// <summary>
         /// Instant seed from mappings only (names + paths). Safe to show in UI immediately.
         /// </summary>
         public MusicLibraryCache SeedFromMappings(string installRoot, JObject mappingsDoc, MusicLibraryCache? existing = null)

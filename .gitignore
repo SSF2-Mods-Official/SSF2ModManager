@@ -42,6 +42,8 @@ out/
 **/docs/Dev Wiki/
 **/docs/_history/
 **/docs/_static/content.js
+wiki/_static/content.js
+scripts/devwiki.bat
 
 # Author-mark source. The built ssfe_seal.dll ships.
 src/native/ssfe_seal/*

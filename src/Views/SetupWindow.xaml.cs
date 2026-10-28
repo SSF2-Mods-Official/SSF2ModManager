@@ -56,7 +56,6 @@ namespace SSF2ModManager.Views
             StepDone.Visibility = _step == 4 ? Visibility.Visible : Visibility.Collapsed;
             TxtStepCount.Text = _step == 4 ? "Done" : "Step " + (_step + 1) + " of 4";
             BtnBack.Visibility = _step == 0 || _step == 4 ? Visibility.Collapsed : Visibility.Visible;
-            BtnNext.Visibility = _step == 4 ? Visibility.Collapsed : Visibility.Visible;
             BtnNext.Content = _step == 3 ? "Skip" : "Next";
             UpdateButtons();
         }
@@ -108,6 +107,9 @@ namespace SSF2ModManager.Views
             BtnBuild.IsEnabled = !_busy && s != null && !s.DevShell && s.Next2Flash != null
                 && s.VanillaCheck != ShellBaseService.VanillaCheck.Missing;
             BtnDebug.IsEnabled = !_busy && s?.Next2Flash != null;
+            BtnNext.Visibility = SetupService.ShowNext(_step, StepReady())
+                ? Visibility.Visible
+                : Visibility.Collapsed;
             BtnNext.IsEnabled = !_busy && StepReady();
             BtnBack.IsEnabled = !_busy;
             BtnPlay.IsEnabled = !_busy;
@@ -225,6 +227,8 @@ namespace SSF2ModManager.Views
                 await VanillaHashPrompt.BuildAsync(latest, s.Vanilla, target, p, _settings, AskVanilla);
                 p.Report("Caching costumes…");
                 await PaletteCacheWarmService.WarmAsync(target, null, p, default);
+                p.Report("Preparing music…");
+                await new MusicLibraryCacheService().WarmInstallAsync(target, p, default);
                 ShellBuilt = true;
                 return "SSF2 Shell " + latest.Version + " is ready.";
             });

@@ -170,6 +170,7 @@ public partial class App : System.Windows.Application
             Localization.Load(lang);
             if (SetupService.IsNeeded(SetupService.Read(new SettingsService())))
             {
+                ShutdownMode = ShutdownMode.OnExplicitShutdown;
                 var setup = new SetupWindow(gate: true);
                 var finished = setup.ShowDialog() == true && setup.Completed;
                 if (!finished)
@@ -180,6 +181,7 @@ public partial class App : System.Windows.Application
             }
             _launcher = new LauncherWindow();
             MainWindow = _launcher;
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
             if (cli.StartMinimized)
                 _launcher.WindowState = WindowState.Minimized;
             if (!cli.StartHidden)

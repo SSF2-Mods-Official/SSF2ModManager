@@ -53,5 +53,9 @@ namespace SSF2ModManager.Services
         /// <summary>Open setup at launch when the game cannot be played yet.</summary>
         public static bool IsNeeded(Status status) =>
             status.Next2Flash == null || status.Shell == null;
+
+        /// <summary>Next stays hidden until that step's own button has finished. Skip is always shown. Done has Play.</summary>
+        public static bool ShowNext(int step, bool ready) =>
+            step == 3 || (step < 3 && ready);
     }
 }

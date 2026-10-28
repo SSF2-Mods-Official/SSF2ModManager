@@ -38,6 +38,14 @@ namespace SSF2ModManager.Services
                 && string.Equals(songId[4..], reported, StringComparison.OrdinalIgnoreCase);
         }
 
+        /// <summary>true = start the mini player, false = pause it, null = leave it. The game file is the source.</summary>
+        public static bool? ShouldPlay(bool gamePaused, bool miniPlaying)
+        {
+            if (gamePaused)
+                return miniPlaying ? false : null;
+            return miniPlaying ? null : true;
+        }
+
         public static bool Same(CachedSongInfo? current, CachedSongInfo? reported)
         {
             if (current == null || reported == null)

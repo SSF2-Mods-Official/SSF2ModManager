@@ -38,5 +38,16 @@ namespace SSF2ModManager.Tests.Services
             Assert.True(SetupService.IsNeeded(ready with { Next2Flash = null }));
             Assert.True(SetupService.IsNeeded(ready with { Shell = null }));
         }
+
+        [Fact]
+        public void ShowNext_HidesUntilTheStepButtonFinishes()
+        {
+            Assert.False(SetupService.ShowNext(0, false));
+            Assert.False(SetupService.ShowNext(1, false));
+            Assert.False(SetupService.ShowNext(2, false));
+            Assert.True(SetupService.ShowNext(0, true));
+            Assert.True(SetupService.ShowNext(3, false));
+            Assert.False(SetupService.ShowNext(4, true));
+        }
     }
 }

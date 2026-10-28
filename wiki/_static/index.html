@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SSF2 Mod Manager Wiki</title>
+  <link rel="stylesheet" href="site.css" />
+</head>
+<body>
+  <button type="button" class="mobile-toggle" id="nav-toggle">Menu</button>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <a href="#/">SSF2 Mod Manager Wiki</a>
+        <span class="sub">Wiki</span>
+      </div>
+      <nav class="menu" id="sidebar-nav"></nav>
+    </aside>
+    <main class="main" id="content">
+      <p class="lead">Loading…</p>
+    </main>
+  </div>
+  <script src="md.js"></script>
+  <script>
+    (function () {
+      var s = document.createElement("script");
+      s.src = "content.js?t=" + Date.now();
+      s.onload = function () {
+        var app = document.createElement("script");
+        app.src = "app.js?t=" + Date.now();
+        document.body.appendChild(app);
+      };
+      document.body.appendChild(s);
+    })();
+  </script>
+</body>
+</html>
