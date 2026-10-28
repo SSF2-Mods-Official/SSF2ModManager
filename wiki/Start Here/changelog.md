@@ -10,6 +10,10 @@ order: 15
 
 Setup builds from the 64-bit installer, the 64-bit portable, the 32-bit installer, and the 32-bit portable. It names which copy it found. Another version of the game is refused.
 
+[v0.9.3 release](https://github.com/SSF2-Mods-Official/SSF2ModManager/releases/tag/v0.9.3)
+
+If you already have the Mod Manager, open **News** and click **Check for updates**, or restart the Mod Manager.
+
 ## SSF2 Beta Mod Manager v0.9.2
 
 2026-10-28
@@ -21,6 +25,8 @@ The mini player can show the bars on a PC that does not have ffmpeg. The song st
 2026-10-28
 
 The shell builds from the 64-bit installer, the 64-bit portable, the 32-bit installer, and the 32-bit portable. A 32-bit copy starts on that game's Adobe AIR, with Discord and rumble. A 64-bit copy keeps the 64-bit Discord and rumble files.
+
+[v0.9.2 release](https://github.com/SSF2-Mods-Official/SSF2-Shell-Base/releases/tag/v0.9.2)
 
 ## SSF2 Beta Mod Manager v0.9
 
