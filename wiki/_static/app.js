@@ -99,26 +99,31 @@
     return data;
   }
 
+  function navLabel(title, selected) {
+    var text = escape(title);
+    if (selected && document.documentElement.classList.contains("halloween")) {
+      text += ' <span class="halloween-mark" aria-hidden="true">🎃</span>';
+    }
+    return text;
+  }
+
   function buildNav(manifest, currentFile) {
     var html = "";
-    var home = "Home";
-    if (document.documentElement.classList.contains("halloween")) {
-      home += ' <span class="halloween-mark" aria-hidden="true">🎃</span>';
-    }
-    html += '<a href="#/"' + (!currentFile ? ' class="current"' : "") + ">" + home + "</a>";
+    var homeOn = !currentFile;
+    html += '<a href="#/"' + (homeOn ? ' class="current"' : "") + ">" + navLabel("Home", homeOn) + "</a>";
     var devOn = localStorage.getItem("wiki-dev") === "1";
     (manifest.sections || []).forEach(function (sec) {
       if (sec.id === "Dev Wiki" && !devOn) return;
       html += '<div class="section">' + escape(sec.title) + "</div>";
       (sec.pages || []).forEach(function (p) {
-        var cur = p.file === currentFile ? ' class="current"' : "";
+        var on = p.file === currentFile;
         html +=
           '<a href="#/' +
           encodeURIComponent(p.file) +
           '"' +
-          cur +
+          (on ? ' class="current"' : "") +
           ">" +
-          escape(p.title) +
+          navLabel(p.title, on) +
           "</a>";
       });
     });

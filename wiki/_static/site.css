@@ -508,6 +508,12 @@ html[data-theme="dark"] .note { background: #1e3344; color: #e6e6e6; }
 html[data-theme="dark"] .warning { background: #3a2e1c; color: #f3e6d0; }
 html[data-theme="dark"] .tip { background: #16332e; color: #e6e6e6; }
 html[data-theme="dark"] th { background: #2a2d30; }
+html[data-theme="dark"] .card {
+  background: #2a2d30;
+  color: #e6e6e6;
+  border-color: #3a3d40;
+}
+html[data-theme="dark"] .card span { color: #b5b5b5; }
 html[data-theme="dark"] pre,
 html[data-theme="dark"] code,
 html[data-theme="dark"] .md-editor,
