@@ -58,7 +58,7 @@ function Write-NewsChangelog {
 		}
 		if ($draft) { return }
 		$body = [regex]::Replace($body, '(?s)\A!\[[^\]]*\]\(hero\.svg\)\s*', '')
-		$body = [regex]::Replace($body, '(?m)^(#{1,4}) ', '##$1 ')
+		$body = [regex]::Replace($body, '(?m)^#{1,6}\s+', '### ')
 		$version = "0"
 		if ($title -match 'v(\d+(?:\.\d+)*)') { $version = $Matches[1] }
 		$posts += [pscustomobject]@{ Title = $title; Date = $date; Version = $version; Id = $_.Name; Shell = $shell; Body = $body.Trim() }
@@ -71,22 +71,15 @@ function Write-NewsChangelog {
 	[void]$sb.AppendLine("order: 15")
 	[void]$sb.AppendLine("---")
 	[void]$sb.AppendLine("")
-	foreach ($group in @(
-		@{ Head = "SSF2 Mod Manager"; Shell = $false },
-		@{ Head = "SSF2 Shell"; Shell = $true }
-	)) {
-		[void]$sb.AppendLine("## $($group.Head)")
+	foreach ($post in $posts) {
+		[void]$sb.AppendLine("## $($post.Title)")
 		[void]$sb.AppendLine("")
-		foreach ($post in ($posts | Where-Object { $_.Shell -eq $group.Shell })) {
-			[void]$sb.AppendLine("### $($post.Title)")
-			[void]$sb.AppendLine("")
-			if ($post.Date) {
-				[void]$sb.AppendLine($post.Date)
-				[void]$sb.AppendLine("")
-			}
-			[void]$sb.AppendLine($post.Body)
+		if ($post.Date) {
+			[void]$sb.AppendLine($post.Date)
 			[void]$sb.AppendLine("")
 		}
+		[void]$sb.AppendLine($post.Body)
+		[void]$sb.AppendLine("")
 	}
 	$utf8 = New-Object System.Text.UTF8Encoding $false
 	[System.IO.File]::WriteAllText($outPath, $sb.ToString().TrimEnd() + "`n", $utf8)

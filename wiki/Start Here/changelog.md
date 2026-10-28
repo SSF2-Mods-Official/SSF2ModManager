@@ -4,21 +4,25 @@ summary: The same posts as News in the Mod Manager.
 order: 15
 ---
 
-## SSF2 Mod Manager
-
-### SSF2 Beta Mod Manager v0.9.3
+## SSF2 Beta Mod Manager v0.9.3
 
 2026-10-28
 
 Setup builds from the 64-bit installer, the 64-bit portable, the 32-bit installer, and the 32-bit portable. It names which copy it found. Another version of the game is refused.
 
-### SSF2 Beta Mod Manager v0.9.2
+## SSF2 Beta Mod Manager v0.9.2
 
 2026-10-28
 
 The mini player can show the bars on a PC that does not have ffmpeg. The song still plays the same way. Setup now shows a percent and a plain sentence for each step, so you can see what it is doing.
 
-### SSF2 Beta Mod Manager v0.9
+## SSF2 Shell v0.9.2
+
+2026-10-28
+
+The shell builds from the 64-bit installer, the 64-bit portable, the 32-bit installer, and the 32-bit portable. A 32-bit copy starts on that game's Adobe AIR, with Discord and rumble. A 64-bit copy keeps the 64-bit Discord and rumble files.
+
+## SSF2 Beta Mod Manager v0.9
 
 2026-10-28
 
@@ -28,7 +32,7 @@ Setup shows one step at a time, and the main window stays hidden until setup is 
 
 SSF2 Shell 0.9 keeps the waiting-room song separate from the camera background, sends that background to the other player in an online match, and ships with debug off. F5 still turns lazy debug on.
 
-### SSF2 Beta Mod Manager v1.1.2
+## SSF2 Beta Mod Manager v1.1.2
 
 2026-10-27
 
@@ -38,11 +42,11 @@ v1.1.2 drops the vanilla file hash check. The Shell also loads `engine2.swf` wit
 
 Check Updates installs this manager, then rebuilds SSF2 Shell. Accept the Shell rebuild so Play uses the new booter.
 
-### SSF2 Beta Mod Manager v1.1.1
+## SSF2 Beta Mod Manager v1.1.1
 
 2026-10-27
 
-#### The revamp
+### The revamp
 
 SSF2 Beta Mod Manager no longer mods the copy of the game you installed. It builds **SSF2 Shell**, a moddable game, from your own **SSF2 Beta 1.4.0.1**. Play starts the Shell. The vanilla install stays where it is.
 
@@ -54,7 +58,7 @@ Three downloads do this. You only run the manager. It fetches the other two.
 
 The manager does not ship SSF2. You still need Beta 1.4.0.1 on the PC.
 
-#### Setup
+### Setup
 
 Setup opens the first time you launch. You can open it again from **Settings → Run setup**.
 
@@ -65,7 +69,7 @@ Setup opens the first time you launch. You can open it again from **Settings →
 
 If `SSF2.swf` or the mappings file is not the 1.4.0.1 copy, the manager names those files and asks once for that folder. Continue builds anyway. At Play, vanilla files in the Shell that do not match are listed once. An expansion mod that fails the security check still does not start.
 
-#### What you can do
+### What you can do
 
 **Play** starts SSF2 Shell. **Configure** chooses the screen, match, or event it opens into, plus the boot intro and music.
 
@@ -75,17 +79,17 @@ If `SSF2.swf` or the mappings file is not the 1.4.0.1 copy, the manager names th
 
 **JPEXS** is on the sidebar. It opens the copy that came with Next2Flash.
 
-#### Updates
+### Updates
 
 **Check Updates** looks at the manager, Next2Flash, and SSF2 Shell together and asks once. Yes copies only the files that changed. A Shell you built from source is left alone. A Next2Flash source checkout is left alone.
 
 Settings stay in `%AppData%\SSF2ModManager\`. Player data for the Shell (playlists, controller profiles) stays in `SSF2 Shell\expansions\user`.
 
-### SSF2 Mod Manager v1.0.2
+## SSF2 Mod Manager v1.0.2
 
 2026-06-14
 
-#### GameBanana 1-Click — please update
+### GameBanana 1-Click — please update
 
 **Sorry — v1.0.0 and v1.0.1 do not work with GameBanana 1-Click.** Those builds could not handle the URL format the site sends (broken `https//` scheme and file matching). **You need v1.0.2** for 1-Click install.
 
@@ -102,7 +106,7 @@ ssf2mm:https://gamebanana.com/mmdl/1708765,Mod,679407
 
 Manual install from Browse still worked on older versions — only 1-Click needed this update.
 
-#### Other fixes
+### Other fixes
 
 - **Filters stick** when you enable/disable mods on the Installed page
 - **Update downloads** show the progress bar again
@@ -110,48 +114,48 @@ Manual install from Browse still worked on older versions — only 1-Click neede
 - **Unread badge** on the News sidebar button; **Mark all read** on the News page
 - **Missing mod folder** — enabling a mod whose files were deleted now shows a popup with an option to re-download from GameBanana
 
-#### Getting the update
+### Getting the update
 
 Download the latest zip from [GitHub Releases](https://github.com/SSF2-Mods-Official/SSF2ModManager/releases) or use the in-app update check.
 
-### SSF2 Mod Manager v1.0.1
+## SSF2 Mod Manager v1.0.1
 
 2026-06-11
 
-#### What's improved in v1.0.1
+### What's improved in v1.0.1
 
 This is a small polish release after **v1.0.0**. No new major features — just fixes and quality-of-life improvements.
 
-##### Themed popup windows
+### Themed popup windows
 
 Install and settings dialogs (including **Target Version** when you install a mod) now respect your chosen theme instead of staying on the default dark blue look.
 
-##### 1-Click install docs
+### 1-Click install docs
 
 Documentation now matches what GameBanana sends for `ssf2mm:` links: the middle field is **ModelName** (usually `Mod`), not the mod's category name like Maps or Characters.
 
-##### Other fixes
+### Other fixes
 
 - **Cancel** works again on the Target Version picker and other popup dialogs
 - `run.bat` closes any already-running instance before launching a new dev build
 
-#### Getting the update
+### Getting the update
 
 Download the latest zip from [GitHub Releases](https://github.com/SSF2-Mods-Official/SSF2ModManager/releases) and replace your existing folder, or let the in-app update check point you there.
 
 Thanks for using SSF2 Mod Manager!
 
-### SSF2 Mod Manager v1.0.0 is here
+## SSF2 Mod Manager v1.0.0 is here
 
 2026-06-07
 
-#### Welcome to the first release
+### Welcome to the first release
 
 **SSF2 Mod Manager v1.0.0** is now available. This is the first public release of our mod manager for Super Smash Flash 2.
 
 If you have been installing mods by hand, this app is meant to make that easier: browse GameBanana, install mods, keep backups, and switch between different SSF2 builds from one window.
 
-#### What you can do
+### What you can do
 
 - **Browse mods** from GameBanana without leaving the app
 - **Install, enable, disable, update, and uninstall** mods
@@ -160,7 +164,7 @@ If you have been installing mods by hand, this app is meant to make that easier:
 - **1-Click install** support via `ssf2mm:` links (when enabled on GameBanana)
 - **12 themes** and English / Spanish UI
 
-#### Getting started
+### Getting started
 
 1. Download and extract the latest release zip.
 2. Run **SSF2 Mod Manager.exe** (no .NET install required).
@@ -169,16 +173,8 @@ If you have been installing mods by hand, this app is meant to make that easier:
 
 Your mod data is saved in `%AppData%\SSF2ModManager\`.
 
-#### A quick note
+### A quick note
 
 Mods change game files. SSF2 Mod Manager creates backups, but you should still keep a copy of your vanilla SSF2 folder.
 
 Thanks for trying v1.0.0 — have fun modding!
-
-## SSF2 Shell
-
-### SSF2 Shell v0.9.2
-
-2026-10-28
-
-The shell builds from the 64-bit installer, the 64-bit portable, the 32-bit installer, and the 32-bit portable. A 32-bit copy starts on that game's Adobe AIR, with Discord and rumble. A 64-bit copy keeps the 64-bit Discord and rumble files.
