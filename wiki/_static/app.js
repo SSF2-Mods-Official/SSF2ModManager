@@ -799,6 +799,13 @@
           ev.preventDefault();
           openFile(exactFile(search.value) || bestFile(search.value));
         }
+        if (ev.key === "Escape" && hits) hits.innerHTML = "";
+      });
+      document.addEventListener("mousedown", function (ev) {
+        if (!hits || !hits.innerHTML) return;
+        var t = ev.target;
+        if (t === search || (hits.contains && hits.contains(t))) return;
+        hits.innerHTML = "";
       });
     }
 
