@@ -64,14 +64,7 @@ function Write-NewsChangelog {
 		$posts += [pscustomobject]@{ Title = $title; Date = $date; Version = $version; Id = $_.Name; Shell = $shell; Body = $body.Trim() }
 	}
 	$posts = @($posts | Sort-Object { $_.Date }, { $_.Version }, { $_.Shell }, { $_.Id } -Descending)
-	$sb = New-Object System.Text.StringBuilder
-	[void]$sb.AppendLine("---")
-	[void]$sb.AppendLine("title: Changelog")
-	[void]$sb.AppendLine("summary: The same posts as News in the Mod Manager.")
-	[void]$sb.AppendLine("order: 15")
-	[void]$sb.AppendLine("---")
-	[void]$sb.AppendLine("")
-	foreach ($post in $posts) {
+	function Write-ChangelogPost($sb, $post) {
 		[void]$sb.AppendLine("## $($post.Title)")
 		[void]$sb.AppendLine("")
 		if ($post.Date) {
@@ -79,6 +72,24 @@ function Write-NewsChangelog {
 			[void]$sb.AppendLine("")
 		}
 		[void]$sb.AppendLine($post.Body)
+		[void]$sb.AppendLine("")
+	}
+	$openCount = 0
+	if ($posts.Count -gt 0) { $openCount = 1 }
+	if ($posts.Count -gt 1 -and $posts[1].Shell -and $posts[1].Date -eq $posts[0].Date) { $openCount = 2 }
+	$sb = New-Object System.Text.StringBuilder
+	[void]$sb.AppendLine("---")
+	[void]$sb.AppendLine("title: Changelog")
+	[void]$sb.AppendLine("summary: The same posts as News in the Mod Manager.")
+	[void]$sb.AppendLine("order: 15")
+	[void]$sb.AppendLine("---")
+	[void]$sb.AppendLine("")
+	for ($n = 0; $n -lt $openCount; $n++) { Write-ChangelogPost $sb $posts[$n] }
+	if ($posts.Count -gt $openCount) {
+		[void]$sb.AppendLine(":::details Past versions")
+		[void]$sb.AppendLine("")
+		for ($n = $openCount; $n -lt $posts.Count; $n++) { Write-ChangelogPost $sb $posts[$n] }
+		[void]$sb.AppendLine(":::")
 		[void]$sb.AppendLine("")
 	}
 	$utf8 = New-Object System.Text.UTF8Encoding $false

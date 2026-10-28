@@ -22,6 +22,8 @@ The shell builds from the 64-bit installer, the 64-bit portable, the 32-bit inst
 
 [v0.9.2 release](https://github.com/SSF2-Mods-Official/SSF2-Shell-Base/releases/tag/v0.9.2)
 
+:::details Past versions
+
 ## SSF2 Beta Mod Manager v0.9.2
 
 2026-10-28
@@ -184,3 +186,5 @@ Your mod data is saved in `%AppData%\SSF2ModManager\`.
 Mods change game files. SSF2 Mod Manager creates backups, but you should still keep a copy of your vanilla SSF2 folder.
 
 Thanks for trying v1.0.0 — have fun modding!
+
+:::

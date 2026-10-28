@@ -123,6 +123,29 @@
         continue;
       }
 
+      var details = line.match(/^:::details(?:\s+(.+))?\s*$/);
+      if (details) {
+        closeLists();
+        closeTable();
+        dropPending();
+        var summary = details[1] || "Details";
+        var buf = [];
+        i++;
+        while (i < lines.length && !/^:::\s*$/.test(lines[i])) {
+          buf.push(lines[i]);
+          i++;
+        }
+        if (i < lines.length) i++;
+        html.push(
+          '<details class="fold"><summary>' +
+            inline(summary) +
+            "</summary>" +
+            renderMarkdown(buf.join("\n")) +
+            "</details>"
+        );
+        continue;
+      }
+
       var hm = line.match(/^(#{1,3})\s+(.+)$/);
       if (hm) {
         closeLists();
