@@ -27,6 +27,61 @@ function Get-FrontMatter([string]$text) {
 	return @{ Title = $title; Summary = $summary; Order = $order }
 }
 
+function Write-NewsChangelog {
+	$repo = Split-Path -Parent $docsRoot
+	$newsRoot = Join-Path $repo "src\News"
+	$outPath = Join-Path $docsRoot "Start Here\changelog.md"
+	if (-not (Test-Path -LiteralPath $newsRoot)) { return }
+	$posts = @()
+	Get-ChildItem -LiteralPath $newsRoot -Directory | ForEach-Object {
+		$articlePath = Join-Path $_.FullName "article.md"
+		if (-not (Test-Path -LiteralPath $articlePath)) { return }
+		$text = [System.IO.File]::ReadAllText($articlePath, [System.Text.UTF8Encoding]::new($false))
+		if ($text -notmatch '(?s)\A---\r?\n(.*?)\r?\n---\r?\n(.*)\z') { return }
+		$fm = $Matches[1]
+		$body = $Matches[2].Trim()
+		$title = $_.Name
+		$date = ""
+		$draft = $false
+		foreach ($line in ($fm -split '\r?\n')) {
+			if ($line -match '^\s*title\s*:\s*(.+)\s*$') { $title = $Matches[1].Trim().Trim('"').Trim("'") }
+			elseif ($line -match '^\s*date\s*:\s*(.+)\s*$') { $date = $Matches[1].Trim().Trim('"').Trim("'") }
+			elseif ($line -match '^\s*draft\s*:\s*true\s*$') { $draft = $true }
+		}
+		if ($draft) { return }
+		$body = [regex]::Replace($body, '(?s)\A!\[[^\]]*\]\(hero\.svg\)\s*', '')
+		$body = [regex]::Replace($body, '(?m)^(#{1,5}) ', '#$1 ')
+		$version = "0"
+		if ($title -match 'v(\d+(?:\.\d+)*)') { $version = $Matches[1] }
+		$posts += [pscustomobject]@{ Title = $title; Date = $date; Version = $version; Id = $_.Name; Body = $body.Trim() }
+	}
+	$posts = @($posts | Sort-Object { $_.Date }, { $_.Version }, { $_.Id } -Descending)
+	$sb = New-Object System.Text.StringBuilder
+	[void]$sb.AppendLine("---")
+	[void]$sb.AppendLine("title: Changelog")
+	[void]$sb.AppendLine("summary: The same posts as News in the Mod Manager.")
+	[void]$sb.AppendLine("order: 15")
+	[void]$sb.AppendLine("---")
+	[void]$sb.AppendLine("")
+	[void]$sb.AppendLine("These are the same posts as **News** in the Mod Manager. Newest first.")
+	[void]$sb.AppendLine("")
+	foreach ($post in $posts) {
+		[void]$sb.AppendLine("## $($post.Title)")
+		[void]$sb.AppendLine("")
+		if ($post.Date) {
+			[void]$sb.AppendLine($post.Date)
+			[void]$sb.AppendLine("")
+		}
+		[void]$sb.AppendLine($post.Body)
+		[void]$sb.AppendLine("")
+	}
+	$utf8 = New-Object System.Text.UTF8Encoding $false
+	[System.IO.File]::WriteAllText($outPath, $sb.ToString().TrimEnd() + "`n", $utf8)
+	Write-Host "Wrote $outPath ($($posts.Count) post(s))"
+}
+
+Write-NewsChangelog
+
 $sections = @()
 $pages = @{}
 

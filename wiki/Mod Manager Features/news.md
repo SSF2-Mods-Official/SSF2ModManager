@@ -4,7 +4,7 @@ summary: Update posts, and the check for a newer manager.
 order: 70
 ---
 
-**News** is the list of posts about this manager. Click a post to read it. The list comes back when you leave the article.
+**News** is the list of posts about this manager. Click a post to read it. The list comes back when you leave the article. The [Changelog](../Start%20Here/changelog.md) page shows these same posts.
 
 **Check for updates** is on the upper right of News. It looks at the latest GitHub releases.
 
