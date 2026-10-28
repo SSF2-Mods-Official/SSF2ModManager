@@ -43,17 +43,25 @@ function Write-NewsChangelog {
 		$title = $_.Name
 		$date = ""
 		$draft = $false
+		$shell = $false
+		$inTags = $false
 		foreach ($line in ($fm -split '\r?\n')) {
+			if ($inTags -and $line -match '^\s*-\s+(.+)\s*$') {
+				if ($Matches[1].Trim().Trim('"') -eq "shell") { $shell = $true }
+				continue
+			}
+			$inTags = $false
 			if ($line -match '^\s*title\s*:\s*(.+)\s*$') { $title = $Matches[1].Trim().Trim('"').Trim("'") }
 			elseif ($line -match '^\s*date\s*:\s*(.+)\s*$') { $date = $Matches[1].Trim().Trim('"').Trim("'") }
 			elseif ($line -match '^\s*draft\s*:\s*true\s*$') { $draft = $true }
+			elseif ($line -match '^\s*tags\s*:') { $inTags = $true }
 		}
 		if ($draft) { return }
 		$body = [regex]::Replace($body, '(?s)\A!\[[^\]]*\]\(hero\.svg\)\s*', '')
-		$body = [regex]::Replace($body, '(?m)^(#{1,5}) ', '#$1 ')
+		$body = [regex]::Replace($body, '(?m)^(#{1,4}) ', '##$1 ')
 		$version = "0"
 		if ($title -match 'v(\d+(?:\.\d+)*)') { $version = $Matches[1] }
-		$posts += [pscustomobject]@{ Title = $title; Date = $date; Version = $version; Id = $_.Name; Body = $body.Trim() }
+		$posts += [pscustomobject]@{ Title = $title; Date = $date; Version = $version; Id = $_.Name; Shell = $shell; Body = $body.Trim() }
 	}
 	$posts = @($posts | Sort-Object { $_.Date }, { $_.Version }, { $_.Id } -Descending)
 	$sb = New-Object System.Text.StringBuilder
@@ -63,17 +71,22 @@ function Write-NewsChangelog {
 	[void]$sb.AppendLine("order: 15")
 	[void]$sb.AppendLine("---")
 	[void]$sb.AppendLine("")
-	[void]$sb.AppendLine("These are the same posts as **News** in the Mod Manager. Newest first.")
-	[void]$sb.AppendLine("")
-	foreach ($post in $posts) {
-		[void]$sb.AppendLine("## $($post.Title)")
+	foreach ($group in @(
+		@{ Head = "SSF2 Mod Manager"; Shell = $false },
+		@{ Head = "SSF2 Shell"; Shell = $true }
+	)) {
+		[void]$sb.AppendLine("## $($group.Head)")
 		[void]$sb.AppendLine("")
-		if ($post.Date) {
-			[void]$sb.AppendLine($post.Date)
+		foreach ($post in ($posts | Where-Object { $_.Shell -eq $group.Shell })) {
+			[void]$sb.AppendLine("### $($post.Title)")
+			[void]$sb.AppendLine("")
+			if ($post.Date) {
+				[void]$sb.AppendLine($post.Date)
+				[void]$sb.AppendLine("")
+			}
+			[void]$sb.AppendLine($post.Body)
 			[void]$sb.AppendLine("")
 		}
-		[void]$sb.AppendLine($post.Body)
-		[void]$sb.AppendLine("")
 	}
 	$utf8 = New-Object System.Text.UTF8Encoding $false
 	[System.IO.File]::WriteAllText($outPath, $sb.ToString().TrimEnd() + "`n", $utf8)

@@ -4,10 +4,10 @@ namespace SSF2ModManager.Services
 {
     public static class AppInfo
     {
-        public const string Version = "0.9.2";
-        public const string DisplayVersion = "v0.9.2";
+        public const string Version = "0.9.3";
+        public const string DisplayVersion = "v0.9.3";
         public const string ProductName = "SSF2 Beta Mod Manager";
-        public const string UserAgent = "SSF2ModManager/0.9.2";
+        public const string UserAgent = "SSF2ModManager/0.9.3";
         public const string GitHubRepo = "https://github.com/SSF2-Mods-Official/SSF2ModManager";
         public const string VersionCheckUrl = "https://raw.githubusercontent.com/SSF2-Mods-Official/SSF2ModManager/main/version.txt";
         public const string NewsIndexUrl = "https://raw.githubusercontent.com/SSF2-Mods-Official/SSF2ModManager/main/news-index.json";
