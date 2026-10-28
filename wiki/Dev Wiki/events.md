@@ -15,7 +15,7 @@ group: Events
 | Vanilla classes | `EventAuthorService.ListVanillaEvents` |
 | Menu names | `ShellConfigureLaunchService.ListEvents` — stock names, then enabled expansion packs |
 | File | `data/modes/event_mode.swf` |
-| Related | Where things are |
+| Related | [Where things are](where-things-are.md) |
 
 Make a new event copies a stock or expansion script. The form is [Event wizard](event-wizard.md). Vanilla classes live in `event_mode.swf`. Their names look like `EventMode13_ComboMaker`. The clone list shows the menu name for that class.
 
@@ -73,4 +73,4 @@ dotnet test src/tests/SSF2ModManager.Tests/SSF2ModManager.Tests.csproj --filter 
 ## References
 
 1. [Event wizard](event-wizard.md) — the Make a new event form.
-2. Where things are — compile paths and the shell folder.
+2. [Where things are](where-things-are.md) — compile paths and the shell folder.

@@ -16,7 +16,7 @@ group: Characters
 | Menu key | `LaunchScreen.menuKey` → `versus_css` |
 | Editor event | `css_editor.open` |
 | Log | `cssedit menu ready` |
-| Related | Where things are |
+| Related | [Where things are](where-things-are.md) |
 
 Manage Character Select writes `data/ssf2mm/state/launch.json` with `screen` `cssedit`. The stream opens Versus character select. The editor enters live edit when that grid is ready.
 
@@ -63,7 +63,7 @@ A game that is already running receives the same `cssedit` screen on `applyLaunc
 
 ## Rebuild
 
-Compile `Built-in: manager_bridge` and `Built-in: menu_editor` from Make Mods → **Compile** or SSF2 Stream **Compile**. The paths are on Where things are. A running game keeps the old swf until a full quit.
+Compile `Built-in: manager_bridge` and `Built-in: menu_editor` from Make Mods → **Compile** or SSF2 Stream **Compile**. The paths are on [Where things are](where-things-are.md). A running game keeps the old swf until a full quit.
 
 ## Check
 
@@ -74,6 +74,6 @@ The fixture, from `ssf2_stream/fixture`: `run-fixture.ps1`. `%APPDATA%\LaunchScr
 
 ## References
 
-1. Where things are — the compile command, and that a running game keeps the old swf.
+1. [Where things are](where-things-are.md) — the compile command, and that a running game keeps the old swf.
 2. [Character select portrait](character-select-portrait.md) — the player-box portrait on the grid this button opens.
 3. Wiki — the Info, Contents, and References shape.

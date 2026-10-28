@@ -70,4 +70,4 @@ dotnet test src/tests/SSF2ModManager.Tests/SSF2ModManager.Tests.csproj --filter 
 
 1. [One-click install](one-click-install.md) — download, classify, and import.
 2. [Browse mods](browse-mods.md) — the page that shows Installed.
-3. Where things are — `expansions/user` and the build folders.
+3. [Where things are](where-things-are.md) — `expansions/user` and the build folders.

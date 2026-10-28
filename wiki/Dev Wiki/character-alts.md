@@ -15,7 +15,7 @@ group: Characters
 | Manager | `CharacterAltsService`, `AltSoundEditService`, Make Mods Character Alts, `AltSoundPackService` |
 | Data | `expansions/alts/alts.json`; sound-only folders under `expansions/alts/local/<character>/<name>/sounds/` |
 | Example | Alternate Voices Plus (SWF UrlOverride); Make Mods local voice (stock SWF + `sounds/`) |
-| Related | [One-click install](one-click-install.md), [GameBanana installs](gamebanana-installs.md), Engine resources |
+| Related | [One-click install](one-click-install.md), [GameBanana installs](gamebanana-installs.md), [Engine resources](resource-cache.md) |
 
 An alt is another voice (or file set) for a character the game already has. **Make Mods** voice alts keep the stock character SWF and play replacements from `sounds/`. **GameBanana** alts may still swap the character SWF via `UrlOverride`.
 
@@ -76,4 +76,4 @@ Make Mods alt: no character `.swf` in the folder; jump plays custom VO from stoc
 
 1. [One-click install](one-click-install.md)
 2. [GameBanana installs](gamebanana-installs.md)
-3. Engine resources
+3. [Engine resources](resource-cache.md)

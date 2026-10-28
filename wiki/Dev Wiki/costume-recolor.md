@@ -75,7 +75,7 @@ On boot the pack calls `LeftoverBase.scan`. That reads `costume_data` and every 
 | Merge | `LeftoverBase.mergeBlock` in that pack's `src/LeftoverBase.as` |
 | Fixture | `leftover_base_recolor/fixture` (`LeftoverBaseFixture`) |
 
-`PaletteMakerMod` patches `palette.getCostume` (`ModPatches.PALETTE_GET_COSTUME`). Optional packs live in `expansions/mods`. Essential packs live in `data/ssf2mm`, with source in `src/mods`. Compile from Where things are.
+`PaletteMakerMod` patches `palette.getCostume` (`ModPatches.PALETTE_GET_COSTUME`). Optional packs live in `expansions/mods`. Essential packs live in `data/ssf2mm`, with source in `src/mods`. Compile from [Where things are](where-things-are.md).
 
 ## Check
 
@@ -85,7 +85,7 @@ In the game, turn the pack on from F1. It is off until then. A full quit loads `
 
 ## References
 
-1. Where things are — mod folders and the compile command.
+1. [Where things are](where-things-are.md) — mod folders and the compile command.
 2. [Character select portrait](character-select-portrait.md) — how a palette pick paints the portrait the player sees.
 3. Wiki app and downloads — the Info, Contents, and References shape.
 4. [Online sync](online-sync.md) — which costume index other players see online.

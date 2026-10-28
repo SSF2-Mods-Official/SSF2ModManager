@@ -15,7 +15,7 @@ group: Characters
 | Identity | `CharacterCloneService.ReadImportIdentity` |
 | Taken linkage | `ShellCharacterCloneService.NextFreeLinkage` |
 | Display name | `css_meta.json` `displayName` |
-| Related | Where things are |
+| Related | [Where things are](where-things-are.md) |
 
 `ImportIntoShellAsync` reads the file's linkage and display name. When that linkage is already playable, `NextFreeLinkage` picks the next free id and `CharacterCloneService.CloneAsync` renames the linkage. The display name stays the one from the file.
 
@@ -61,6 +61,6 @@ dotnet test src/tests/SSF2ModManager.Tests/SSF2ModManager.Tests.csproj --filter 
 
 ## References
 
-1. Where things are — the shell folder the import writes into.
+1. [Where things are](where-things-are.md) — the shell folder the import writes into.
 2. [Clone old assets](clone-old-assets.md) — the list that keeps a clone on the source character's stock, costumes, and Classic / All-Star art.
 3. [Stage import](stage-import.md) — a file with `backgrounds` is imported there.

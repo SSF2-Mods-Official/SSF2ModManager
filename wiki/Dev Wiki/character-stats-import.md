@@ -15,7 +15,7 @@ group: Characters
 | Caller at boot | `ExpansionResources.captureAndDisposeExpansionCss` |
 | Deprecated field | `roll_delay` |
 | Log | `[ResourceManager] expansion stats skip` |
-| Related | Where things are |
+| Related | [Where things are](where-things-are.md) |
 
 `CharacterData.importData` copies each `cData` key onto `m_` plus that key. A key with no `m_` field is skipped. `roll_delay` still has `m_roll_delay`, and the debug alert for it runs before MenuController.init creates the console.
 
@@ -46,5 +46,5 @@ group: Characters
 
 ## References
 
-1. Where things are — engine2 and the expansions pack.
-2. Resource cache — the unload after the CSS capture.
+1. [Where things are](where-things-are.md) — engine2 and the expansions pack.
+2. [Resource cache](resource-cache.md) — the unload after the CSS capture.

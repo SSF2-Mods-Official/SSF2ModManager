@@ -1,5 +1,10 @@
 # Rebuilds _static/content.js from Markdown section folders (for file:// viewing).
 # Called by ../Open Docs.bat — keep this under _static, not docs root.
+# -IncludePrivate adds wiki/Private Wiki. The public site build does not pass that switch.
+param(
+	[switch]$IncludePrivate,
+	[switch]$PrivateOnly
+)
 $ErrorActionPreference = "Stop"
 $staticRoot = $PSScriptRoot
 $docsRoot = Split-Path -Parent $staticRoot
@@ -99,13 +104,18 @@ function Write-NewsChangelog {
 	Write-Host "Wrote $outPath ($($posts.Count) post(s))"
 }
 
-Write-NewsChangelog
+if (-not $PrivateOnly) { Write-NewsChangelog }
 
 $sections = @()
 $pages = @{}
 
+$skip = @('wiki-app')
+if (-not $IncludePrivate -and -not $PrivateOnly) { $skip += 'Private Wiki' }
 Get-ChildItem -LiteralPath $docsRoot -Directory |
-		Where-Object { $_.Name -notlike '_*' -and $_.Name -ne 'wiki-app' -and $_.Name -ne 'Private Wiki' } |
+		Where-Object {
+			if ($PrivateOnly) { $_.Name -eq 'Private Wiki' }
+			else { $_.Name -notlike '_*' -and $skip -notcontains $_.Name }
+		} |
 	Sort-Object Name |
 	ForEach-Object {
 		$sectionDir = $_
@@ -133,6 +143,7 @@ Get-ChildItem -LiteralPath $docsRoot -Directory |
 			"Events" = 4
 			"Match" = 5
 			"Mods" = 6
+			"Build" = 7
 		}
 		$list = @($list | Sort-Object { if ($_.group -and $groupRank.ContainsKey($_.group)) { $groupRank[$_.group] } else { 0 } }, { $_.order }, { $_.title })
 		if ($list.Count -gt 0) {
@@ -163,7 +174,15 @@ $doc = [ordered]@{
 $json = $doc | ConvertTo-Json -Depth 8 -Compress
 $js = "window.SSF2_DOCS = $json;"
 $utf8 = New-Object System.Text.UTF8Encoding $false
-[System.IO.File]::WriteAllText($contentPath, $js, $utf8)
+$outDir = $staticRoot
+if ($PrivateOnly) {
+	$outDir = Join-Path $docsRoot "_private"
+	New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+	foreach ($file in @("index.html", "app.js", "md.js", "site.css", "ssf2m.png")) {
+		Copy-Item (Join-Path $staticRoot $file) (Join-Path $outDir $file) -Force
+	}
+}
+[System.IO.File]::WriteAllText((Join-Path $outDir "content.js"), $js, $utf8)
 
 $imgSrc = Join-Path $docsRoot "_images"
 $imgDest = Join-Path $staticRoot "images"
@@ -175,7 +194,7 @@ if (Test-Path $imgSrc) {
 	Write-Host "Copied images into $imgDest"
 }
 
-Write-Host "Wrote $contentPath ($($sections.Count) section(s))"
+Write-Host "Wrote $(Join-Path $outDir 'content.js') ($($sections.Count) section(s))"
 foreach ($s in $sections) {
 	Write-Host ("  {0}: {1} page(s)" -f $s.title, $s.pages.Count)
 }

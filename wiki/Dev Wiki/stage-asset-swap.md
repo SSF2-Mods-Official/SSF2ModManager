@@ -66,4 +66,4 @@ A bitmap in the stage file has no linkage name. The image tag starts with a char
 ## References
 
 1. [Stage background](stage-background.md) — a stage-select slot that is a folder, not a stage SWF.
-2. Where things are — the shell folder the pack is written into.
+2. [Where things are](where-things-are.md) — the shell folder the pack is written into.

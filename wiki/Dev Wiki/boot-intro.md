@@ -14,7 +14,7 @@ group: Match
 | Mod | `SSF2 Shell/data/ssf2mm/ssf2_stream` |
 | Skip | `endCustomBootIntro` |
 | Title | `showTitleAfterBootSkip` |
-| Related | Where things are |
+| Related | [Where things are](where-things-are.md) |
 
 Skipping the custom boot intro removes the video and shows the title menu.
 
@@ -36,4 +36,4 @@ Skipping the custom boot intro removes the video and shows the title menu.
 
 ## References
 
-1. Where things are — where the shell and the coding folder live.
+1. [Where things are](where-things-are.md) — where the shell and the coding folder live.

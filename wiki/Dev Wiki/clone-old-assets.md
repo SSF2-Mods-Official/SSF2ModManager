@@ -64,4 +64,4 @@ dotnet test src/tests/SSF2ModManager.Tests/SSF2ModManager.Tests.csproj --filter 
 ## References
 
 1. [Character import](character-import.md) — the import that asks this question when a file is a clone.
-2. Where things are — the expansion folder and the expansions pack.
+2. [Where things are](where-things-are.md) — the expansion folder and the expansions pack.

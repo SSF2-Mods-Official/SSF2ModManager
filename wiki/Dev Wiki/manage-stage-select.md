@@ -60,7 +60,7 @@ A game that is already running receives the same `sssedit` screen on `applyLaunc
 
 ## Rebuild
 
-Compile `Built-in: manager_bridge` and `Built-in: menu_editor` from Make Mods → **Compile** or SSF2 Stream **Compile**. The paths are on Where things are. A running game keeps the old swf until a full quit.
+Compile `Built-in: manager_bridge` and `Built-in: menu_editor` from Make Mods → **Compile** or SSF2 Stream **Compile**. The paths are on [Where things are](where-things-are.md). A running game keeps the old swf until a full quit.
 
 ## Check
 
@@ -71,5 +71,5 @@ The fixture, from `ssf2_stream/fixture`: `run-fixture.ps1`. `%APPDATA%\LaunchScr
 ## References
 
 1. [Manage character select](manage-character-select.md) — the same open path for Versus character select.
-2. Where things are — the compile command, and that a running game keeps the old swf.
+2. [Where things are](where-things-are.md) — the compile command, and that a running game keeps the old swf.
 3. Wiki — the Info, Contents, and References shape.

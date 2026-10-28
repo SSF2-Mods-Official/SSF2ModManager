@@ -88,6 +88,6 @@ dotnet test src/tests/SSF2ModManager.Tests/SSF2ModManager.Tests.csproj --filter 
 1. Launcher shell — the window that receives the link.
 2. [Stage import](stage-import.md) — a taken stage id becomes the next free id.
 3. [Character import](character-import.md) — a taken linkage is renamed and the display name stays.
-4. Where things are — the shell folder the import writes into.
+4. [Where things are](where-things-are.md) — the shell folder the import writes into.
 5. [Character alts](character-alts.md) — files for a character the build already has.
 6. [GameBanana installs](gamebanana-installs.md) — names, previews, and the per-build install record.

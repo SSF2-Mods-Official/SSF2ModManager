@@ -14,7 +14,7 @@ group: Stages
 | Convert | Make Mods → Modding Tools → Convert to FLA |
 | Stage file | `data/stage/….ssf` |
 | Library | `BuildFlaOrganizeBlueprintFromEntries` with `stageLibrary` |
-| Related | Where things are |
+| Related | [Where things are](where-things-are.md) |
 
 `IsStageDataSwf` is true when the path under `data` starts with `stage/`. Convert to FLA then keeps the library under Animations. A stage clone export uses the same layout.
 
@@ -52,5 +52,5 @@ dotnet test src/tests/SSF2ModManager.Tests/SSF2ModManager.Tests.csproj --filter 
 
 ## References
 
-1. Where things are — Convert to FLA writes under `expansions/decompiled`.
+1. [Where things are](where-things-are.md) — Convert to FLA writes under `expansions/decompiled`.
 2. [Stage import](stage-import.md) — a stage clone exports this same FLA layout.

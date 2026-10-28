@@ -13,9 +13,9 @@ group: Characters
 | --- |
 | Portrait | `HealthBox.charHead` |
 | Live block | `paletteSwapPA` |
-| Related | Where things are |
+| Related | [Where things are](where-things-are.md) |
 
-`paintLivePortrait` restores the cached portrait and applies the live `paletteSwapPA` for Bowser and Giga Bowser. Where things are lists the palette maker sources.
+`paintLivePortrait` restores the cached portrait and applies the live `paletteSwapPA` for Bowser and Giga Bowser. [Where things are](where-things-are.md) lists the palette maker sources.
 
 ## Contents
 
@@ -58,4 +58,4 @@ Copy for Bowser writes a `characters` object with `bowser` and `gigabowser`. Eac
 
 ## References
 
-1. Where things are — palette maker sources and the docs folder.
+1. [Where things are](where-things-are.md) — palette maker sources and the docs folder.

@@ -13,9 +13,9 @@ group: Stages
 | --- |
 | Pack | `expansions/stage_backgrounds/<id>/` |
 | Make Mods | `StageBackgroundStore.Create` |
-| Slot | Where things are — stage select reads `mappings.stage` |
+| Slot | [Where things are](where-things-are.md) — stage select reads `mappings.stage` |
 | Match flag | `stageBackgroundFile` |
-| Related | Where things are |
+| Related | [Where things are](where-things-are.md) |
 
 A stage background is the uploaded file plus the stage that loads when its slot is picked. The stage SWF is not copied.
 
@@ -74,4 +74,4 @@ Hovering the slot draws `stagepreview.png` centered in the stage preview, the sa
 
 ## References
 
-1. Where things are — stage select, mappings, and the docs folder.
+1. [Where things are](where-things-are.md) — stage select, mappings, and the docs folder.

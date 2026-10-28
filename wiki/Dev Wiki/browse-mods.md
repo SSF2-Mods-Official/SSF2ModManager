@@ -16,7 +16,7 @@ group: Mods
 | Filter | `BrowseModFilter.MentionsNineB`, `BrowseModFilter.KindFor` |
 | Install | `LauncherWindow.ReceiveOneClickAsync`, the same path as a `ssf2mm:` link |
 | Installed | `GameBananaInstalls.InstalledModIds` for the page's Shell; see [GameBanana installs](gamebanana-installs.md). An installed card shows the **Installed** badge and hides **Download** (`DownloadVisibility`). The launcher calls `DownloadModsPage.RefreshInstalled` after a 1-Click import. |
-| Related | [One-click install](one-click-install.md), Launcher and shell |
+| Related | [One-click install](one-click-install.md), [Launcher and shell](launcher-shell.md) |
 
 Download Mods lists every SSF2 mod on GameBanana, newest first, and hides mods made only for 0.9b.
 
@@ -48,4 +48,4 @@ Pick a category or **All**. The search box fills the rest of that row. **Show se
 ## References
 
 1. [One-click install](one-click-install.md): the `ssf2mm:` link path, which also leaves 0.9b files out.
-2. Launcher and shell: where the Download Mods page opens and which Shell it installs into.
+2. [Launcher and shell](launcher-shell.md): where the Download Mods page opens and which Shell it installs into.

@@ -15,7 +15,7 @@ group: Mods
 | Mods | `music_player`, `camera_background`, `palette_maker` |
 | Shared code | `_shared/src/ssf2mm/shared/MusicOverrideCodec.as` |
 | New fields sent | None in match or player settings. Probe: one top-level `ssf2mm` key in room data. |
-| Related | Built-in mods, [Music player](music-player.md), [Costume recolor](costume-recolor.md) |
+| Related | [Built-in mods](built-in-mods.md), [Music player](music-player.md), [Costume recolor](costume-recolor.md) |
 
 The host's match settings are the only thing every player receives, so shared choices travel inside them.
 
@@ -124,6 +124,6 @@ Run a fixture with `run-music-override-fixture.ps1` (in `_shared/fixture`) or `r
 
 ## References
 
-1. Built-in mods: the mods, the engine contract and how to rebuild them.
+1. [Built-in mods](built-in-mods.md): the mods, the engine contract and how to rebuild them.
 2. [Music player](music-player.md): match music order, claims and playlists.
 3. [Costume recolor](costume-recolor.md): how the costume list and palettes are built.

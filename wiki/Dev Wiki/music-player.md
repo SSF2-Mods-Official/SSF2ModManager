@@ -86,6 +86,6 @@ A strict compile (`"strict": true` in a temp copy of `asconfig.json`) has zero e
 
 ## References
 
-1. Built-in mods — the other bundled mods and how they load.
-2. Where things are — repo and folder layout.
+1. [Built-in mods](built-in-mods.md) — the other bundled mods and how they load.
+2. [Where things are](where-things-are.md) — repo and folder layout.
 3. [Online sync](online-sync.md) — how the hosts match song reaches every player online.

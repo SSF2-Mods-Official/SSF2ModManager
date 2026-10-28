@@ -64,4 +64,4 @@ dotnet test src/tests/SSF2ModManager.Tests/SSF2ModManager.Tests.csproj --filter 
 ## References
 
 1. [Character import](character-import.md) — the same next-free id and the one list for a batch of clones.
-2. Where things are — the shell folder the import writes into.
+2. [Where things are](where-things-are.md) — the shell folder the import writes into.

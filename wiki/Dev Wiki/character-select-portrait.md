@@ -65,6 +65,6 @@ Full quit, relaunch. Select a character, open the palette menu, and pick a costu
 
 ## References
 
-1. Where things are — the compile command, and that a running game keeps the old swf.
+1. [Where things are](where-things-are.md) — the compile command, and that a running game keeps the old swf.
 2. [Costume recolor](costume-recolor.md) — `paletteSwap` and the base costume.
 3. Wiki — the Info, Contents, and References shape.
