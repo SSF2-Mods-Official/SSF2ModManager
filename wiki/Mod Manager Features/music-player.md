@@ -4,7 +4,7 @@ summary: The player on the manager, and how it follows the game.
 order: 60
 ---
 
-![My Jukebox.png](../_images/My Jukebox.png)
+![The music player strip along the bottom of the manager](../_images/My Jukebox.png)
 
 The strip on the manager is a remote for [My Jukebox](../SSF2 Shell Features/my-jukebox.md). It is not a second music engine. The game still owns the song.
 

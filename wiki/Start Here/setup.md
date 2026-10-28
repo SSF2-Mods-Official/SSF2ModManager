@@ -37,5 +37,5 @@ When setup is finished, click **Play**. The manager opens.
 
 Below is what the Mod Manager looks like. It's an easy to use interface for all your modding needs.
 
-![Mod Manager Beta.png](../_images/Mod Manager Beta.png)
+![The Mod Manager window, with Play and the sidebar](../_images/Mod Manager Beta.png)
 

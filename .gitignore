@@ -38,8 +38,8 @@ out/
 *.vsix
 .as3mxml-unpackaged-anes/
 
-# Dev Wiki stays on this machine. One wiki folder; this part is not published.
-wiki/Dev Wiki/
+# Private Wiki stays on this machine.
+wiki/Private Wiki/
 wiki/_history/
 wiki/_static/images/
 **/docs/Dev Wiki/

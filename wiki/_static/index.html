@@ -11,8 +11,8 @@
       document.documentElement.setAttribute("data-theme", theme);
       var font = localStorage.getItem("wiki-font") || "16";
       document.documentElement.style.fontSize = font + "px";
-      if (localStorage.getItem("wiki-motion") === "reduce") document.documentElement.classList.add("reduce-motion");
-      if (localStorage.getItem("wiki-links") === "underline") document.documentElement.classList.add("underline-links");
+      if (localStorage.getItem("wiki-contrast") === "1") document.documentElement.setAttribute("data-theme", "contrast");
+      if (localStorage.getItem("wiki-dyslexic") === "1") document.documentElement.classList.add("dyslexic");
       var now = new Date();
       var month = now.getMonth();
       var day = now.getDate();
@@ -31,8 +31,8 @@
         <button type="button" data-font="18">Large</button>
         <button type="button" data-font="20">Larger</button>
       </div>
-      <label><input type="checkbox" id="a11y-motion"> Reduce motion</label>
-      <label><input type="checkbox" id="a11y-links"> Underline links</label>
+      <label><input type="checkbox" id="a11y-contrast"> High contrast</label>
+      <label><input type="checkbox" id="a11y-dyslexic"> Dyslexia-friendly text</label>
     </div>
   </div>
   <button type="button" class="mobile-toggle" id="nav-toggle">Menu</button>
@@ -42,7 +42,6 @@
         <div class="brand-name">
           <a href="#/">SSF2 Mod Manager Wiki</a>
           <img class="brand-logo" src="ssf2m.png" alt="SSF2M">
-          <span class="halloween-mark" aria-hidden="true">🎃</span>
         </div>
         <span class="sub">Wiki</span>
       </div>

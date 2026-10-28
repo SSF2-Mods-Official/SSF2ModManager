@@ -464,14 +464,29 @@ pre code {
   display: grid;
   gap: 0.45rem;
 }
+#a11y-panel[hidden] { display: none; }
 #a11y-panel p { margin: 0; font-weight: 700; }
 .a11y-sizes { display: flex; gap: 0.3rem; }
 #a11y-panel label { font-size: 0.9rem; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-html.underline-links .main a { text-decoration: underline; }
-html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after {
-  animation: none !important;
-  transition: none !important;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+html.dyslexic { --font: Verdana, "Segoe UI", sans-serif; }
+html.dyslexic body { letter-spacing: 0.05em; word-spacing: 0.16em; line-height: 1.8; }
+.dev-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  z-index: 50;
+  background: #222;
+  color: #fff;
+  padding: 0.7rem 1rem;
+  border-radius: 6px;
 }
 html.halloween { --accent: #e85d04; }
 html.halloween:not([data-theme="dark"]) { --link: #c2410c; }
@@ -504,4 +519,42 @@ html[data-theme="dark"] .modal select {
   background: #2a2d30;
   color: #eee;
   border-color: #3a3d40;
+}
+html[data-theme="contrast"] {
+  --bg: #000;
+  --bg-side: #000;
+  --bg-content: #000;
+  --text: #fff;
+  --text-side: #fff;
+  --link: #ff0;
+  --link-side: #ff0;
+  --border: #fff;
+  --code-bg: #000;
+  --accent: #ff0;
+}
+html[data-theme="contrast"] .sidebar { border-right: 3px solid #fff; }
+html[data-theme="contrast"] .brand a,
+html[data-theme="contrast"] .main,
+html[data-theme="contrast"] .main h1,
+html[data-theme="contrast"] .main h2,
+html[data-theme="contrast"] .main h3,
+html[data-theme="contrast"] .lead { color: #fff; }
+html[data-theme="contrast"] .menu a,
+html[data-theme="contrast"] .main a { color: #ff0; text-decoration: underline; }
+html[data-theme="contrast"] .menu a.current,
+html[data-theme="contrast"] #site-tools > button,
+html[data-theme="contrast"] .a11y-sizes button,
+html[data-theme="contrast"] .page-actions button {
+  background: #ff0;
+  color: #000;
+}
+html[data-theme="contrast"] th,
+html[data-theme="contrast"] td,
+html[data-theme="contrast"] pre,
+html[data-theme="contrast"] code,
+html[data-theme="contrast"] #a11y-panel,
+html[data-theme="contrast"] .modal {
+  background: #000;
+  color: #fff;
+  border-color: #fff;
 }

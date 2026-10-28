@@ -217,9 +217,10 @@
         closeLists();
         closeTable();
         dropPending();
+        var alt = imgLine[1].trim() || "Image";
         var imgSrc = imgLine[2].trim();
         if (!/^[a-z]+:/i.test(imgSrc)) {
-          html.push('<p><img alt="' + escapeHtml(imgLine[1]) + '" data-rel="' + escapeHtml(imgSrc) + '"></p>');
+          html.push('<p><img alt="' + escapeHtml(alt) + '" data-rel="' + escapeHtml(imgSrc) + '"></p>');
         }
         i++;
         continue;

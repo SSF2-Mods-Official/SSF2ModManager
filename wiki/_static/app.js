@@ -101,8 +101,14 @@
 
   function buildNav(manifest, currentFile) {
     var html = "";
-    html += '<a href="#/"' + (!currentFile ? ' class="current"' : "") + ">Home</a>";
+    var home = "Home";
+    if (document.documentElement.classList.contains("halloween")) {
+      home += ' <span class="halloween-mark" aria-hidden="true">🎃</span>';
+    }
+    html += '<a href="#/"' + (!currentFile ? ' class="current"' : "") + ">" + home + "</a>";
+    var devOn = localStorage.getItem("wiki-dev") === "1";
     (manifest.sections || []).forEach(function (sec) {
+      if (sec.id === "Dev Wiki" && !devOn) return;
       html += '<div class="section">' + escape(sec.title) + "</div>";
       (sec.pages || []).forEach(function (p) {
         var cur = p.file === currentFile ? ' class="current"' : "";
@@ -1029,8 +1035,8 @@
     var themeBtn = document.getElementById("theme-toggle");
     var a11yBtn = document.getElementById("a11y-toggle");
     var panel = document.getElementById("a11y-panel");
-    var motion = document.getElementById("a11y-motion");
-    var links = document.getElementById("a11y-links");
+    var contrast = document.getElementById("a11y-contrast");
+    var dyslexic = document.getElementById("a11y-dyslexic");
     function paintTheme() {
       var dark = root.getAttribute("data-theme") === "dark";
       if (themeBtn) {
@@ -1040,29 +1046,49 @@
     }
     paintTheme();
     if (themeBtn) themeBtn.addEventListener("click", function () {
+      if (contrast) contrast.checked = false;
+      localStorage.removeItem("wiki-contrast");
       var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
       root.setAttribute("data-theme", next);
       localStorage.setItem("wiki-theme", next);
       paintTheme();
     });
-    if (a11yBtn && panel) a11yBtn.addEventListener("click", function () {
-      var open = panel.hasAttribute("hidden");
+    function setPanel(open) {
+      if (!panel || !a11yBtn) return;
       if (open) panel.removeAttribute("hidden");
       else panel.setAttribute("hidden", "");
       a11yBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    if (a11yBtn && panel) a11yBtn.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      setPanel(panel.hasAttribute("hidden"));
     });
-    if (motion) {
-      motion.checked = root.classList.contains("reduce-motion");
-      motion.addEventListener("change", function () {
-        root.classList.toggle("reduce-motion", motion.checked);
-        localStorage.setItem("wiki-motion", motion.checked ? "reduce" : "");
+    document.addEventListener("click", function (ev) {
+      if (!panel || panel.hasAttribute("hidden")) return;
+      if (panel.contains(ev.target) || ev.target === a11yBtn) return;
+      setPanel(false);
+    });
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape") setPanel(false);
+    });
+    if (contrast) {
+      contrast.checked = root.getAttribute("data-theme") === "contrast";
+      contrast.addEventListener("change", function () {
+        if (contrast.checked) {
+          root.setAttribute("data-theme", "contrast");
+          localStorage.setItem("wiki-contrast", "1");
+        } else {
+          localStorage.removeItem("wiki-contrast");
+          root.setAttribute("data-theme", localStorage.getItem("wiki-theme") || "light");
+        }
+        paintTheme();
       });
     }
-    if (links) {
-      links.checked = root.classList.contains("underline-links");
-      links.addEventListener("change", function () {
-        root.classList.toggle("underline-links", links.checked);
-        localStorage.setItem("wiki-links", links.checked ? "underline" : "");
+    if (dyslexic) {
+      dyslexic.checked = root.classList.contains("dyslexic");
+      dyslexic.addEventListener("change", function () {
+        root.classList.toggle("dyslexic", dyslexic.checked);
+        localStorage.setItem("wiki-dyslexic", dyslexic.checked ? "1" : "");
       });
     }
     document.querySelectorAll(".a11y-sizes button").forEach(function (b) {
@@ -1071,6 +1097,29 @@
         root.style.fontSize = size + "px";
         localStorage.setItem("wiki-font", size);
       });
+    });
+  })();
+
+  (function bindDevUnlock() {
+    var logo = document.querySelector(".brand-logo");
+    if (!logo) return;
+    var over = false;
+    logo.addEventListener("mouseenter", function () { over = true; });
+    logo.addEventListener("mouseleave", function () { over = false; });
+    document.addEventListener("keydown", function (ev) {
+      if (!over || (ev.key !== "f" && ev.key !== "F")) return;
+      var tag = ev.target && ev.target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (localStorage.getItem("wiki-dev") === "1") return;
+      ev.preventDefault();
+      localStorage.setItem("wiki-dev", "1");
+      var note = document.createElement("div");
+      note.className = "dev-toast";
+      note.setAttribute("role", "status");
+      note.textContent = "The Dev Wiki got unlocked.";
+      document.body.appendChild(note);
+      setTimeout(function () { note.remove(); }, 4000);
+      route();
     });
   })();
 

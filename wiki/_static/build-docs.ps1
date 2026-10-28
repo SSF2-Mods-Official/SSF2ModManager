@@ -103,7 +103,7 @@ $sections = @()
 $pages = @{}
 
 Get-ChildItem -LiteralPath $docsRoot -Directory |
-	Where-Object { $_.Name -notlike '_*' -and $_.Name -ne 'wiki-app' } |
+		Where-Object { $_.Name -notlike '_*' -and $_.Name -ne 'wiki-app' -and $_.Name -ne 'Private Wiki' } |
 	Sort-Object Name |
 	ForEach-Object {
 		$sectionDir = $_
