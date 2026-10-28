@@ -13,7 +13,6 @@ A Windows launcher and mod manager for **Super Smash Flash 2**. It builds **SSF2
 - Make Mods: events, costumes, music, boot intros, stages and characters, plus packaging and file tools
 - Configure: start the game straight into a menu, match or event, and pick the boot intro and music
 - Debug: launch SSF2 Shell with the debugger in VS Code (optional)
-- Themes, English and Spanish, in-app news and docs
 
 ## Install
 
