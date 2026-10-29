@@ -45,6 +45,9 @@ The launcher window title and the title-bar label are `SSF2 Beta Mod Manager`.
 | `ShowArticle` | News click replaces the list with the full article | — |
 | `BtnDiscord` | Discord mark from `DiscordMarkGeometry`, then the word Discord | — |
 | `ListStages` | Menu background and launch stage lists: ids from `data/stage/*.swf` and `*.ssf` | — |
+| `ListCharacters` | Configure character, Palette Maker, and event character lists: ids from `data/character/*.swf` and `*.ssf`, then `expansions/character` | — |
+| `ListMusic` | Configure music list: `data/sound/bgm_*.swf` and `bgm_*.ssf` | — |
+| `ListEvents` / `ResolveModeFile` | Configure events menu from `data/modes/event_mode.swf` or `event_mode.ssf`, then enabled packs under `expansions/events` | — |
 | `MusicLibraryCacheService.EnsureFastLibrary` | Footer mini player song list: AppData cache, else Shell `music_player/list.json`, else bundled `music-library-stock.json`; refreshes raw names; prefers `.swf`. `LoopChecked` skips a file whose loop was already read | — |
 | `EnsureMiniQueueAsync` | Shows the saved cache on a background read, then refreshes the list off the window thread | — |
 | `EnsurePreviewMp3Async` | Unwraps `.ssf`, then `BgmPreviewService.ExtractMp3` (fast); FFDec `-export sound` only if that fails | — |
@@ -61,7 +64,7 @@ The launcher window title and the title-bar label are `SSF2 Beta Mod Manager`.
 | `BtnRailExpand_Click` | Widens `SidebarColumn` from 52 to 112 and shows rail names | — |
 | `ShowPageChrome` | Hides `HomeTiles` and shows `PageHost`. The rail and the preview bar stay | — |
 | `ApplySectionAccent` | Section bar uses that page's home-tile color | — |
-| `Shell_PreviewMouseMove` | A control `Tag`, or its `ToolTip` string, replaces `TxtStatus`. Moving off, or leaving the window, restores `PreviewIdleText` (product name and version). `ToolTipOpening` is handled so no popup shows | — |
+| `Shell_PreviewMouseMove` | A control `Tag`, or its `ToolTip` string, replaces `TxtStatus`. Moving off, or leaving the window, restores `PreviewIdleText` (product name and version). `ToolTipOpening` is handled so no popup shows. Parent walk skips non-Visual nodes (`Run`) via `FrameworkContentElement.Parent` | — |
 | `AppMusicPlayerService.Volume` | Stored level. `OpenCurrent` and `MediaOpened` apply it again. `SetMiniPlayerVolume` writes it without reloading the banner | — |
 | `RememberMiniSong` | Saves `LastPlayedSongId` when the track changes. `EnsureMiniQueueAsync` selects it on the next launch | — |
 | `ManagerBackgroundMedia.Install` | Copies an upload to a new `manager-background-{id}` file and deletes older copies | — |

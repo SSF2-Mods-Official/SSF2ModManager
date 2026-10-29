@@ -21,7 +21,7 @@ group: Build
 | Wiki | `runtime/shell-dev/docs` |
 | Related | Wiki |
 
-Make Mods → **Modding Tools** decompiles a SWF and compiles a folder or a mod. Linkage names in a played character SWF are listed with JPEXS FFDec. There are no `rebuild.bat` files. An engine change is a patch under `SSF2 Shell Base/patches/engine2`. `tools/shellbase.py build` writes `Build/data/engine/engine2.swf`. Mod source is `SSF2 Shell Base/shell/src/mods`. `tools/build-mod.ps1` compiles it.
+Make Mods → **Modding Tools** decompiles a SWF and compiles a folder or a mod. Linkage names in a played character SWF are listed with JPEXS FFDec. Palette Maker has `shell/src/mods/palette_maker/rebuild.bat` for a double-click compile. An engine change is a patch under `SSF2 Shell Base/patches/engine2`. `tools/shellbase.py build` writes `Build/data/engine/engine2.swf`. Mod source is `SSF2 Shell Base/shell/src/mods`. `tools/build-mod.ps1` compiles it.
 
 ## Contents
 
@@ -37,7 +37,7 @@ Make Mods → **Modding Tools** decompiles a SWF and compiles a folder or a mod.
 
 An engine edit is a file under `patches/engine2`. From `SSF2 Shell Base`, `python tools/shellbase.py build --vanilla <install> --n2f <Next2Flash>` writes `Build/data/engine/engine2.swf`. The class list stays the one in `patches/engine2/base.json`.
 
-One mod: `tools/build-mod.ps1 <id>` compiles `shell/src/mods/<id>` with that folder's `asconfig.json`. The swf lands in `shell/data/ssf2mm/<id>/mod.swf` and is copied to `Build/data/ssf2mm/<id>/mod.swf`. The compile reads `shell/src/engine/resources`. A game that is already open keeps the old swf until a full quit.
+One mod: `tools/build-mod.ps1 <id>` compiles `shell/src/mods/<id>` with that folder's `asconfig.json`. Palette Maker: double-click `shell/src/mods/palette_maker/rebuild.bat`, or run `tools/build-mod.ps1 palette_maker`. The swf lands in `shell/data/ssf2mm/<id>/mod.swf` and is copied to `Build/data/ssf2mm/<id>/mod.swf`. If `Next2Flash/toolchain/aflex_lite` has no AIR descriptor template, `build-mod.ps1` writes a minimal one under `templates/air`. The compile reads `shell/src/engine/resources`. A game that is already open keeps the old swf until a full quit.
 
 ## How it works
 
