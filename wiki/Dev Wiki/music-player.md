@@ -50,7 +50,7 @@ My Jukebox is the built-in music mod: Options > Sounds, the Stage Select button,
 | `MusicModTransport.managerSeek` | While playing, `seekRatio`. While paused, stores the position | `[music_player] managerSeek pos= paused=` |
 | `MusicModTransport.managerState` | Track id, title, position, paused, and duration for `now-playing.json` | — |
 | `MusicSeriesResolver.seriesKeyFromEntry` | Non-empty `icon` wins over `stageLogo`. Otherwise `stageLogo` yields `stage:{id}`. Desk uses `chibi_icon`. Jungle Island / Urban Champion / Venus use SSS clips when mapped; Smashville / Steel Diver use `stage:` | Desk → `icon:chibi_icon` |
-| `MusicStageVisuals.extractLiveLogo` | Clones `stagePreviewer` from the live game library (`misc2.swf` via `ResourceManager`), goes to the stage frame, and peels the series mark. On every stage frame the mark is SWF depth 11 (`PlaceObject3`); preview art is depth 1. Timeline children are depth-ordered, so the mark is the topmost child. Same SWF on every install — no machine paths, no chid table | `[music_player] extractLiveLogo id= step=frame\|host\|child\|reject` |
+| `MusicStageVisuals.extractLiveLogo` | Clones `stagePreviewer` from the live game library (`misc2.swf` via `ResourceManager`), goes to the stage frame, and peels the series mark. On every stage frame the mark is SWF depth 11 (`PlaceObject3`); preview art is depth 1. Timeline children are depth-ordered, so the mark is the topmost child. `smashville` / `steeldiver` force that topmost child and skip the size reject (no `SymbolSSS`) | `[music_player] extractLiveLogo id= step=frame\|host\|child\|reject` |
 | `MusicStageVisuals.extractSelectLogo` | Fallback peel from `{id}_stage_select` | — |
 | `MusicSeriesResolver.attachIcon` | `icon:…` from the library. `stage:…` via `extractLiveLogo` then `extractSelectLogo`. Smash ball last — never tint full `_stage_select` | — |
 | `MusicUiGrid.getOrBuildTileArt` | Tile fill is `{id}_stage_select`. Other Stages hub uses `traininggrid` fill and `KEY_OTHER` | — |
@@ -63,7 +63,7 @@ Tinting a full `_stage_select` (or a mis-peeled preview plate) as the album symb
 
 ### Smashville / Steel Diver logos
 
-Those marks live on the `stagePreviewer` frame at depth 11 (maple leaf / cabin), not as `*SymbolSSS` exports. `extractLiveLogo` takes that topmost timeline child so every player’s misc2 library supplies the art.
+Those marks live on the `stagePreviewer` frame at depth 11 (maple leaf / cabin), not as `*SymbolSSS` exports. `forceDepth11Logo` always peels the topmost child and skips `logoLooksLikeMark`, because a tight host can make the mark look “too large” and fall back to smash ball.
 
 ## Files
 

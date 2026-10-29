@@ -35,7 +35,7 @@ Make Mods → **Modding Tools** decompiles a SWF and compiles a folder or a mod.
 
 ## How to compile
 
-An engine edit is a file under `patches/engine2`. From `SSF2 Shell Base`, `python tools/shellbase.py build --vanilla <install> --n2f <Next2Flash>` writes `Build/data/engine/engine2.swf`. The class list stays the one in `patches/engine2/base.json`.
+An engine edit is a file under `patches/engine2`. From `SSF2 Shell Base`, `python tools/shellbase.py build --vanilla <install> --n2f <Next2Flash>` writes `Build/data/engine/engine2.swf`. The class list stays the one in `patches/engine2/base.json`. Player updates always rebuild from vanilla; see [Shell rebuild](shell-rebuild.md).
 
 One mod: `tools/build-mod.ps1 <id>` compiles `shell/src/mods/<id>` with that folder's `asconfig.json`. Palette Maker: double-click `shell/src/mods/palette_maker/rebuild.bat`, or run `tools/build-mod.ps1 palette_maker`. The swf lands in `shell/data/ssf2mm/<id>/mod.swf` and is copied to `Build/data/ssf2mm/<id>/mod.swf`. If `Next2Flash/toolchain/aflex_lite` has no AIR descriptor template, `build-mod.ps1` writes a minimal one under `templates/air`. The compile reads `shell/src/engine/resources`. A game that is already open keeps the old swf until a full quit.
 
