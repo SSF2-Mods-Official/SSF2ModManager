@@ -49,7 +49,17 @@ My Jukebox is the built-in music mod: Options > Sounds, the Stage Select button,
 | `MusicModTransport.managerResume` | Plays again at `positionMs` through `seekRatio` or `togglePause` | `[music_player] managerResume pos=` |
 | `MusicModTransport.managerSeek` | While playing, `seekRatio`. While paused, stores the position | `[music_player] managerSeek pos= paused=` |
 | `MusicModTransport.managerState` | Track id, title, position, paused, and duration for `now-playing.json` | — |
-| `MusicSeriesResolver.attachIcon` | Fits the stage logo from `MusicStageVisuals.albumMark` (`stageId_logo`, then `stageId_stage_select`). The smash ball is the fallback when that stage has neither | — |
+| `MusicSeriesResolver.seriesKeyFromEntry` | Non-empty `icon` wins over `stageLogo`. Otherwise `stageLogo` yields `stage:{id}`. Jungle Island / Urban Champion / Venus use SSS franchise clips (`SuperMonkeyBallSymbolSSS`, `UrbanChampionSymbolSSS`, `GoldenSunSymbolSSS`). Desk uses `chibi_icon` | Desk → `icon:chibi_icon` |
+| `MusicStageVisuals.extractLiveLogo` | Peels the logo child from a `stagePreviewer` frame clone. Rejects full-frame plates (those tint into a white rectangle) | `[music_player] extractLiveLogo id= step=frame\|host\|child\|reject` |
+| `MusicStageVisuals.extractSelectLogo` | Same peel from `{id}_stage_select` when the previewer peel misses (Smashville / Steel Diver have no SymbolSSS export) | — |
+| `MusicSeriesResolver.attachIcon` | `icon:…` from the library. `stage:…` via `extractLiveLogo` then `extractSelectLogo`. Smash ball last — never tint full `_stage_select` | — |
+| `MusicUiGrid.getOrBuildTileArt` | Tile fill is `{id}_stage_select`. Other Stages hub uses `traininggrid` fill and `KEY_OTHER` | — |
+
+## Fixed
+
+### White rectangle instead of stage logo
+
+Tinting a full `_stage_select` (or a mis-peeled preview plate) as the album symbol painted a white rectangle. `attachIcon` no longer uses that path; smash ball is the default when no SymbolSSS / logo peel exists. Jungle Island, Urban Champion, and Venus Lighthouse hardcode their SSS franchise symbols from the menus library.
 
 ## Files
 
@@ -82,6 +92,8 @@ My Jukebox is the built-in music mod: Options > Sounds, the Stage Select button,
 A strict compile (`"strict": true` in a temp copy of `asconfig.json`) has zero errors. That proves every moved call site resolves, because the normal build runs with strict off.
 
 `python -m unittest discover -s tools\tests` in Shell Base runs `test_music_list.py`, which fails when the stock `list.json` names a song or stage missing from the vanilla mappings.
+
+By Stage and By Series: Desk `chibi_icon`, Venus `GoldenSunSymbolSSS`, Jungle Island `SuperMonkeyBallSymbolSSS`, Urban Champion `UrbanChampionSymbolSSS`. Smashville / Steel Diver peel a logo or fall back to the smash ball (no white rectangle). Other Stages hub is not a blank tile.
 
 
 ## References
