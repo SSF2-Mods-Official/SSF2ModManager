@@ -166,6 +166,22 @@
       });
     });
     nav.innerHTML = html;
+    restoreNavScroll();
+  }
+
+  function saveNavScroll() {
+    if (!nav) return;
+    sessionStorage.setItem("wiki-nav-scroll", String(nav.scrollTop));
+  }
+
+  function restoreNavScroll() {
+    if (!nav) return;
+    var saved = sessionStorage.getItem("wiki-nav-scroll");
+    if (saved == null) return;
+    var y = parseInt(saved, 10);
+    if (isNaN(y)) return;
+    nav.scrollTop = y;
+    requestAnimationFrame(function () { nav.scrollTop = y; });
   }
 
   function escape(s) {
@@ -1210,6 +1226,7 @@
   })();
 
   mountCorner();
+  if (nav) nav.addEventListener("pointerdown", saveNavScroll, true);
   window.addEventListener("hashchange", route);
   route();
 })();
