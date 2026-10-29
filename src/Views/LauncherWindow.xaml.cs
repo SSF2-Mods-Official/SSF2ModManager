@@ -1311,7 +1311,13 @@ namespace SSF2ModManager.Views
                         return;
                     }
                 }
-                src = VisualTreeHelper.GetParent(src);
+                // Text Runs are ContentElements — VisualTreeHelper.GetParent throws on them.
+                if (src is System.Windows.Media.Visual || src is System.Windows.Media.Media3D.Visual3D)
+                    src = VisualTreeHelper.GetParent(src);
+                else if (src is FrameworkContentElement fce)
+                    src = fce.Parent;
+                else
+                    break;
             }
             ShowPreviewIdle();
         }
