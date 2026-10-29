@@ -1907,6 +1907,8 @@ namespace SSF2ModManager.Views
 
         private static string PickId(System.Windows.Controls.ComboBox box)
         {
+            if (box == null)
+                return "";
             if (box.SelectedItem is EventFormPick pick)
                 return pick.Id;
             return box.Text ?? "";

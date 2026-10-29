@@ -14,7 +14,7 @@ group: Events
 | Clone list | `EventAuthorService.ListSources` |
 | Vanilla classes | `EventAuthorService.ListVanillaEvents` |
 | Menu names | `ShellConfigureLaunchService.ListEvents` — stock names, then enabled expansion packs |
-| File | `data/modes/event_mode.swf` |
+| File | `data/modes/event_mode.swf` or `event_mode.ssf` |
 | Related | [Where things are](where-things-are.md) |
 
 Make a new event copies a stock or expansion script. The form is [Event wizard](event-wizard.md). Vanilla classes live in `event_mode.swf`. Their names look like `EventMode13_ComboMaker`. The clone list shows the menu name for that class.
@@ -34,14 +34,14 @@ Picking a clone runs `CmbEventSource_SelectionChanged`. A stock class is read by
 
 `CreateEventAsync` requires a name and a description. `EventCloneEdit.Apply` copies the script and replaces the fields the form shows. `CreateEvent` renames the class, strips `eventinfo`, and writes the pack list. `EventRecipe.WriteSource` is not called. Create stays in the manager. Create and test launches with `StartingMenu` `events` and `EventId`.
 
-`ListVanillaEvents` reads printable strings out of `data/modes/event_mode.swf`. A class is a string `EventMode<number>_<id>` or `EventMode<number>Special_<id>`. `ListEvents` is the Configure events menu. It lists those stock menu names, then each enabled pack under `expansions/events`. The pack id and name come from `info.json`. `chooseCharacter` true hides the character override. `EventMode` and `EventMode_AllStarBaseMatch` are not events.
+`ListVanillaEvents` reads printable strings out of `data/modes/event_mode.swf` or `event_mode.ssf`. A class is a string `EventMode<number>_<id>` or `EventMode<number>Special_<id>`. `ListEvents` is the Configure events menu. It lists those stock menu names, then each enabled pack under `expansions/events`. The pack id and name come from `info.json`. `chooseCharacter` true hides the character override. `EventMode` and `EventMode_AllStarBaseMatch` are not events. Stock Shell builds ship the mode file as `.ssf`.
 
 | Function | What it does | What you see |
 | --- | --- | --- |
 | `ListSources` | Vanilla events first, then the template and pack sources. | Clone from lists Troubled King through the celebration. |
 | `RemoveMod` | Asks "Are you sure" on the visible window before it deletes any row except Essentials. | Are you sure you want to remove |
 | `ListVanillaEvents` | One row per `EventMode<number>_<id>` class. Label is the menu name. `ClassName` is the class. | Combo Maker is `EventMode13_ComboMaker`. |
-| `ListEvents` | Stock menu names from `event_mode.swf`, then each enabled pack in `expansions/events`. Id and name come from `info.json`. A pack with `enabled` false is left out. | Configure can select Bob-omb Destination. |
+| `ListEvents` | Stock menu names from `event_mode.swf` or `event_mode.ssf`, then each enabled pack in `expansions/events`. Id and name come from `info.json`. A pack with `enabled` false is left out. | Configure can select Bob-omb Destination. |
 | `IdentityFromName` | Splits the name on anything that is not a letter or digit, capitalizes each piece, and joins them. A name that starts with a digit gets an `E` in front. The class is `EventMode_` plus that id. The pack folder is the id. | `Rise of King Koopa!` is id `RiseOfKingKoopa`, class `EventMode_RiseOfKingKoopa`, folder `RiseOfKingKoopa`. A second one is `RiseOfKingKoopa2`. |
 | `CreateEvent` | With a blank id, calls `IdentityFromName`. It renames `class EventMode<number>_<id>` to the new class and writes it under `expansions/events/<folder>`. | The form does not ask for an id, a class, a pack folder, or a creator. |
 | `CreateFromVanillaAsync` | The form does not call it. A stock clone uses `ExportVanillaSourceAsync`, then `CreateEvent` with the patched script. | |

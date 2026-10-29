@@ -21,8 +21,8 @@ namespace SSF2ModManager.Services
             var id = IdOf(source.ClassName);
             if (id.Length == 0 || string.IsNullOrWhiteSpace(shellRoot))
                 return "";
-            var path = Path.Combine(shellRoot, "data", "modes", "event_mode.swf");
-            if (!File.Exists(path))
+            var path = ShellConfigureLaunchService.ResolveModeFile(shellRoot, "event_mode.swf");
+            if (string.IsNullOrWhiteSpace(path))
                 return "";
             return DescriptionForId(File.ReadAllBytes(path), id);
         }

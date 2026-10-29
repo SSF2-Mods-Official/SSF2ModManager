@@ -100,7 +100,10 @@ namespace SSF2ModManager.Services
         public static List<string> ListCharacters(string installRoot)
         {
             var ids = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var id in ListIds(ShellWorkspaceService.CharacterDirectory(installRoot), "*.swf"))
+            var folder = ShellWorkspaceService.CharacterDirectory(installRoot);
+            foreach (var id in ListIds(folder, "*.swf"))
+                ids.Add(id);
+            foreach (var id in ListIds(folder, "*.ssf"))
                 ids.Add(id);
             var exp = ShellWorkspaceService.CharacterExpansionsDirectory(installRoot);
             if (Directory.Exists(exp))
@@ -108,6 +111,8 @@ namespace SSF2ModManager.Services
                 foreach (var dir in Directory.GetDirectories(exp))
                 {
                     foreach (var id in ListIds(dir, "*.swf", n => !n.Equals("assets", StringComparison.OrdinalIgnoreCase)))
+                        ids.Add(id);
+                    foreach (var id in ListIds(dir, "*.ssf", n => !n.Equals("assets", StringComparison.OrdinalIgnoreCase)))
                         ids.Add(id);
                 }
             }
@@ -124,6 +129,27 @@ namespace SSF2ModManager.Services
             foreach (var id in ListIds(folder, "*.ssf"))
                 ids.Add(id);
             return ids.ToList();
+        }
+
+        /// <summary>
+        /// File under <c>data/modes</c>. Accepts the given name, or the same stem with the other of <c>.swf</c> / <c>.ssf</c>.
+        /// Stock Shell builds ship mode files as <c>.ssf</c>.
+        /// </summary>
+        public static string? ResolveModeFile(string installRoot, string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(installRoot) || string.IsNullOrWhiteSpace(fileName))
+                return null;
+            var folder = Path.Combine(installRoot, "data", "modes");
+            var direct = Path.Combine(folder, fileName);
+            if (File.Exists(direct))
+                return direct;
+            var stem = Path.GetFileNameWithoutExtension(fileName);
+            if (string.IsNullOrWhiteSpace(stem))
+                return null;
+            var ext = Path.GetExtension(fileName);
+            var otherExt = ext.Equals(".ssf", StringComparison.OrdinalIgnoreCase) ? ".swf" : ".ssf";
+            var other = Path.Combine(folder, stem + otherExt);
+            return File.Exists(other) ? other : null;
         }
 
         public static List<string> ListBttStages(string installRoot)
@@ -275,19 +301,27 @@ namespace SSF2ModManager.Services
             WriteCmd(installRoot, payload);
         }
 
-        public static List<string> ListMusic(string installRoot) =>
-            ListIds(Path.Combine(installRoot, "data", "sound"), "*.swf",
-                id => id.StartsWith("bgm_", StringComparison.OrdinalIgnoreCase));
+        public static List<string> ListMusic(string installRoot)
+        {
+            var folder = Path.Combine(installRoot, "data", "sound");
+            var ids = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+            bool Keep(string id) => id.StartsWith("bgm_", StringComparison.OrdinalIgnoreCase);
+            foreach (var id in ListIds(folder, "*.swf", Keep))
+                ids.Add(id);
+            foreach (var id in ListIds(folder, "*.ssf", Keep))
+                ids.Add(id);
+            return ids.ToList();
+        }
 
         public static List<(string Id, string Label, bool ChooseCharacter)> ListEvents(string installRoot)
         {
-            var path = Path.Combine(installRoot, "data", "modes", "event_mode.swf");
+            var path = ResolveModeFile(installRoot, "event_mode.swf");
             var found = new List<(string Id, string Label, int Order, bool Choose)>();
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var list = new List<(string Id, string Label, bool ChooseCharacter)>();
-            if (File.Exists(path))
+            if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
             {
-            var data = File.ReadAllBytes(path);
+            var data = File.ReadAllBytes(path!);
             var strings = new List<string>();
             var i = 0;
             while (i < data.Length - 2)
@@ -392,9 +426,9 @@ namespace SSF2ModManager.Services
         /// </summary>
         public static List<(string Id, string Label)> ListModeOptions(string installRoot, string swfFileName)
         {
-            var path = Path.Combine(installRoot, "data", "modes", swfFileName);
+            var path = ResolveModeFile(installRoot, swfFileName);
             var list = new List<(string Id, string Label)>();
-            if (!File.Exists(path))
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
                 return list;
             var strings = ReadPrintableStrings(File.ReadAllBytes(path));
             var modeAt = -1;

@@ -78,7 +78,7 @@ namespace SSF2ModManager.Services
         }
 
         /// <summary>
-        /// One row per <c>EventMode&lt;number&gt;_&lt;id&gt;</c> class in <c>data/modes/event_mode.swf</c>.
+        /// One row per <c>EventMode&lt;number&gt;_&lt;id&gt;</c> class in <c>data/modes/event_mode.swf</c> or <c>.ssf</c>.
         /// The label is the event menu name from <see cref="ShellConfigureLaunchService.ListEvents"/>.
         /// </summary>
         public static List<EventSourceChoice> ListVanillaEvents(string shellRoot)
@@ -86,8 +86,8 @@ namespace SSF2ModManager.Services
             var list = new List<EventSourceChoice>();
             if (string.IsNullOrWhiteSpace(shellRoot))
                 return list;
-            var path = Path.Combine(shellRoot, "data", "modes", "event_mode.swf");
-            if (!File.Exists(path))
+            var path = ShellConfigureLaunchService.ResolveModeFile(shellRoot, "event_mode.swf");
+            if (string.IsNullOrWhiteSpace(path))
                 return list;
 
             var labels = ShellConfigureLaunchService.ListEvents(shellRoot)
@@ -313,9 +313,8 @@ namespace SSF2ModManager.Services
             var name = className ?? "";
             if (!VanillaClassName.IsMatch(name))
                 throw new ArgumentException("That is not a vanilla event class.");
-            var swf = Path.Combine(shellRoot ?? "", "data", "modes", "event_mode.swf");
-            if (!File.Exists(swf))
-                throw new FileNotFoundException("event_mode.swf was not found.", swf);
+            var swf = ShellConfigureLaunchService.ResolveModeFile(shellRoot ?? "", "event_mode.swf")
+                ?? throw new FileNotFoundException("event_mode.swf was not found.", Path.Combine(shellRoot ?? "", "data", "modes", "event_mode.swf"));
             var cached = VanillaScriptCacheFile(swf, name);
             if (File.Exists(cached))
                 return CopyScript(cached, name);
@@ -368,9 +367,8 @@ namespace SSF2ModManager.Services
 
         public static async Task<string> ExportEventScriptsAsync(string shellRoot, CancellationToken cancellationToken = default)
         {
-            var swf = Path.Combine(shellRoot ?? "", "data", "modes", "event_mode.swf");
-            if (!File.Exists(swf))
-                throw new FileNotFoundException("event_mode.swf was not found.", swf);
+            var swf = ShellConfigureLaunchService.ResolveModeFile(shellRoot ?? "", "event_mode.swf")
+                ?? throw new FileNotFoundException("event_mode.swf was not found.", Path.Combine(shellRoot ?? "", "data", "modes", "event_mode.swf"));
             var work = Path.Combine(Path.GetTempPath(), "ssf2mm-events-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(work);
             var jpexs = new JpexsCliService();
@@ -470,8 +468,8 @@ namespace SSF2ModManager.Services
             if (mxmlc == null)
                 return (false, "mxmlc was not found in Next2Flash (toolchain\\aflex_lite\\bin\\mxmlc.bat).");
             var shell = ShellRootFromPack(packDir);
-            var swf = shell == null ? null : Path.Combine(shell, "data", "modes", "event_mode.swf");
-            if (swf == null || !File.Exists(swf))
+            var swf = shell == null ? null : ShellConfigureLaunchService.ResolveModeFile(shell, "event_mode.swf");
+            if (string.IsNullOrWhiteSpace(swf))
                 return (false, "event_mode.swf was not found. Build SSF2 Shell first.");
             var api = await VanillaApiDirAsync(shell!, swf);
             if (api == null)
@@ -555,13 +553,13 @@ namespace SSF2ModManager.Services
             + "\t\tpublic function deinitAPI():void\r\n\t\t{\r\n\t\t\tSSF2API.deinit();\r\n\t\t}\r\n\r\n"
             + "\t\tprotected function buildEventList():Array\r\n\t\t{\r\n\t\t\treturn [];\r\n\t\t}\r\n\t}\r\n}\r\n";
 
-        /// <summary>Shell folder that holds <c>data/modes/event_mode.swf</c> above this pack, or null.</summary>
+        /// <summary>Shell folder that holds <c>data/modes/event_mode.swf</c> or <c>.ssf</c> above this pack, or null.</summary>
         public static string? ShellRootFromPack(string? packDir)
         {
             var dir = packDir;
             for (var i = 0; i < 6 && !string.IsNullOrWhiteSpace(dir); i++)
             {
-                if (File.Exists(Path.Combine(dir, "data", "modes", "event_mode.swf")))
+                if (!string.IsNullOrWhiteSpace(ShellConfigureLaunchService.ResolveModeFile(dir, "event_mode.swf")))
                     return dir;
                 dir = Path.GetDirectoryName(dir);
             }
