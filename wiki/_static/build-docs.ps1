@@ -15,6 +15,7 @@ function Get-FrontMatter([string]$text) {
 	$summary = $null
 	$group = ""
 	$order = 100
+	$nav = $true
 	$body = $text
 	if ($text -match '(?s)\A---\r?\n(.*?)\r?\n---\r?\n(.*)\z') {
 		$fm = $Matches[1]
@@ -24,6 +25,7 @@ function Get-FrontMatter([string]$text) {
 			elseif ($line -match '^\s*summary\s*:\s*(.+)\s*$') { $summary = $Matches[1].Trim().Trim('"').Trim("'") }
 			elseif ($line -match '^\s*order\s*:\s*(\d+)\s*$') { $order = [int]$Matches[1] }
 			elseif ($line -match '^\s*group\s*:\s*(.+)\s*$') { $group = $Matches[1].Trim().Trim('"').Trim("'") }
+			elseif ($line -match '^\s*nav\s*:\s*false\s*$') { $nav = $false }
 		}
 	}
 	if (-not $title -and $body -match '(?m)^\s*#\s+(.+)\s*$') {
@@ -31,7 +33,7 @@ function Get-FrontMatter([string]$text) {
 	}
 	if (-not $title) { $title = "Untitled" }
 	if (-not $summary) { $summary = "" }
-	return @{ Title = $title; Summary = $summary; Order = $order; Group = $group }
+	return @{ Title = $title; Summary = $summary; Order = $order; Group = $group; Nav = $nav }
 }
 
 function Write-NewsChangelog {
@@ -116,6 +118,7 @@ function Write-CreditsPage {
 	[void]$sb.AppendLine("title: Credits")
 	[void]$sb.AppendLine("summary: The same names as Credits in the Mod Manager.")
 	[void]$sb.AppendLine("order: 18")
+	[void]$sb.AppendLine("nav: false")
 	[void]$sb.AppendLine("---")
 	[void]$sb.AppendLine("")
 	[void]$sb.AppendLine([string]$data.product)
@@ -165,6 +168,7 @@ Get-ChildItem -LiteralPath $docsRoot -Directory |
 					summary = $fm.Summary
 					order   = $fm.Order
 					group   = $fm.Group
+					nav     = $fm.Nav
 				}
 			}
 		$groupRank = @{

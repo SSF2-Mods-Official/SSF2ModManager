@@ -149,6 +149,7 @@
       html += '<div class="section">' + escape(sec.title) + "</div>";
       var lastGroup = "";
       (sec.pages || []).forEach(function (p) {
+        if (p.nav === false) return;
         var g = p.group || "";
         if (g && g !== lastGroup) {
           html += '<div class="group">' + escape(g) + "</div>";
@@ -225,6 +226,7 @@
         var lastGroup = "";
         var open = false;
         (sec.pages || []).forEach(function (p) {
+          if (p.nav === false) return;
           var g = p.group || "";
           if (!open || g !== lastGroup) {
             if (open) parts.push("</div>");
@@ -920,6 +922,7 @@
         var bundle = loadBundle();
         (bundle.sections || []).forEach(function (sec) {
           (sec.pages || []).forEach(function (p) {
+            if (p.nav === false) return;
             if (!found && (p.title || "").toLowerCase() === q) found = p.file;
           });
         });
@@ -970,6 +973,7 @@
           var manifest = loadBundle();
           (manifest.sections || []).forEach(function (sec) {
             (sec.pages || []).forEach(function (p) {
+              if (p.nav === false) return;
               if ((p.title || "").toLowerCase().indexOf(q) >= 0) add(p.title, p.file);
             });
           });

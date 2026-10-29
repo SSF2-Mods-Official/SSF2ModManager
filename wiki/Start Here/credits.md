@@ -2,6 +2,7 @@
 title: Credits
 summary: The same names as Credits in the Mod Manager.
 order: 18
+nav: false
 ---
 
 SSF2 Mod Manager
