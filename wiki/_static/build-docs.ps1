@@ -104,7 +104,38 @@ function Write-NewsChangelog {
 	Write-Host "Wrote $outPath ($($posts.Count) post(s))"
 }
 
-if (-not $PrivateOnly) { Write-NewsChangelog }
+function Write-CreditsPage {
+	$jsonPath = Join-Path $staticRoot "credits.json"
+	$outPath = Join-Path $docsRoot "Start Here\credits.md"
+	if (-not (Test-Path -LiteralPath $jsonPath)) { return }
+	$utf8 = New-Object System.Text.UTF8Encoding $false
+	$data = [System.IO.File]::ReadAllText($jsonPath, $utf8) | ConvertFrom-Json
+	$dash = [char]0x2014
+	$sb = New-Object System.Text.StringBuilder
+	[void]$sb.AppendLine("---")
+	[void]$sb.AppendLine("title: Credits")
+	[void]$sb.AppendLine("summary: The same names as Credits in the Mod Manager.")
+	[void]$sb.AppendLine("order: 18")
+	[void]$sb.AppendLine("---")
+	[void]$sb.AppendLine("")
+	[void]$sb.AppendLine([string]$data.product)
+	[void]$sb.AppendLine("")
+	[void]$sb.AppendLine("Created by $($data.createdBy)")
+	[void]$sb.AppendLine("")
+	foreach ($line in @($data.lines)) {
+		[void]$sb.AppendLine("$($line.name) $dash $($line.by)")
+		[void]$sb.AppendLine("")
+	}
+	[void]$sb.AppendLine("Installed mods are listed on the Credits page in the Mod Manager.")
+	[void]$sb.AppendLine("")
+	[System.IO.File]::WriteAllText($outPath, $sb.ToString().TrimEnd() + "`n", $utf8)
+	Write-Host "Wrote $outPath"
+}
+
+if (-not $PrivateOnly) {
+	Write-NewsChangelog
+	Write-CreditsPage
+}
 
 $sections = @()
 $pages = @{}

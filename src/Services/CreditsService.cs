@@ -178,22 +178,77 @@ namespace SSF2ModManager.Services
             return null;
         }
 
-        /// <summary>IDK and the original Palette Maker stay in Notes, which a launch rewrite keeps.</summary>
+        /// <summary>The names on the manager Credits page. The wiki Credits page is written from the same file.</summary>
+        public static string GeneralCreditsText()
+        {
+            var file = GeneralFile();
+            var sb = new StringBuilder();
+            sb.AppendLine(file["product"]?.ToString() ?? "SSF2 Mod Manager");
+            sb.Append("Created by ").AppendLine(file["createdBy"]?.ToString() ?? "MasterWex");
+            foreach (var person in People())
+                sb.Append(person.Name).Append(" — ").AppendLine(person.By);
+            return sb.ToString().TrimEnd();
+        }
+
+        /// <summary>Standing names stay in Notes, which a launch rewrite keeps. The list is wiki/_static/credits.json.</summary>
         public static string StandingCredits(string notes)
         {
-            const string idk = "- SSF2 IDK — David (stariwinkle)";
-            const string palette = "- Palette Maker (original) — VAL";
-            var text = (notes ?? "").Replace("- IDK — David (stariwinkle)", idk);
-            if (text.Contains("David (stariwinkle)", StringComparison.Ordinal)
-                && text.Contains("Palette Maker (original)", StringComparison.Ordinal))
+            var people = People().ToList();
+            var text = (notes ?? "").Replace("- IDK — David (stariwinkle)", "- SSF2 IDK — David (stariwinkle)");
+            if (people.All(person => text.Contains(person.Mark, StringComparison.Ordinal)))
                 return text;
-            var block = idk + Environment.NewLine + palette + Environment.NewLine + Environment.NewLine;
+            foreach (var person in people)
+                text = WithoutCreditLine(text, person.Mark);
+            var block = string.Join(Environment.NewLine, people.Select(person => "- " + person.Name + " — " + person.By))
+                + Environment.NewLine + Environment.NewLine;
             var trimmed = text.TrimStart('\r', '\n');
             if (trimmed.StartsWith("# Add freeform", StringComparison.Ordinal))
                 return block + trimmed;
             if (trimmed.Length == 0)
                 return block + "# Add freeform credits below this line; they are preserved across updates.";
-            return block + text.TrimStart('\r', '\n');
+            return block + trimmed;
+        }
+
+        private static JObject? _general;
+
+        private static JObject GeneralFile()
+        {
+            if (_general != null)
+                return _general;
+            var asm = typeof(CreditsService).Assembly;
+            foreach (var name in asm.GetManifestResourceNames())
+            {
+                if (!name.EndsWith("credits.json", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                using var stream = asm.GetManifestResourceStream(name);
+                if (stream == null)
+                    continue;
+                using var reader = new StreamReader(stream);
+                _general = JObject.Parse(reader.ReadToEnd());
+                return _general;
+            }
+            throw new InvalidOperationException("credits.json is missing from the manager.");
+        }
+
+        private static IEnumerable<(string Name, string By, string Mark)> People()
+        {
+            foreach (var token in GeneralFile()["lines"] as JArray ?? new JArray())
+            {
+                var name = token["name"]?.ToString()?.Trim() ?? "";
+                var by = token["by"]?.ToString()?.Trim() ?? "";
+                var mark = token["mark"]?.ToString()?.Trim();
+                if (name.Length == 0 || by.Length == 0)
+                    continue;
+                if (string.IsNullOrWhiteSpace(mark))
+                    mark = by;
+                yield return (name, by, mark);
+            }
+        }
+
+        private static string WithoutCreditLine(string text, string marker)
+        {
+            var lines = text.Replace("\r\n", "\n").Split('\n');
+            return string.Join(Environment.NewLine, lines.Where(line => !line.Contains(marker, StringComparison.Ordinal)));
         }
 
         private static string ReadManualNotes(string path)

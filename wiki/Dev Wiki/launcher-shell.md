@@ -39,7 +39,7 @@ The launcher window title and the title-bar label are `SSF2 Beta Mod Manager`.
 | `LauncherUpdateService.Relaunch` | After a manager update, a prompt says the Mod Manager is updated and will now restart. The running exe is renamed to `.old`, any `.new` file is moved into place, and the new exe starts | `[update] relaunch` |
 | `SetupWindow` | One step at a time. The main window stays hidden until the done step. | — |
 | `NewsPage.BtnCheckUpdates` | Upper right of News. Runs the same check as the launcher | — |
-| `CreditsService.StandingCredits` | Notes always include IDK — David (stariwinkle) and Palette Maker (original) — VAL. A launch rewrite keeps that Notes block. | — |
+| `CreditsService.StandingCredits` | Notes keep each person in `wiki/_static/credits.json`. The manager Credits page and the wiki [Credits](../Start Here/credits.md) page read that file. A launch rewrite keeps that Notes block. | — |
 | `AppInfo.ProductName` | Window title and title-bar label | — |
 | `BuildCard` | Mod description uses `TextPrimaryBrush` | — |
 | `ShowArticle` | News click replaces the list with the full article | — |

@@ -10,6 +10,7 @@ namespace SSF2ModManager.Views
         public CreditsPage(string? shell)
         {
             InitializeComponent();
+            TxtGeneral.Text = CreditsService.GeneralCreditsText();
             Loaded += (_, _) => Refresh(shell);
         }
 

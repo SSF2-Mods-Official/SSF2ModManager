@@ -5,15 +5,8 @@
         <StackPanel>
             <TextBlock Text="Credits" FontSize="20"
                        Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
-            <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12">
-                SSF2 Mod Manager
-                <LineBreak/>
-                Created by MasterWex
-                <LineBreak/>
-                SSF2 IDK — David (stariwinkle)
-                <LineBreak/>
-                Palette Maker (original) — VAL
-            </TextBlock>
+            <TextBlock x:Name="TxtGeneral" TextWrapping="Wrap"
+                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
             <TextBlock Text="Downloaded mods" FontSize="16"
                        Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,6"/>
             <TextBlock x:Name="TxtEmpty" Text="No downloaded mods yet."

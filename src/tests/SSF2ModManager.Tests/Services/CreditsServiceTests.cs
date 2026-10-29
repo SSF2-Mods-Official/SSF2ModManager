@@ -12,6 +12,11 @@ namespace SSF2ModManager.Tests.Services
             var notes = CreditsService.StandingCredits("");
             notes.Should().Contain("IDK — David (stariwinkle)");
             notes.Should().Contain("Palette Maker (original) — VAL");
+            notes.Should().Contain("Discord Presence — Jotardo");
+            var page = CreditsService.GeneralCreditsText();
+            page.Should().Contain("Created by MasterWex");
+            page.Should().Contain("Discord Presence — Jotardo");
+            page.Should().Contain("Palette Maker (original) — VAL");
         }
 
         [Fact]

@@ -1123,6 +1123,10 @@
       }
     }
     paintTheme();
+    var creditsBtn = document.getElementById("credits-link");
+    if (creditsBtn) creditsBtn.addEventListener("click", function () {
+      location.href = pageHref("Start Here/credits.md");
+    });
     var holidayBtn = document.getElementById("holiday-cycle");
     if (holidayBtn && navigator.userAgent.indexOf("Electron") !== -1 && window.wikiHolidayList) {
       function paintHoliday() {

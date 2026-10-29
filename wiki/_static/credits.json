@@ -1,0 +1,9 @@
+{
+  "product": "SSF2 Mod Manager",
+  "createdBy": "MasterWex",
+  "lines": [
+    { "name": "SSF2 IDK", "by": "David (stariwinkle)", "mark": "David (stariwinkle)" },
+    { "name": "Palette Maker (original)", "by": "VAL", "mark": "Palette Maker (original)" },
+    { "name": "Discord Presence", "by": "Jotardo", "mark": "Jotardo" }
+  ]
+}

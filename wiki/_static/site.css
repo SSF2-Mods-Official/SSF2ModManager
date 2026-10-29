@@ -476,6 +476,7 @@ pre code {
   border-radius: 4px;
   padding: 0.4rem 0.7rem;
   cursor: pointer;
+  text-decoration: none;
 }
 #a11y-panel {
   position: absolute;

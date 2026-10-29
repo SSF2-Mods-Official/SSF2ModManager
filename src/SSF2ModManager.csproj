@@ -72,6 +72,9 @@
     <!-- Stock BGM titles for the launcher mini player — no mappings export / SWF scan. -->
     <EmbeddedResource Include="Assets\music-library-stock.json" />
     <EmbeddedResource Include="Assets\build-file-lists.txt" />
+    <EmbeddedResource Include="..\wiki\_static\credits.json">
+      <LogicalName>SSF2ModManager.credits.json</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="native\ssfe_seal\ssfe_seal.dll" Condition="Exists('native\ssfe_seal\ssfe_seal.dll')">
