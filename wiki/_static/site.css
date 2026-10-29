@@ -462,7 +462,7 @@ pre code {
 #site-tools {
   position: fixed;
   top: 0.65rem;
-  right: 0.7rem;
+  right: max(0.7rem, calc(100vw - var(--nav-w) - 56rem + 1.1rem));
   z-index: 40;
   display: flex;
   gap: 0.4rem;
