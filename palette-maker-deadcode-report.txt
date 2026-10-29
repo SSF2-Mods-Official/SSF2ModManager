@@ -1,0 +1,114 @@
+Palette Maker dead-code audit — 2026-10-27
+Canonical src: SSF2 Shell/src/mods/palette_maker/src
+Scope: 54 .as files, 2602 member functions/vars/consts scanned
+Method: comment-stripped word-boundary name hits across src + fixture
+Full machine dump of <=2-hit symbols was noisy; this file is the verified report.
+
+LIMITS
+- Cannot see engine/ModHost reflection except known hooks (onBoot, Menu blockers).
+- hits=2 in the same file almost always means “defined + called once” → LIVE helper, not dead.
+- Dynamic/string dispatch and overrides can look unused; those are called out as KEEP.
+
+==============================================================================
+1) CONFIRMED DEAD — safe delete candidates (never referenced)
+==============================================================================
+
+Menu / studio
+  PaletteMakerMenu.MAX_UNIQUE_PROP_EXTRAS          const never read
+  PaletteMakerMenu.UNIQUE_PROP_MAX_AREA            const never read
+  PaletteMakerMenu.syncEffectsModeSwatchUi         RE leftover
+  PaletteMakerMenu.altOwnsColor
+  PaletteMakerMenu.offerSkinDraft                  whole prompt orphan (Continue/Discard only reachable from here)
+  PaletteMakerMenu.buildLinkedColorSheet
+  PaletteMakerMenu.startSelectHighlightFlash
+  PaletteMakerMenu.harvestStudioAttachFxLinkage    RE leftover
+  PaletteMakerMenuStudio.cycleRestAreaMusic        replaced by jukebox path?
+
+Color scan / sheets / sprites / strip
+  PaletteMakerMenuColorScan.scanCharacterDomainBitmapDataColors
+  PaletteMakerMenuColorScan.classIsLinkedArt
+  PaletteMakerMenuColorSheets.warmUniqueSpriteCacheIncrementalStart
+  PaletteMakerMenuColorSheets.batchRegenerateAllColorSheets
+  PaletteMakerMenuSprites.warmUniqueSpriteCacheIncrementalStep
+  PaletteMakerMenuSprites.addExpansionPackFormLinkages
+  PaletteMakerMenuSprites.countRemainingCoverage
+  PaletteMakerMenuSprites.countDistinctOpaqueColors
+  PaletteMakerMenuUniqueStrip.UNIQUE_PA_HIDE_SIDE
+  PaletteMakerMenuUniqueStrip.measureUniqueOpaqueSide
+  PaletteMakerMenuUniqueStrip.isLargeUniqueSprite
+  PaletteMakerMenuFx.clearRecolorEffectsFiltersPreview   RE leftover
+
+Fx / loading / discord / settings UI leftovers
+  FxRecolorUtils.s_bakedFxOriginal / s_bakedFxDoneSig / s_bakedFxResultFp   declared, never read/written
+  PaletteLoadingScreen.LOADING_SCREEN_DISMISS_RATIO
+  DiscordCostumePresence.rememberLastActivity
+  ToolSettingsPopup.selectHighlightBtn / selectHighlightLabel
+  ToolSettingsPopup.primarySwatchBtn / altSwatchBtn
+  ToolSettingsPopup.makeSwatchButton
+
+Count: ~32 confirmed dead symbols.
+
+==============================================================================
+2) KEEP — look unused in src but are live framework entry points
+==============================================================================
+  PaletteMakerMod.onBoot / onBootEnd          ModHost
+  PaletteMenuBase.initMenuMappings
+  PaletteMenuBase.addClickBlocker / removeClickBlocker
+  PaletteMenuBase.addBGBlocker / removeBGBlocker
+  PaletteMenuBase.addSecondaryClickBlocker / removeSecondaryClickBlocker
+  (same pattern as other Shell menu bases)
+
+==============================================================================
+3) FIXTURE-ONLY — used by tests, not game path (keep unless dropping fixture)
+==============================================================================
+  CostumeNetIndex.entryPosition
+  LinkedFormPaint.splitFormColors
+  LinkedFormPaint.keepUniqueSampleColor
+  LinkedFormSprite.writeReplacementIfPresent
+
+==============================================================================
+4) LARGE DEAD SURFACE — recolorEffectsMode (always forced false)
+==============================================================================
+Flag mentions:
+  PaletteMakerMenu.as           25
+  PaletteMakerMenuFx.as          3
+  PaletteMakerMenuUniqueStrip.as 7
+
+Entry points already removed (FS cleanup). Bodies still compile:
+  reapplyRecolorEffectsFxFromSliders (called from slider path behind mode check)
+  wireFxStripClickHandlers / onFxStripSpriteClick / createFxGroupFromStripSelection
+  selectAllFxStripSprites / onFxGroupChipActivate / buildEffectSpriteCover
+  openFxGroupColorSettings / loadOrBuildEffectSpriteCover
+  applyRecolorEffectsFiltersPreview (+ many guards)
+  UniqueStrip RE layout branches
+
+KEEP even if RE UI dies:
+  CostumeFxPaletteRuntime / FxRecolorUtils match apply of saved fxGroups
+
+==============================================================================
+5) NOT DEAD — the 400+ “suspicious” (<=2 hits, same file)
+==============================================================================
+These are almost all private helpers with exactly one caller in the same file
+(definition + call = 2). Examples: armStudioMatchKeep, makeColorBoxes,
+CacheWarmPreload pumps, CostumeSelectorDisplay click handlers, etc.
+
+Do not mass-delete from that list.
+
+==============================================================================
+6) CLASSES
+==============================================================================
+No unreferenced classes. Every public class name appears elsewhere in src.
+
+==============================================================================
+7) SUGGESTED CLEANUP ORDER
+==============================================================================
+A. Delete section-1 confirmed dead (~32 symbols) + orphan draft-offer UI if unused.
+B. Gut RE UI surface (section 4); leave match FX runtime.
+C. Re-run name audit; expect unused→0 for those files.
+D. Rebuild mod.swf + LinkedFormPaint fixture.
+
+Machine-oriented leftover counts from first pass (for curiosity only):
+  unused hits=1 raw: 41 (includes 9 framework KEEP)
+  suspicious hits<=2: 426 (mostly live single-callers)
+  fixture-only: 4
+  defs scanned: 2602
