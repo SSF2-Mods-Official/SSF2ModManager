@@ -20,7 +20,6 @@ namespace SSF2ModManager.Services
     public static class ShellBaseService
     {
         public const string Repo = "SSF2-Mods-Official/SSF2-Shell-Base";
-        private const string LatestApi = "https://api.github.com/repos/" + Repo + "/releases/latest";
         public const string BuildInfoFile = "shell-base-build.json";
         public const string DefaultVanillaFolder = @"C:\Program Files (x86)\Super Smash Flash 2 Beta";
         /// <summary>sha256 of <c>SSF2.swf</c> in the 64-bit installer the patches were captured on.</summary>
@@ -75,19 +74,29 @@ namespace SSF2ModManager.Services
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SSF2ModManager", "shellbase");
 
         /// <summary>Latest release with both .ssfpatch files, or null when there is none.</summary>
-        public static async Task<Release?> GetLatestAsync(CancellationToken ct = default)
+        public static async Task<Release?> GetLatestAsync(
+            bool includePrereleases = false,
+            CancellationToken ct = default)
         {
             using var http = CreateClient("application/vnd.github+json");
-            using var response = await http.GetAsync(LatestApi, ct);
-            if (!response.IsSuccessStatusCode)
+            using var doc = await GitHubReleaseChannel.FetchNewestDocumentAsync(http, Repo, includePrereleases, ct);
+            if (doc == null)
             {
-                DebugLogger.Log($"[shellbase] latest release HTTP {(int)response.StatusCode} token={(Token() != null ? 1 : 0)}");
+                DebugLogger.Log($"[shellbase] latest release missing token={(Token() != null ? 1 : 0)} prerelease={(includePrereleases ? 1 : 0)}");
                 return null;
             }
-            await using var stream = await response.Content.ReadAsStreamAsync(ct);
-            using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: ct);
+            return ParseRelease(doc.RootElement);
+        }
+
+        public static Release? ParseRelease(JsonElement root)
+        {
             ReleaseAsset? core = null, assets = null;
-            foreach (var a in doc.RootElement.GetProperty("assets").EnumerateArray())
+            if (!root.TryGetProperty("assets", out var assetArr) || assetArr.ValueKind != JsonValueKind.Array)
+            {
+                DebugLogger.Log("[shellbase] latest release missing assets array");
+                return null;
+            }
+            foreach (var a in assetArr.EnumerateArray())
             {
                 var asset = new ReleaseAsset(a.GetProperty("id").GetInt64(), a.GetProperty("name").GetString() ?? "",
                     a.GetProperty("size").GetInt64());
@@ -149,7 +158,7 @@ namespace SSF2ModManager.Services
             ZipFile.ExtractToDirectory(assetsPath, pkg);
 
             progress.Report(SetupService.Say(40, "Making sure the tools are installed."));
-            await Next2FlashSetup.EnsureAsync(ct);
+            await Next2FlashSetup.EnsureAsync(ct, includePrereleases: new SettingsService().GetExperimentalBranch());
             var out_ = Path.Combine(CacheDirectory, "out");
             if (Directory.Exists(out_))
                 Directory.Delete(out_, recursive: true);

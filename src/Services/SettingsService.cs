@@ -25,6 +25,8 @@ namespace SSF2ModManager.Services
         [Newtonsoft.Json.JsonProperty(DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Populate)]
         [System.ComponentModel.DefaultValue(true)]
         public bool UpdateAutomatically { get; set; } = true;
+        /// <summary>Check Updates includes GitHub prereleases for Mod Manager, Shell, and Next2Flash.</summary>
+        public bool ExperimentalBranch { get; set; }
         /// <summary>Per character id → update prefs (assets / SWF checkboxes).</summary>
         public Dictionary<string, CharacterUpdatePrefs> CharacterUpdatePrefs { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         /// <summary>Configure dialog launch prefs (written to data/ssf2mm on Launch).</summary>
@@ -231,6 +233,14 @@ namespace SSF2ModManager.Services
         public void SetUpdateAutomatically(bool enabled)
         {
             _settings.UpdateAutomatically = enabled;
+            Save();
+        }
+
+        public bool GetExperimentalBranch() => _settings.ExperimentalBranch;
+
+        public void SetExperimentalBranch(bool enabled)
+        {
+            _settings.ExperimentalBranch = enabled;
             Save();
         }
 

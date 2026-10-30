@@ -16,8 +16,7 @@ namespace SSF2ModManager.Services
     /// </summary>
     public static class Next2FlashSetup
     {
-        private const string ReleaseApi =
-            "https://api.github.com/repos/SSF2-Mods-Official/Next2Flash/releases/latest";
+        public const string Repo = "SSF2-Mods-Official/Next2Flash";
 
         public static string InstallDirectory
         {
@@ -93,7 +92,7 @@ namespace SSF2ModManager.Services
         }
 
         public static async Task EnsureAsync(CancellationToken cancellationToken = default, bool update = false,
-            IProgress<string>? progress = null)
+            IProgress<string>? progress = null, bool includePrereleases = false)
         {
             MigrateLegacy();
             var root = AppPaths.Next2FlashRoot;
@@ -104,12 +103,12 @@ namespace SSF2ModManager.Services
                     if (IsSourceCheckout(root))
                         throw new InvalidOperationException(
                             "This Next2Flash is a source checkout (" + root + "). Update it with git pull.");
-                    await DownloadReleaseAsync(root, cancellationToken, progress);
+                    await DownloadReleaseAsync(root, cancellationToken, progress, includePrereleases);
                 }
             }
             else
             {
-                await DownloadReleaseAsync(InstallDirectory, cancellationToken, progress);
+                await DownloadReleaseAsync(InstallDirectory, cancellationToken, progress, includePrereleases);
             }
 
             if (AppPaths.Next2FlashRoot == null)
@@ -123,10 +122,10 @@ namespace SSF2ModManager.Services
         }
 
         private static async Task DownloadReleaseAsync(string target, CancellationToken cancellationToken,
-            IProgress<string>? progress = null)
+            IProgress<string>? progress = null, bool includePrereleases = false)
         {
-            DebugLogger.Log($"[Next2Flash] downloading the latest release target={target}");
-            var remote = await FindReleaseAsync(cancellationToken);
+            DebugLogger.Log($"[Next2Flash] downloading the latest release target={target} prerelease={(includePrereleases ? 1 : 0)}");
+            var remote = await FindReleaseAsync(includePrereleases, cancellationToken);
             if (remote == null)
             {
                 throw new InvalidOperationException(
@@ -272,12 +271,14 @@ namespace SSF2ModManager.Services
         }
 
         /// <summary>True when the downloaded copy's tag is behind the latest release. A source checkout is not behind.</summary>
-        public static async Task<(bool Behind, string Detail)> UpdateStatusAsync(CancellationToken cancellationToken = default)
+        public static async Task<(bool Behind, string Detail)> UpdateStatusAsync(
+            bool includePrereleases = false,
+            CancellationToken cancellationToken = default)
         {
             var root = AppPaths.Next2FlashRoot;
             if (root != null && IsSourceCheckout(root))
                 return (false, "source");
-            var remote = await FindReleaseAsync(cancellationToken);
+            var remote = await FindReleaseAsync(includePrereleases, cancellationToken);
             if (remote == null)
                 return (false, "none");
             if (root == null)
@@ -287,16 +288,23 @@ namespace SSF2ModManager.Services
             return (false, remote.Tag);
         }
 
-        private static async Task<RemoteRelease?> FindReleaseAsync(CancellationToken cancellationToken)
+        private static async Task<RemoteRelease?> FindReleaseAsync(
+            bool includePrereleases,
+            CancellationToken cancellationToken)
         {
             using var http = new HttpClient();
-            http.DefaultRequestHeaders.UserAgent.ParseAdd("SSF2ModManager");
-            using var response = await http.GetAsync(ReleaseApi, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-            using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
-            var tag = doc.RootElement.TryGetProperty("tag_name", out var tagEl) ? tagEl.GetString() ?? "" : "";
-            if (!doc.RootElement.TryGetProperty("assets", out var assets))
+            http.DefaultRequestHeaders.UserAgent.ParseAdd(AppInfo.UserAgent);
+            using var doc = await GitHubReleaseChannel.FetchNewestDocumentAsync(
+                http, Repo, includePrereleases, cancellationToken);
+            if (doc == null)
+                return null;
+            return ParseRemoteRelease(doc.RootElement);
+        }
+
+        private static RemoteRelease? ParseRemoteRelease(JsonElement root)
+        {
+            var tag = root.TryGetProperty("tag_name", out var tagEl) ? tagEl.GetString() ?? "" : "";
+            if (!root.TryGetProperty("assets", out var assets))
                 return null;
             foreach (var asset in assets.EnumerateArray())
             {

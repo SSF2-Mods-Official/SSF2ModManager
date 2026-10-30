@@ -238,9 +238,12 @@ namespace SSF2ModManager.Views
             var n2f = false;
             var shellUpdate = false;
             ShellBaseService.Release? latest = null;
+            var experimental = _settings.GetExperimentalBranch();
+            DebugLogger.Log($"[update] channel={(experimental ? "experimental" : "stable")}");
             try
             {
-                var check = await LauncherUpdateService.CheckAndUpdateAsync(InstallRoot, download: false);
+                var check = await LauncherUpdateService.CheckAndUpdateAsync(
+                    InstallRoot, download: false, includePrereleases: experimental);
                 if (check.Ok && !check.UpToDate)
                 {
                     manager = true;
@@ -253,7 +256,7 @@ namespace SSF2ModManager.Views
             }
             try
             {
-                var status = await Next2FlashSetup.UpdateStatusAsync();
+                var status = await Next2FlashSetup.UpdateStatusAsync(includePrereleases: experimental);
                 if (status.Behind && AppPaths.Next2FlashRoot != null)
                 {
                     n2f = true;
@@ -271,7 +274,7 @@ namespace SSF2ModManager.Views
             {
                 try
                 {
-                    latest = await ShellBaseService.GetLatestAsync();
+                    latest = await ShellBaseService.GetLatestAsync(includePrereleases: experimental);
                 }
                 catch (Exception ex)
                 {
@@ -299,7 +302,7 @@ namespace SSF2ModManager.Views
             try
             {
                 if (n2f)
-                    await Next2FlashSetup.EnsureAsync(update: true);
+                    await Next2FlashSetup.EnsureAsync(update: true, includePrereleases: experimental);
                 if (shellUpdate && latest != null && shell != null)
                 {
                     var vanilla = SetupService.FindVanilla(_settings.GetVanillaSsf2Folder());
@@ -325,7 +328,8 @@ namespace SSF2ModManager.Views
                                 BusyProgress.IsIndeterminate = false;
                                 BusyProgress.Value = p.fraction.Value;
                             }
-                        }));
+                        }),
+                        includePrereleases: experimental);
                     SetStatus("Update finished", result.Message, 1);
                     if (result.Ok && LauncherUpdateService.RestartRequired)
                     {

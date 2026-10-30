@@ -39,6 +39,7 @@ namespace SSF2ModManager.Views
             }
             TxtEventCreator.Text = _settings.GetEventCreator();
             ChkUpdateAuto.IsChecked = _settings.GetUpdateAutomatically();
+            ChkExperimentalBranch.IsChecked = _settings.GetExperimentalBranch();
             ChkClockAmPm.IsChecked = _settings.GetClockUseAmPm();
             ChkPauseMusic.IsChecked = _settings.GetPauseMusicOnLaunch();
             ChkSyncMusic.IsChecked = _settings.GetSyncMusicWithGame();
@@ -200,6 +201,12 @@ namespace SSF2ModManager.Views
         {
             if (!_ready) return;
             _settings.SetUpdateAutomatically(ChkUpdateAuto.IsChecked == true);
+        }
+
+        private void ChkExperimentalBranch_Changed(object sender, RoutedEventArgs e)
+        {
+            if (!_ready) return;
+            _settings.SetExperimentalBranch(ChkExperimentalBranch.IsChecked == true);
         }
 
         private void ChkPauseMusic_Changed(object sender, RoutedEventArgs e)

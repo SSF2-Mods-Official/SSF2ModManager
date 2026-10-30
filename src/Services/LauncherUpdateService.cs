@@ -14,8 +14,10 @@ namespace SSF2ModManager.Services
     {
         private static readonly HttpClient Http = CreateClient();
 
+        public const string Repo = "SSF2-Mods-Official/SSF2ModManager";
+
         public const string ReleasesApiLatest =
-            "https://api.github.com/repos/SSF2-Mods-Official/SSF2ModManager/releases/latest";
+            "https://api.github.com/repos/" + Repo + "/releases/latest";
 
         public const string ReleasesLatestPage =
             "https://github.com/SSF2-Mods-Official/SSF2ModManager/releases/latest";
@@ -52,13 +54,18 @@ namespace SSF2ModManager.Services
             public string? DownloadedPath { get; init; }
         }
 
-        public static async Task<ReleaseInfo?> FetchLatestAsync(CancellationToken ct = default)
+        public static async Task<ReleaseInfo?> FetchLatestAsync(
+            bool includePrereleases = false,
+            CancellationToken ct = default)
         {
-            using var resp = await Http.GetAsync(ReleasesApiLatest, ct);
-            if (!resp.IsSuccessStatusCode) return null;
-            await using var stream = await resp.Content.ReadAsStreamAsync(ct);
-            using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: ct);
-            var root = doc.RootElement;
+            using var doc = await GitHubReleaseChannel.FetchNewestDocumentAsync(Http, Repo, includePrereleases, ct);
+            if (doc == null)
+                return null;
+            return ParseRelease(doc.RootElement);
+        }
+
+        public static ReleaseInfo ParseRelease(JsonElement root)
+        {
             var info = new ReleaseInfo
             {
                 TagName = root.TryGetProperty("tag_name", out var t) ? t.GetString() ?? "" : "",
@@ -90,7 +97,8 @@ namespace SSF2ModManager.Services
             string installRoot,
             bool download,
             IProgress<(string status, double? fraction)>? progress = null,
-            CancellationToken ct = default)
+            CancellationToken ct = default,
+            bool includePrereleases = false)
         {
             if (download)
                 RestartRequired = false;
@@ -98,7 +106,7 @@ namespace SSF2ModManager.Services
             ReleaseInfo? release;
             try
             {
-                release = await FetchLatestAsync(ct);
+                release = await FetchLatestAsync(includePrereleases, ct);
             }
             catch (Exception ex)
             {

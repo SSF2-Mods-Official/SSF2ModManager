@@ -24,6 +24,14 @@
                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"
                       Checked="ChkUpdateAuto_Changed" Unchecked="ChkUpdateAuto_Changed"/>
 
+            <CheckBox x:Name="ChkExperimentalBranch" Content="Use experimental branch"
+                      Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"
+                      Tag="Receives GitHub prereleases for Mod Manager, SSF2 Shell, and Next2Flash."
+                      Checked="ChkExperimentalBranch_Changed" Unchecked="ChkExperimentalBranch_Changed"/>
+            <TextBlock Text="Receives prereleases for Mod Manager, SSF2 Shell, and Next2Flash."
+                       FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"
+                       Margin="24,0,0,10" TextWrapping="Wrap"/>
+
             <CheckBox x:Name="ChkPauseMusic" Content="Pause music when the game launches"
                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"
                       Tag="Stops the launcher player when SSF2 starts. Sync music clears the song so the game's music is the one that shows."

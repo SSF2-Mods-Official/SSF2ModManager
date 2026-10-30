@@ -1,6 +1,6 @@
 {
     "version":  1,
-    "updated":  "2026-10-29T07:01:57.4048341Z",
+    "updated":  "2026-10-30T03:43:35.5464974Z",
     "articles":  [
                      {
                          "id":  "2026-06-07-v1-release",
@@ -151,6 +151,20 @@
                          "date":  "2026-10-29",
                          "tags":  [
                                       "shell"
+                                  ],
+                         "draft":  false,
+                         "assets":  [
+                                        "article.md",
+                                        "hero.svg"
+                                    ]
+                     },
+                     {
+                         "id":  "2026-10-29-v0-9-5",
+                         "path":  "src/News/2026-10-29-v0-9-5",
+                         "title":  "SSF2 Beta Mod Manager v0.9.5",
+                         "date":  "2026-10-29",
+                         "tags":  [
+                                      "release"
                                   ],
                          "draft":  false,
                          "assets":  [

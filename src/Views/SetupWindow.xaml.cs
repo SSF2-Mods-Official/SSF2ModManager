@@ -167,7 +167,10 @@ namespace SSF2ModManager.Views
             await RunAsync("Next2Flash", async p =>
             {
                 p.Report(SetupService.Say(5, "Downloading the tools. This is the big download."));
-                await Next2FlashSetup.EnsureAsync(update: _status?.Next2Flash != null, progress: p);
+                await Next2FlashSetup.EnsureAsync(
+                    update: _status?.Next2Flash != null,
+                    progress: p,
+                    includePrereleases: _settings.GetExperimentalBranch());
                 return PortableToolchain.HasPython() && PortableToolchain.HasJre()
                     ? "Next2Flash is ready (portable Python + JRE)."
                     : "Next2Flash is ready.";
@@ -231,7 +234,8 @@ namespace SSF2ModManager.Views
             await RunAsync("SSF2 Shell", async p =>
             {
                 p.Report(SetupService.Say(5, "Looking up the latest SSF2 Shell."));
-                var latest = await ShellBaseService.GetLatestAsync()
+                var latest = await ShellBaseService.GetLatestAsync(
+                        includePrereleases: _settings.GetExperimentalBranch())
                     ?? throw new InvalidOperationException("No SSF2 Shell Base release with .ssfpatch files was found.");
                 var target = s.Shell ?? SetupService.DefaultShellTarget();
                 await VanillaHashPrompt.BuildAsync(latest, s.Vanilla, target, p, _settings, AskVanilla);

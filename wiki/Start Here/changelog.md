@@ -4,6 +4,16 @@ summary: The same posts as News in the Mod Manager.
 order: 15
 ---
 
+## SSF2 Beta Mod Manager v0.9.5
+
+2026-10-29
+
+**Settings** has **Use experimental branch**. When it is on, Check for updates can offer GitHub prereleases for the Mod Manager, SSF2 Shell, and Next2Flash. Leave it off to stay on the stable releases only.
+
+[v0.9.5 release](https://github.com/SSF2-Mods-Official/SSF2ModManager/releases/tag/v0.9.5)
+
+If you already have the Mod Manager, open **News** and click **Check for updates**, or restart the Mod Manager.
+
 ## SSF2 Shell v0.9.4
 
 2026-10-29
