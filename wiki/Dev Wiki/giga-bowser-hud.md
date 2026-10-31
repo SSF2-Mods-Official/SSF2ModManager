@@ -12,10 +12,10 @@ group: Characters
 | Giga Bowser HUD |
 | --- |
 | Portrait | `HealthBox.charHead` |
-| Live block | `paletteSwapPA` |
+| Live block | `portraitPaintBlock(paletteSwap, paletteSwapPA)` |
 | Related | [Where things are](where-things-are.md) |
 
-`paintLivePortrait` restores the cached portrait and applies the live `paletteSwapPA` for Bowser and Giga Bowser. A transform that draws new portrait art is recolored on the next stance paint. [Where things are](where-things-are.md) lists the palette maker sources.
+`paintLivePortrait` restores the cached portrait and applies `portraitPaintBlock` for Bowser and Giga Bowser. A shared source keeps the portrait replacement. A color that is only on the body block still recolors. A transform that draws new portrait art is recolored on the next stance paint. [Where things are](where-things-are.md) lists the palette maker sources.
 
 ## Contents
 
@@ -30,7 +30,7 @@ Bowser's `applyGigaBowserPalette` stores the Giga block with `setPaletteSwapData
 
 | Function | What it does | Log |
 | --- | --- | --- |
-| `paintLivePortrait(statsName, portrait, paletteSwapPA)` | Restores the cached portrait pixels, then applies the live `paletteSwapPA` when the stats name is `bowser` or `gigabowser`. A bitmap whose corner pixel still matches the last paint is left alone. Pixels the game replaced are cached again and recolored. `paintStockPortrait` logs once per character when the block changes. | `[Palette Maker] form hud pa stats=` |
+| `paintLivePortrait(statsName, portrait, block)` | Restores the cached portrait pixels, then applies `block` when the stats name is `bowser` or `gigabowser`. `paintStockPortrait` passes `portraitPaintBlock(paletteSwap, paletteSwapPA)`. Each pair matches the original pixels. A bitmap whose corner pixel still matches the last paint is left alone. Pixels the game replaced are cached again and recolored. The log is once per character when either block changes. | `[Palette Maker] form hud pa stats=` |
 | `BowserExt.applyGigaBowserPalette` | Stores the Giga `paletteSwap` and `paletteSwapPA` for the current costume index. | |
 | `Character.activateFinalForm` | `reapplyCostume` paints the portrait from `CostumeName`. | |
 
