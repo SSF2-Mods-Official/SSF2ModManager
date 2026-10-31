@@ -33,13 +33,14 @@ My Jukebox is the built-in music mod: Options > Sounds, the Stage Select button,
 
 | Function | What it does | Log line |
 | --- | --- | --- |
-| `MusicPlayerMod.onPatchedPlayMusic` | Routes an upload or folder track to local playback. Anything else goes to `SoundQueue.playMusicStock` | `[music_player] playMusic local step failed (<id>): <err>`, `[music_player] stock play failed: <err>` |
+| `MusicPlayerMod.onPatchedPlayMusic` | A menu sound with Menu Music enabled plays a track from that playlist. An upload or folder track plays locally. Anything else goes to `SoundQueue.playMusicStock` | `[music_player] menu playlist id=`, `[music_player] playMusic local step failed`, `[music_player] stock play failed` |
+| `MusicPlayerMod.applyBgmVolume` | Writes `SaveData.BGVolumeLevel` and the live music channel. The jukebox slider calls this | `[music_player] volume=` |
 | `MusicModLocalPlayback.playLocalTrack` | Opens the file, transcodes non-Flash MP3 first, and loads it into a `Sound` | `[music_player] local load failed (<id>): <err>`, `[music_player] local play failed: <err>` |
 | `MusicModMatchMusic.onModeStart` | Resets playback, `chooseMatchTrackId` (replay stamp, claim, override, playlist). `MusicOverrideCodec.decode` supplies the track. An empty track leaves the stage song. A write uses `withTrack`, so `|bg=` stays. | `[music_player] replay music missing — using stage default (<id>)`, `[music_player] MODE_START ensure failed <id>` |
 | `MusicPlaylistStore.save` | Writes the playlist JSON to disk and to `saveExtSet` | `[music_player] playlist save serialize failed`, `... write failed`, `... saveExtSet failed` |
 | `MusicUiOnline.installOnlineMod` | Downloads a GameBanana pack, then `MusicPacks.sync` | `[music_player] online install start failed (<modId>)`, `[music_player] online install sync failed` |
 | `MusicSongCache.mergeStockList` | Reads the stock `data/ssf2mm/music_player/list.json` (vanilla only: 185 `tracks`, the per-stage `stages` lists, and `other`). Pack songs come from `expansions/songs/packs/<id>/list.json` through `MusicPacks`, never from the stock list | — |
-| `MusicSongCache.mergeDiskCache` | Merges `data/ssf2mm/state/songcache.json` after the stock list. `MusicCacheFilter.keep(meta, stock)` keeps a cached track when it is stock or its pack `swf` / upload `file` exists. `MusicCacheFilter.listed` is false when that track has no sound file, no library sound, and no pack audio, and `MusicUiSongs.appendUnique` skips it, so a removed song does not stay in the list as `…` | `[music_player] songcache merge dropped=<n> (no stock entry, audio missing)` |
+| `MusicSongCache.mergeDiskCache` | Merges `expansions/user/songcache.json` after the stock list. `MusicCacheFilter.keep(meta, stock)` keeps a cached track when it is stock or its pack `swf` / upload `file` exists. `MusicCacheFilter.listed` is false when that track has no sound file, no library sound, and no pack audio, and `MusicUiSongs.appendUnique` skips it, so a removed song does not stay in the list as `…` | `[music_player] songcache merge dropped=<n> (no stock entry, audio missing)` |
 | `MusicModMatchMusic.onSongPicked` | Starts `playTrack` (async load) and claims the pick for the next match. The toast takes its title from `matchPickTitle(trackId)`, because `m_currentTitle` still names the previous song until the load finishes | `Match music: <title>` (MultiplayerManager notify) |
 | `MusicPlayerMod.onBootEnd` | Stops playback, detaches buttons, disarms the pause-Taunt and Taunt+Grab frames, and removes every hook | — |
 | `MusicModInput.onKeyEvent` | F3 opens My Jukebox. Ctrl+Shift+M calls `toggleBgmMute` | `[music_player] mute`, `[music_player] unmute vol=` |
@@ -50,7 +51,8 @@ My Jukebox is the built-in music mod: Options > Sounds, the Stage Select button,
 | `MusicModTransport.managerSeek` | While playing, `seekRatio`. While paused, stores the position | `[music_player] managerSeek pos= paused=` |
 | `MusicModTransport.managerState` | Track id, title, position, paused, and duration for `now-playing.json` | — |
 | `MusicSeriesResolver.seriesKeyFromEntry` | Non-empty `icon` wins over `stageLogo`. Otherwise `stageLogo` yields `stage:{id}`. Desk uses `chibi_icon`. Jungle Island / Urban Champion / Venus use SSS clips when mapped; Smashville / Steel Diver use `stage:` | Desk → `icon:chibi_icon` |
-| `MusicStageVisuals.extractLiveLogo` | Clones `stagePreviewer` from the live game library (`misc2.swf` via `ResourceManager`), goes to the stage frame, and peels the series mark. On every stage frame the mark is SWF depth 11 (`PlaceObject3`); preview art is depth 1. Timeline children are depth-ordered, so the mark is the topmost child. `smashville` / `steeldiver` force that topmost child and skip the size reject (no `SymbolSSS`) | `[music_player] extractLiveLogo id= step=frame\|host\|child\|reject` |
+| `MusicHardcodedLogos.forStage` | Smashville / Steel Diver: embedded PNGs from misc2 chids **843** / **904**. Export with `ffdec -zoom 8` (~304×304 / ~388×218); 1× rasters look soft when fit to icon size | — |
+| `MusicStageVisuals.extractLiveLogo` | Clones `stagePreviewer`, peels depth-11 mark for other `stage:` keys | `[music_player] extractLiveLogo id= step=` |
 | `MusicStageVisuals.extractSelectLogo` | Fallback peel from `{id}_stage_select` | — |
 | `MusicSeriesResolver.attachIcon` | `icon:…` from the library. `stage:…` via `extractLiveLogo` then `extractSelectLogo`. Smash ball last — never tint full `_stage_select` | — |
 | `MusicUiGrid.getOrBuildTileArt` | Tile fill is `{id}_stage_select`. Other Stages hub uses `traininggrid` fill and `KEY_OTHER` | — |
@@ -63,7 +65,11 @@ Tinting a full `_stage_select` (or a mis-peeled preview plate) as the album symb
 
 ### Smashville / Steel Diver logos
 
-Those marks live on the `stagePreviewer` frame at depth 11 (maple leaf / cabin), not as `*SymbolSSS` exports. `forceDepth11Logo` always peels the topmost child and skips `logoLooksLikeMark`, because a tight host can make the mark look “too large” and fall back to smash ball.
+misc2 PlaceObject3 depth 11 uses character id **843** (Animal Crossing leaf) and **904** (Steel Diver cabin). No SymbolSSS / linkage name. `MusicHardcodedLogos` embeds PNGs exported from those chids; `attachIcon` prefers them before peel / smash ball.
+
+### Soft / blurry Smashville and Steel Diver logos
+
+Default ffdec sprite export is ~38×38 / ~49×28. Upscaling into icon slots looks soft. Re-export with `ffdec-cli -zoom 8 -selectid 843,904 -format sprite:png -export sprite <out> misc2.swf`, copy into `music_player/src/assets/logo_*.png`, rebuild.
 
 ## Files
 
@@ -81,7 +87,7 @@ Those marks live on the `stagePreviewer` frame at depth 11 (maple leaf / cabin),
 | `MusicPlayerUi.as` | Jukebox open/close, chrome, tabs, paint |
 | `MusicUiGrid.as`, `MusicUiSongs.as`, `MusicUiSongList.as` | Album grid, song context, song list rows |
 | `MusicUiPlaylistEdit.as` | Add/remove songs, rename/delete/save as pack, uploads |
-| `MusicUiInput.as` | Per-frame pad poll (`onFrame`), hold repeat, key handler |
+| `MusicUiInput.as` | Per-frame **gamepad-only** poll (`GamepadInstance` required). Keyboard hotkeys removed; search Escape only |
 | `MusicUiTransport.as` | Now-playing bar wiring and backgrounds |
 | `MusicUiDialogs.as`, `MusicFilterListPicker.as`, `MusicTilePicker.as` | Modal overlays and pickers |
 | `MusicUiTrackSettings.as`, `MusicUiTheme.as`, `MusicUiSearch.as`, `MusicUiScroll.as`, `MusicUiOnline.as` | Settings menus, theme colors, search, scrollbar, online tab |

@@ -9,7 +9,7 @@ import { pickAneExtdir, pickLaunchAdl } from "./adlPath";
 import { adlExe } from "./next2flash";
 import { launcherInstallFolder, resolveDevFolderAt } from "./devFolder";
 import { prepareLaunchSpec } from "./prepareLaunch";
-import { stateDir, ssf2mmDir } from "./ssf2mmPaths";
+import { stateDir } from "./ssf2mmPaths";
 
 function cfg() {
   const real = vscode.workspace.getConfiguration("ssf2Stream");
@@ -1017,8 +1017,8 @@ export function writeLaunchCommand(
 ): { logPath: string; tracePath: string } {
   const dir = stateDir(buildRoot);
   fs.mkdirSync(dir, { recursive: true });
-  const logFile = "data/ssf2mm/game.log";
-  const logPath = path.join(ssf2mmDir(buildRoot), "game.log");
+  const logFile = "expansions/state/game.log";
+  const logPath = path.join(stateDir(buildRoot), "game.log");
   const tracePath = path.join(dir, "air_trace.txt");
   try {
     fs.writeFileSync(logPath, `[ssf2-stream] launch ${new Date().toISOString()}\n`, "utf8");
@@ -1110,7 +1110,7 @@ export function writeApplyCommand(
       match = { ...match, immediate: true };
     }
   }
-  const logPath = path.join(ssf2mmDir(buildRoot), "game.log");
+  const logPath = path.join(stateDir(buildRoot), "game.log");
   const vaultAction = cfg().get<string>("vaultAction", "intro") || "intro";
   const screen = p.screen || "home";
   let bootIntro = cfg().get<string>("bootIntro", "default");

@@ -51,7 +51,7 @@ Edit the mod under `SSF2 Shell Base/shell/src/mods/<id>`. Run `work/mods_sync.ps
 | Id | Entry class | What it does |
 | --- | --- | --- |
 | `camera_background` | `CameraBackgroundMod` | Shield on Stage Select locks another stage's camera backgrounds for the next match (`applyBackgroundStage` patch, session flag `backgroundStage`, stamped into replays). Compiles `MenuBgStageStub` from `menu_background/src` to run the overlay stage's scripted layers. |
-| `controller_profiles` | `ControllerProfilesMod` | Nametag list on the Character Select edit button and a Profiles bar on Controls. Each name keeps its keyboard and controller bindings. Data: `data/ssf2mm/state/controller_profiles.json` (the Mod Manager's Configure Launch tags read the same file). |
+| `controller_profiles` | `ControllerProfilesMod` | Nametag list on the Character Select edit button and a Profiles bar on Controls. Each name keeps its keyboard and controller bindings. Data: `expansions/user/controller_profiles.json` (the Mod Manager's Configure Launch tags read the same file). |
 | `debug` | `DebugMod` | Backtick console (`ShellDebugConsole` replaces `DebugConsole`) and the hitbox test menu. |
 | `expansions` | `ExpansionsMod` | Loads character, stage and event packs (`ExpansionResources.dispatch` behind `expansion_loader.rm`), GameBanana event downloads. |
 | `manager_bridge` | `ManagerBridgeMod` | File protocol with the SSF2 Mod Manager (`Ssf2StreamMod`), attract mode, boot intros, crash reports. |
@@ -74,7 +74,7 @@ These names are read by the engine, by other mods, or by the Mod Manager. A clea
 | Called by name | `PaletteMakerMenu.warmUniqueSpriteCache*`, `DiscordCostumePresence.rememberLastActivity`, `HitBoxTestMenu`, `ExpansionEventOrchestrator.getSummary`, the getters on `MenuBgStageStub` and `MenuBgPlatformStub` |
 | Mod events | `mod_menu.register`, `mod_menu.unregister`, `mod_menu.open`, `mod_menu.ready`, `css_editor.open`, `stage_editor.open`, `menu_background.preview`, `menu_background.clearPreview`, `camera_background.beginPick`, `camera_background.cancelPick` |
 | Save keys | `css_editor_rows`, `css_editor_pages`, `css_editor_seen_expansions`, `stage_editor_grid`, `stage_editor_page_count`, `stage_editor_training`, `stage_editor_seen_expansions`, `menu_background_stage_id`, `menu_music_id`, `menu_music_loop`, `mod_menu.reopen`, `mod_menu.hotkey`. Files: `replay_folder.cfg` (app storage, replay_browser) |
-| Bridge files | `data/ssf2mm/state/`: `launch.json`, `boot.json`, `cmd.json`, `pointer.json`, `menu-music.json`, `now-playing.json`, `catalog.json`, `cursor.json`, `stage.json`, `alert.json`, `last_error.txt` |
+| Bridge files | `expansions/state/`: `launch.json`, `boot.json`, `cmd.json`, `pointer.json`, `now-playing.json`, `catalog.json`, `cursor.json`, `stage.json`, `alert.json`, `last_error.txt`. `menu-music.json` is `expansions/user/` |
 
 ## Shared code
 

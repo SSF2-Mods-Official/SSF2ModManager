@@ -18,7 +18,7 @@ group: Stages
 | Log | `sssedit menu ready` |
 | Related | [Manage character select](manage-character-select.md) |
 
-Manage stage select writes `data/ssf2mm/state/launch.json` with `screen` `sssedit`. The stream opens stage select. The editor enters live edit when that grid is ready. [Manage character select](manage-character-select.md) does the same for Versus character select.
+Manage stage select writes `expansions/state/launch.json` with `screen` `sssedit`. The stream opens stage select. The editor enters live edit when that grid is ready. [Manage character select](manage-character-select.md) does the same for Versus character select.
 
 ## Contents
 

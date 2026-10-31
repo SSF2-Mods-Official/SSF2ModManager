@@ -33,7 +33,7 @@ import { streamTabShowOptions } from "./streamTab";
 import { BgmPreviewServer, extractMp3FromSwf } from "./bgmPreview";
 import { applyManagerOverlay, patchManagerSettings, watchManagerSettings } from "./managerPrefs";
 import { compileFolder, listCompileFolders } from "./compileFolder";
-import { stateDir, ssf2mmDir } from "./ssf2mmPaths";
+import { stateDir } from "./ssf2mmPaths";
 
 const DOM_KEY_TO_VK: Record<string, number> = {
   Backspace: 0x08,
@@ -830,7 +830,7 @@ export class StreamPanel {
       this.gameLog.show(true);
       return;
     }
-    const logPath = path.join(ssf2mmDir(build), "game.log");
+    const logPath = path.join(stateDir(build), "game.log");
     const tracePath = path.join(stateDir(build), "air_trace.txt");
     this.gameLog.start([logPath, tracePath], {
       // Default: only new bytes (capped tail if fromStart explicitly true).

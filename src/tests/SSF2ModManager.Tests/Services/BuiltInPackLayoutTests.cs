@@ -115,8 +115,8 @@ namespace SSF2ModManager.Tests.Services
 
                 Directory.CreateDirectory(Path.GetDirectoryName(legacy)!);
                 File.WriteAllText(legacy, "{\"enabled\":true,\"playlist\":[\"a\"]}");
-                ShellWorkspaceService.UserStateFile(root, "menu-music.json").Should().Be(legacy);
-                ShellConfigureLaunchService.ReadMenuPlaylist(root).Should().Equal("a");
+                ShellWorkspaceService.UserStateFile(root, "menu-music.json").Should().Be(user);
+                ShellConfigureLaunchService.ReadMenuPlaylist(root).Should().BeEmpty();
 
                 ShellConfigureLaunchService.WriteMenuMusic(root, "b", new[] { "b" });
                 File.Exists(user).Should().BeTrue();

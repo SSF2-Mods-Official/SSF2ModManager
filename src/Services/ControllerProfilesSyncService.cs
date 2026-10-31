@@ -30,9 +30,7 @@ namespace SSF2ModManager.Services
             foreach (var legacy in new[]
             {
                 Path.Combine(ShellWorkspaceService.StateDirectory(installRoot), "controller_profiles.json"),
-                Path.Combine(ShellWorkspaceService.LegacyStateDirectory(installRoot), "controller_profiles.json"),
                 Path.Combine(installRoot, "expansions", "mods", "controller_profiles", "profiles.json"),
-                Path.Combine(installRoot, "data", "ssf2mm", "controller_profiles", "profiles.json"),
                 Path.Combine(installRoot, "expansions", "essentials", "controller_profiles", "profiles.json")
             })
             {

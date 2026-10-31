@@ -18,7 +18,7 @@ group: Characters
 | Log | `cssedit menu ready` |
 | Related | [Where things are](where-things-are.md) |
 
-Manage Character Select writes `data/ssf2mm/state/launch.json` with `screen` `cssedit`. The stream opens Versus character select. The editor enters live edit when that grid is ready.
+Manage Character Select writes `expansions/state/launch.json` with `screen` `cssedit`. The stream opens Versus character select. The editor enters live edit when that grid is ready.
 
 ## Contents
 
@@ -49,7 +49,7 @@ A game that is already running receives the same `cssedit` screen on `applyLaunc
 | `notifyCssEdit` | Emits `css_editor.open` after the grid is ready. | `cssedit menu ready` |
 | `onCssEditOpen` | Calls `enterLiveEdit` on the host event. A late menu waits on `m_host.stage`. | `cssedit open tries=` |
 | `onCssMenuShow` | Lays the saved grid onto Versus, Training, Classic, All-Star, Online, and the event character menu. | `[css_editor] show ` |
-| `CssGridLayout.pinReadyPrompt` | After the grid fit, calls `updateGameIsReady` and moves a ready prompt whose stage y is outside 8–320 back onto the screen. | `[css_editor] ready prompt name=` |
+| `CssGridLayout.pinReadyPrompt` | After the grid fit, finds `SubMenu.readyToFight` (or name fallbacks), raises it to the top, pins near `m_hudY`, calls `updateGameIsReady`, then forces `visible` when the menu reports ready. Log only when vis/name changes. | `[css_editor] ready prompt name=` |
 
 ## Files
 

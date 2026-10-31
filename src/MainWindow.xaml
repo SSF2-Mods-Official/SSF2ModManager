@@ -1045,7 +1045,7 @@
             <views:ShellScaffoldPage x:Name="PageManageCss" Visibility="Collapsed"
                 Title="Manage Character Select"
                 Description="Opens SSF2 Shell on Character Select. Use the in-game CSS Editor (F1 → Edit Character Select) to rearrange chips."
-                StatusText="Direct launch writes data/ssf2mm/state/launch.json and starts the game. The Manager Bridge pack reads it after boot."
+                StatusText="Direct launch writes expansions/state/launch.json and starts the game. The Manager Bridge pack reads it after boot."
                 ActionLabel="▶  Open Character Select"
                 ActionClick="BtnManageCssLaunch_Click"
                 SecondaryLabel="Open CSS Editor notes"

@@ -16,7 +16,7 @@ group: Build
 | Built-in pack source | `SSF2 Shell Base/shell/src/mods/<pack id>` |
 | Built-in pack output | `SSF2 Shell Base/shell/data/ssf2mm/<pack id>/mod.swf`, copied to `Build` |
 | Optional mod source | `SSF2 Shell Base/Build/expansions/mods` |
-| Runtime state | `SSF2 Shell Base/Build/data/ssf2mm/state` |
+| Runtime state | `SSF2 Shell Base/Build/expansions/state` |
 | Player data | `SSF2 Shell Base/Build/expansions/user` |
 | Wiki | `runtime/shell-dev/docs` |
 | Related | Wiki |
@@ -82,7 +82,7 @@ A merged entry calls `onBoot`, `onBootStart` and `onBootEnd` on each part in ord
 
 ## Runtime state
 
-`ShellWorkspaceService.StateDirectory` is `data/ssf2mm/state`. It holds the files the manager and the running game pass to each other: `boot.json`, `launch.json`, `cmd.json`, `catalog.json`, `pointer.json`, `cursor.json`, `stage.json`, `now-playing.json`, `alert.json`, `last_error.txt` and `air_trace.txt`. The game side is `Ssf2StreamMod.bridgeDir`. The player's own data lives in `expansions/user` (`ShellWorkspaceService.UserStateDirectory`, game side `ssf2mm.shared.UserStateFile`): `controller_profiles.json`, `playlists.json`, `menu-music.json` and `songcache.json`, so it moves with the expansions folder in a modpack. Reads fall back to the old `data/ssf2mm/state` copy (`UserStateFile`), and the next save writes the `expansions/user` copy. The folder is gitignored. `game.log` stays in `data/ssf2mm`, because `GameLog` in engine2 has that default. `index.json` and `live.json` also stay; they are the content pack registry (see [Content packs](#content-packs)).
+`ShellWorkspaceService.StateDirectory` is `expansions/state`. It holds the files the manager and the running game pass to each other: `boot.json`, `launch.json`, `cmd.json`, `catalog.json`, `pointer.json`, `cursor.json`, `stage.json`, `now-playing.json`, `alert.json`, `last_error.txt`, `air_trace.txt`, and `game.log`. The game side is `Ssf2StreamMod.bridgeDir`, the folder that contains that log. `data/ssf2mm/state` is not read or written. The player's own data lives in `expansions/user` (`ShellWorkspaceService.UserStateDirectory`, game side `ssf2mm.shared.UserStateFile`): `controller_profiles.json`, `playlists.json`, `menu-music.json` and `songcache.json`. `index.json` and `live.json` stay in `data/ssf2mm`; they are the content pack registry (see [Content packs](#content-packs)).
 
 ## Content packs
 

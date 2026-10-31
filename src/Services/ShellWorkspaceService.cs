@@ -232,42 +232,21 @@ namespace SSF2ModManager.Services
         public static string GameLogPath(string installRoot) =>
             Path.Combine(StateDirectory(installRoot), "game.log");
 
-        /// <summary>Copies an existing <c>data/ssf2mm</c> log and state into <c>expansions/state</c> when the new copy is missing.</summary>
+        /// <summary>Creates <c>expansions/state</c>. Does not read or write <c>data/</c>.</summary>
         public static void EnsureRuntimeState(string installRoot)
         {
             if (string.IsNullOrWhiteSpace(installRoot))
                 return;
-            var next = StateDirectory(installRoot);
-            Directory.CreateDirectory(next);
-            var legacy = LegacyStateDirectory(installRoot);
-            if (Directory.Exists(legacy))
-            {
-                foreach (var file in Directory.EnumerateFiles(legacy))
-                {
-                    var dest = Path.Combine(next, Path.GetFileName(file));
-                    if (!File.Exists(dest))
-                        File.Copy(file, dest);
-                }
-            }
-            var oldLog = Path.Combine(Ssf2mmDirectory(installRoot), "game.log");
-            var newLog = GameLogPath(installRoot);
-            if (File.Exists(oldLog) && !File.Exists(newLog))
-                File.Copy(oldLog, newLog);
+            Directory.CreateDirectory(StateDirectory(installRoot));
         }
 
         /// <summary>The player's own data (controller profiles, playlists, menu music, song cache). Moves with the expansions folder.</summary>
         public static string UserStateDirectory(string installRoot) =>
             Path.Combine(ExpansionsRoot(installRoot), "user");
 
-        /// <summary>The user-folder copy when it exists, else the older <c>data/ssf2mm/state</c> copy, else the user-folder path.</summary>
-        public static string UserStateFile(string installRoot, string fileName)
-        {
-            var user = Path.Combine(UserStateDirectory(installRoot), fileName);
-            if (File.Exists(user))
-                return user;
-            var legacy = Path.Combine(LegacyStateDirectory(installRoot), fileName);
-            return File.Exists(legacy) ? legacy : user;
-        }
+        /// <summary>Player file under <c>expansions/user</c>. <c>data/</c> is not consulted.</summary>
+        public static string UserStateFile(string installRoot, string fileName) =>
+            Path.Combine(UserStateDirectory(installRoot), fileName);
 
         /// <summary>Source for the built-in packs. Compiling writes <c>data/ssf2mm/&lt;id&gt;/mod.swf</c>.</summary>
         public static string BuiltInModSourceDirectory(string installRoot) =>
