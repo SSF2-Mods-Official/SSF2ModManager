@@ -50,6 +50,7 @@ The engine calls into the mod host from code that runs every frame for every fig
 
 | Where | How often | State |
 | --- | --- | --- |
+| `paintStockPortrait` (`palette_maker`) | Every `Character.updatePaletteSwap` while Palette Maker listens | A Bowser or Giga portrait bitmap already painted with this block is not redrawn. The form hud log is once per character when the block changes. |
 | `CostumeFxPaletteRuntime.tickLive` (`palette_maker`) | Every frame while any player has an effect-recolor costume | `buildProjectileFxAliasMap` is cached per stats name and cleared by `resetMatchState` or a costume change. `uidOwnersChanged` rebuilds the owner map only when a player or costume differs. A stage layer is walked only when it gained children, a hook forces it, or the 30-frame safety pass runs. |
 | `StreamCursor.onCursorEnterFrame` (`manager_bridge`) | Every third frame | Off during matches; one `Point`; `pointer.json` checked at most every 500 ms. |
 | `ProfileCssHooks.onStagePencil` (`controller_profiles`) | Every click | `MOUSE_DOWN` only, so the name list opens once per click. |

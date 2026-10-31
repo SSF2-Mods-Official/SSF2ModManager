@@ -30,7 +30,7 @@ Bowser's `applyGigaBowserPalette` stores the Giga block with `setPaletteSwapData
 
 | Function | What it does | Log |
 | --- | --- | --- |
-| `paintLivePortrait(statsName, portrait, paletteSwapPA)` | Restores the cached portrait pixels, then applies the live `paletteSwapPA` when the stats name is `bowser` or `gigabowser`. The cache is a Dictionary on `LinkedFormPaint`. | `[Palette Maker] form hud pa stats=` |
+| `paintLivePortrait(statsName, portrait, paletteSwapPA)` | Restores the cached portrait pixels, then applies the live `paletteSwapPA` when the stats name is `bowser` or `gigabowser`. A bitmap already painted with that same block is left alone. The cache is a Dictionary on `LinkedFormPaint`. `paintStockPortrait` logs once per character when the block changes. | `[Palette Maker] form hud pa stats=` |
 | `BowserExt.applyGigaBowserPalette` | Stores the Giga `paletteSwap` and `paletteSwapPA` for the current costume index. | |
 | `Character.activateFinalForm` | `reapplyCostume` paints the portrait from `CostumeName`. | |
 
