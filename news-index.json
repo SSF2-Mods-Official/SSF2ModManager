@@ -1,6 +1,6 @@
 {
     "version":  1,
-    "updated":  "2026-10-30T03:43:35.5464974Z",
+    "updated":  "2026-10-31T03:26:06.8982602Z",
     "articles":  [
                      {
                          "id":  "2026-06-07-v1-release",
@@ -165,6 +165,20 @@
                          "date":  "2026-10-29",
                          "tags":  [
                                       "release"
+                                  ],
+                         "draft":  false,
+                         "assets":  [
+                                        "article.md",
+                                        "hero.svg"
+                                    ]
+                     },
+                     {
+                         "id":  "2026-10-30-shell-v0-9-5",
+                         "path":  "src/News/2026-10-30-shell-v0-9-5",
+                         "title":  "SSF2 Shell v0.9.5",
+                         "date":  "2026-10-30",
+                         "tags":  [
+                                      "shell"
                                   ],
                          "draft":  false,
                          "assets":  [
