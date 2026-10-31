@@ -79,7 +79,7 @@ The current Bowser sheet lists nine source colors the older costumes do not. `Pa
 
 A pair that already replaces one of the nine stays. A blank slot, where the replacement still equals the source, is filled when the neighbor was recolored. A block whose pairs are all equal to their sources stays as it is. The fighter block copies `420060`, `A99963`, and `DB00BE` from that costume's portrait block when the fighter is missing them, and takes `180101` from `000000`.
 
-That fill was applied once to `Documents/SSF2 Custom Colors/bowser.json`. A launch leaves the file alone when [Online sync](online-sync.md) sees the same vault file size in `localVaultIndexMatches`. Opening the online menu runs `ColorVaultSync.refreshForOnline`.
+That fill was applied once to `Documents/SSF2 Custom Colors/bowser.json`. The same pairs were written into Color Vault `bowser.as` for each catalog entry whose old palette matched that file. The catalog order stays put. A launch leaves the local file alone when [Online sync](online-sync.md) sees the same vault file size in `localVaultIndexMatches`. Opening the online menu runs `ColorVaultSync.refreshForOnline`.
 
 ## Files
 
