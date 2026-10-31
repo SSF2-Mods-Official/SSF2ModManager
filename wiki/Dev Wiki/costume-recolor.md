@@ -26,9 +26,10 @@ The base costume is the palette used when no alternate is selected. An active co
 2. [Palette block](#palette-block)
 3. [Preview log](#preview-log)
 4. [Leftover colors](#leftover-colors)
-5. [Files](#files)
-6. [Check](#check)
-7. [References](#references)
+5. [Bowser cuff colors](#bowser-cuff-colors)
+6. [Files](#files)
+7. [Check](#check)
+8. [References](#references)
 
 ## How it works
 
@@ -63,6 +64,22 @@ The pack **Leftover colors get recolored to base** lives in `expansions/mods/lef
 On boot the pack calls `LeftoverBase.scan`. That reads `costume_data` and every `Documents/SSF2 Custom Colors/<name>.json`, runs `fixLists`, and writes `leftover_base_recolor/<name>.json` in application storage for each character that gained pairs. The stock half of that JSON replaces `costume_data[name]` for the session. The files in Documents stay as they are. `COSTUME_LIST_MERGE` calls `applyList`, which puts the custom half onto the merged list `getCostume` clones. With the pack off, `onBoot` does not run, so the game keeps the original `costume_data` and the original custom JSON. The log is `[leftover_base] scan chars= fixed=` and `[leftover_base] apply name= customs=`.
 
 `getCostume` still calls the `leftoverBaseRecolor` patch after the clone. That line is in the engine source until **Compile folder** rebuilds `engine2.swf`. The scan does not wait on that swf. Portraits still pass through `CSS_APPLY_COSTUME`.
+
+## Bowser cuff colors
+
+The current Bowser sheet lists nine source colors the older costumes do not. `PaletteDeep.replacePaletteHelper` only replaces a listed pair, so a cuff pixel in one of those colors stays the source color.
+
+| Source | Replacement used for a missing pair |
+| --- | --- |
+| `6D4811` | Blend of `A36717` and `4F340C` by source brightness |
+| `352207` | `4F340C` darkened by the source brightness ratio |
+| `605A59`, `3B3635` | `282322` lightened toward white by the source brightness gap |
+| `7FFFC5`, `59B88B`, `397D5D`, `193327` | The gray results above, then `282322`, then `000000` |
+| `4D97FF` | `006AFF` lightened toward white by the source brightness gap |
+
+A pair that already replaces one of the nine stays. A blank slot, where the replacement still equals the source, is filled when the neighbor was recolored. A block whose pairs are all equal to their sources stays as it is. The fighter block copies `420060`, `A99963`, and `DB00BE` from that costume's portrait block when the fighter is missing them, and takes `180101` from `000000`.
+
+That fill was applied once to `Documents/SSF2 Custom Colors/bowser.json`. A launch leaves the file alone when [Online sync](online-sync.md) sees the same vault file size in `localVaultIndexMatches`. Opening the online menu runs `ColorVaultSync.refreshForOnline`.
 
 ## Files
 
