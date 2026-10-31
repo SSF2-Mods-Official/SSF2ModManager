@@ -33,7 +33,7 @@ My Jukebox is the built-in music mod: Options > Sounds, the Stage Select button,
 
 | Function | What it does | Log line |
 | --- | --- | --- |
-| `MusicPlayerMod.onPatchedPlayMusic` | A menu sound with Menu Music enabled plays a track from that playlist. An empty Menu Music list plays stock `menumusic`. An upload or folder track plays locally. Anything else goes to `SoundQueue.playMusicStock` | `[music_player] menu playlist id=`, `[music_player] menu playlist default`, `[music_player] playMusic local step failed`, `[music_player] stock play failed` |
+| `MusicPlayerMod.onPatchedPlayMusic` | A menu sound keeps the menu track already playing. `MenuReplay.keepId` returns that track. Menu Music with songs stays on that song, and an empty list stays on the stock track that was chosen. The song loops. It does not pick another one when it ends. An upload or folder track plays locally. Anything else goes to `SoundQueue.playMusicStock` | `[music_player] menu playlist id=`, `[music_player] menu playlist default`, `[music_player] playMusic local step failed`, `[music_player] stock play failed` |
 | `MusicPlaylistStore.removeSongFromPlaylist` | Removes a Menu Music song even when it is the only one. An empty list writes `enabled` false and clears `id` in `expansions/user/menu-music.json` | `[music_player] menu playlist default` |
 | `MusicPlayerMod.applyBgmVolume` | Writes `SaveData.BGVolumeLevel` and the live music channel. The jukebox slider calls this | `[music_player] volume=` |
 | `MusicModLocalPlayback.playLocalTrack` | Opens the file, transcodes non-Flash MP3 first, and loads it into a `Sound` | `[music_player] local load failed (<id>): <err>`, `[music_player] local play failed: <err>` |
